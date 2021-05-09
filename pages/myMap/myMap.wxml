@@ -1,0 +1,59 @@
+<!--pages/myMap/myMap.wxml-->
+<view class="container">
+  <view class="switch-data">
+    <!-- <button bindtap="nearby_search">搜索周边KFC</button> -->
+    <button bindtap="search_nearby"><text class="normal-text" decode='true'>&lt;</text></button>
+    <!-- <button bindtap="search_nearby">{{date}}</button> -->
+    <button>
+      <picker mode="date" value="{{date}}" start="2021-05-07" end="2022-12-31" bindchange="bindDateChange">{{date}}
+      </picker>
+    </button>
+
+    <button bindtap="load_tomorrow"><text decode='true'>&gt;</text></button>
+  </view>
+  <!-- if tmp date has schedule -->
+  <block wx:if="{{hasSchedule}}">
+    <view class="map">
+      <!--地图容器-->
+      <map id="map" subkey="ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB" markers="{{markers}}" polyline="{{polyline}}"
+        longitude="116.313972" latitude="39.980014" layer-style="3" scale='12'>
+      </map>
+    </view>
+    <view><button bindtap="show_subpage">编辑</button></view>
+  </block>
+
+  <block wx:else>
+    <view class="button-add">
+      <button bindtap="add_schedule">+添加日程+</button>
+    </view>
+  </block>
+
+  <page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
+    close-on-slide-down="{{false}}" custom-style="height:94%" overlay-style="background-color: rgba(255, 255, 255, 0.7)"
+    bind:enter="load_destinations" bind:leave="render_map">
+    <view>
+      <button bindtap="exit_subpage">^^^quit icon^^^</button>
+    </view>
+    <view><text>search_icon</text>
+      <input style="border:1px solid black;" bindinput="getsuggest" value="{{backfill}}"></input>
+    </view>
+    <scroll-view scroll-y="true" style="height: 200rpx;">
+      <!--绑定回填事件-->
+      <view wx:for="{{suggestion}}" wx:key="index">
+        <!--根据需求渲染相应数据-->
+        <!--渲染地址title-->
+        <view style="text-align:center;" bindtap="backfill" id="{{index}}">{{item.title}}</view>
+        <!--渲染详细地址-->
+        <view style="font-size:12px;color:#666;text-align:center;">{{item.addr}}</view>
+      </view>
+    </scroll-view>
+    <block wx:for="{{destinations}}">
+      <view>
+        {{index}}:{{item.title}}
+      </view>
+    </block>
+    <view>
+    </view>
+
+  </page-container>
+</view>

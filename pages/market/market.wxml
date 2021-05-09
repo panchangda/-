@@ -1,0 +1,19 @@
+<!--pages/market/market.wxml-->
+<view class="contaienr">
+  <view><input style="width:70%;border:1px solid black;"></input></view>
+  <view>
+    <picker bindchange="bind_pickerchange" value="{{index}}" range="{{timeRange}}">行程天数：{{timeRange[index]}}</picker>
+  </view>
+  <view>推荐列表</view>
+  <block wx:for="{{recmdList}}" wx:for-index="id" wx:key="id" >
+    <view 
+    bindtap="load_schedule" 
+    data-index="{{id}}">
+      ID:{{item.id}}
+      地点:{{item.desName}}
+      天数:{{item.days}}
+      收藏次数:{{item.recmdTimes}}
+  </view>
+  </block>
+  <button bindtap>test</button>
+</view>

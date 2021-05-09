@@ -1,0 +1,11 @@
+<!--pages/mine/mine.wxml-->
+<view class="container">
+  <open-data type="userNickName"></open-data>
+  <open-data type="userGender"></open-data>
+  <open-data type="userCity"></open-data>
+  <open-data type="userProvince"></open-data>
+  <open-data type="userCountry"></open-data>
+  <open-data type="userAvatarUrl"></open-data>
+  <view><button>分享我的行程</button></view>
+  <view>用户所有日程</view>
+</view>
