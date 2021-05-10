@@ -7,7 +7,7 @@ var qqmapsdk = new QQMapWX({
 Page({
   data: {
     key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
-    hasSchedule: false,
+    hasSchedule: true,
     date: "5月7号",
     showSubPage: false,
     destinations: [{
@@ -22,6 +22,13 @@ Page({
     ]
   },
   onLoad: function () {
+    if(this.data.hasSchedule){
+      this.search_nearby()
+    }else{
+      console.log('shit!!!!!!!!!!!!!!!!!!!')
+    }
+  },
+  onReady:function(){
 
   },
   show_subpage: function () {
