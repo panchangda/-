@@ -4,11 +4,24 @@ var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
 var qqmapsdk = new QQMapWX({
   key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB' // 必填
 });
+const mapSetting = {
+  subkey: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
+  longitude: 116.313972,
+  latitude: 39.980014,
+  scale: 12,
+  layerStyle:2,
+  showLocation: true, 
+};
+// const query = wx.createSelectorQuery()
+// var MapContext = query.select('map')
+var MapContext = wx.createMapContext('map', this);
 Page({
   data: {
+    markers: [],
+    mapSetting: mapSetting,
     key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
     hasSchedule: true,
-    showSelect:false,
+    showSelect: false,
     date: "5月7号",
     showSubPage: false,
     destinations: [{
@@ -23,13 +36,13 @@ Page({
     ]
   },
   onLoad: function () {
-    if(this.data.hasSchedule){
+    if (this.data.hasSchedule) {
       this.search_nearby()
-    }else{
+    } else {
       console.log('shit!!!!!!!!!!!!!!!!!!!')
     }
   },
-  onReady:function(){
+  onReady: function () {
 
   },
   show_subpage: function () {
@@ -61,13 +74,23 @@ Page({
 
         for (var i = 0; i < res.data.length; i++) {
           mks.push({ // 获取返回结果，放到mks数组中
-            title: res.data[i].title,
+            // title: res.data[i].title,
             id: res.data[i].id,
             latitude: res.data[i].location.lat,
             longitude: res.data[i].location.lng,
             iconPath: '../../resources/my_marker.png', //图标路径
             width: 20,
-            height: 20
+            height: 20,
+            callout:{
+              color:'#ffffff',
+              content:'destination description',
+              fontSize:16,
+              padding:10,
+              borderRadius:10,
+              bgColor:'#FF0000',
+              textAlign:'center',
+              display:"BYCLICK"
+            },
           })
         }
         _this.setData({ //设置markers属性，将搜索结果显示在地图中
@@ -76,7 +99,15 @@ Page({
             points: resPoints,
             color: "#DC143C",
             width: 8,
-          }]
+          }],
+          mapSetting: {
+            polyline: [{
+              points: resPoints,
+              color: "#DC143C",
+              width: 8,
+            }],
+          },
+
         })
       },
       fail: function (res) {
@@ -122,7 +153,7 @@ Page({
         }
         _this.setData({ //设置suggestion属性，将关键词搜索结果以列表形式展示
           suggestion: sug,
-          showSelect:true,
+          showSelect: true,
         });
       },
       fail: function (error) {
@@ -133,11 +164,11 @@ Page({
       }
     });
   },
-  add_location:function(){
+  add_location: function () {
     this.setData({
-      suggestion:[],
-      backfill:'',
-      showSelect:false,
+      suggestion: [],
+      backfill: '',
+      showSelect: false,
     })
   },
   add_schedule: function () {
@@ -152,4 +183,19 @@ Page({
       },
     })
   },
+  route_planning:function(e){
+    var longitude = 100;
+    var latitude = 100;
+    for(var i=0;i<this.data.mapSetting.markers.length;i++){
+      if(this.data.mapSetting.markers.id==e.detail){
+        longitude = this.data.mapSetting.markers.longitude;
+        latitude = this.data.mapSetting.markers.latitude;
+      }
+      MapContext.openMapApp({
+      longitude:100,
+      latitude:200,
+      destination:"HELL",
+    })
+  }
+}
 })

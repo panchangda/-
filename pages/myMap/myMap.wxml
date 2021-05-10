@@ -2,21 +2,19 @@
 <view class="container">
   <view class="switch-data">
     <!-- <button bindtap="nearby_search">搜索周边KFC</button> -->
-    <button bindtap="search_nearby"><text class="normal-text" decode='true'>&lt;</text></button>
+    <button bindtap="load_yesterday"><text class="normal-text" decode='true'>&lt;</text></button>
     <!-- <button bindtap="search_nearby">{{date}}</button> -->
     <button>
       <picker mode="date" value="{{date}}" start="2021-05-07" end="2022-12-31" bindchange="bindDateChange">{{date}}
       </picker>
     </button>
-
     <button bindtap="load_tomorrow"><text decode='true'>&gt;</text></button>
   </view>
   <!-- if tmp date has schedule -->
   <block wx:if="{{hasSchedule}}">
     <view class="map">
       <!--地图容器-->
-      <map id="map" subkey="ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB" markers="{{markers}}" polyline="{{polyline}}"
-        longitude="116.313972" latitude="39.980014" layer-style="3" scale='12'>
+      <map id="map" markers="{{markers}}" polyline="polyline" setting="{{mapSetting}}" bindcallouttap="route_planning">
       </map>
     </view>
     <view class="scheduleInfo">行程详细信息显示如：XX之旅 第X天 </view>
