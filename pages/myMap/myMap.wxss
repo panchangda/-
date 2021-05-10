@@ -15,12 +15,17 @@ scroll-view{
 } */
 .switch-data {
   height: 6%;
-  width: 100%;
+  width: 754rpx;
   display:flex;
   flex-direction: row;
   justify-content: space-between;
+  flex-grow:1;
+  flex-shrink:1;
 }
-
+/* 日期按钮不会自动缩小 */
+.button-date{
+  flex-shrink:0;
+}
 .button-add{
   padding-top: 50%;
   display: flex;

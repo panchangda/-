@@ -4,21 +4,23 @@
     <!-- <button bindtap="nearby_search">搜索周边KFC</button> -->
     <button bindtap="load_yesterday"><text class="normal-text" decode='true'>&lt;</text></button>
     <!-- <button bindtap="search_nearby">{{date}}</button> -->
-    <button>
-      <picker mode="date" value="{{date}}" start="2021-05-07" end="2022-12-31" bindchange="bindDateChange">{{date}}
+    <button class="button-date">
+      <picker mode="date" value="{{date}}" bindchange="bindDateChange">{{date}}
       </picker>
     </button>
     <button bindtap="load_tomorrow"><text decode='true'>&gt;</text></button>
   </view>
   <!-- if tmp date has schedule -->
   <block wx:if="{{hasSchedule}}">
-    <view class="map">
+
       <!--地图容器-->
-      <map id="map" markers="{{markers}}" polyline="polyline" setting="{{mapSetting}}" bindcallouttap="route_planning">
+      <!-- markers polyline等属性放在字典中在实机测试中更新后不能自动渲染至map -->
+      <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{markers}}" polyline="{{polyline}}" latitude="{{latitude}}"
+      longitude="{{longitude}}">
       </map>
-    </view>
     <view class="scheduleInfo">行程详细信息显示如：XX之旅 第X天 </view>
     <view><button bindtap="show_subpage">编辑</button></view>
+    <view><button bindtap="route_planning">test</button></view>
   </block>
 
   <block wx:else>
@@ -27,7 +29,8 @@
     </view>
   </block>
 
-  <page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
+</view>
+<page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
     close-on-slide-down="{{false}}" custom-style="height:94%" overlay-style="background-color: rgba(255, 255, 255, 0.7)"
     bind:enter="load_destinations" bind:leave="render_map">
     <view>
@@ -55,6 +58,4 @@
     </block>
     <view>
     </view>
-
   </page-container>
-</view>

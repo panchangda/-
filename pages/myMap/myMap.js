@@ -4,21 +4,23 @@ var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
 var qqmapsdk = new QQMapWX({
   key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB' // 必填
 });
-const mapSetting = {
+var mapSetting = {
   subkey: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
   longitude: 116.313972,
   latitude: 39.980014,
   scale: 12,
-  layerStyle:2,
-  showLocation: true, 
+  layerStyle: 1,
+  showLocation: true,
 };
-// const query = wx.createSelectorQuery()
-// var MapContext = query.select('map')
-var MapContext = wx.createMapContext('map', this);
+// const query = wx.createSelectorQuery();
+// const MapContext = query.select('map');
+// const MapContext = wx.createMapContext('map');
+var util = require('../../utils/util.js');
 Page({
   data: {
-    markers: [],
     mapSetting: mapSetting,
+    markers: [],
+    polyline: [],
     key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
     hasSchedule: true,
     showSelect: false,
@@ -36,14 +38,59 @@ Page({
     ]
   },
   onLoad: function () {
+    var date = util.formatDate(new Date());
+    if (date) {
+      this.setData({
+        date: date
+      })
+    } else {
+      console.log('CANNOT GET DATE!!!!!!')
+    }
+
+    console.log(date);
     if (this.data.hasSchedule) {
       this.search_nearby()
     } else {
       console.log('shit!!!!!!!!!!!!!!!!!!!')
     }
   },
-  onReady: function () {
+  onShow:function(){
 
+  },
+  onReady: function () {
+  },
+  bindDateChange: function (e) {
+    this.setData({
+      date: e.detail.value,
+    });
+    this.load_today();
+    if (this.data.hasSchedule) {
+      this.setData({
+        hasSchedule: false,
+      })
+    } else {
+      this.setData({
+        hasSchedule: true,
+      })
+    }
+  },
+  load_today: function () {
+    //读取数据库中今日Date的数据
+    //设置hasSchedule
+    //如果有记录
+    //设置markers、polyline等
+  },
+  load_yesterday: function () {
+    //获取前一天日期并更改date
+    this.setData({})
+    //使用load_today加载
+    this.load_today()
+  },
+  load_tomorrow: function () {
+    //获取后一天日期并更改date
+    this.setData({})
+    //使用load_today加载
+    this.load_today()
   },
   show_subpage: function () {
     this.setData({
@@ -81,15 +128,15 @@ Page({
             iconPath: '../../resources/my_marker.png', //图标路径
             width: 20,
             height: 20,
-            callout:{
-              color:'#ffffff',
-              content:'destination description',
-              fontSize:16,
-              padding:10,
-              borderRadius:10,
-              bgColor:'#FF0000',
-              textAlign:'center',
-              display:"BYCLICK"
+            callout: {
+              color: '#ffffff',
+              content: 'destination description',
+              fontSize: 16,
+              padding: 10,
+              borderRadius: 10,
+              bgColor: '#FF0000',
+              textAlign: 'center',
+              display: "BYCLICK"
             },
           })
         }
@@ -100,14 +147,6 @@ Page({
             color: "#DC143C",
             width: 8,
           }],
-          mapSetting: {
-            polyline: [{
-              points: resPoints,
-              color: "#DC143C",
-              width: 8,
-            }],
-          },
-
         })
       },
       fail: function (res) {
@@ -183,19 +222,23 @@ Page({
       },
     })
   },
-  route_planning:function(e){
+  route_planning: function (e) {
+    var MapContext = wx.createMapContext('map');
     var longitude = 100;
     var latitude = 100;
-    for(var i=0;i<this.data.mapSetting.markers.length;i++){
-      if(this.data.mapSetting.markers.id==e.detail){
-        longitude = this.data.mapSetting.markers.longitude;
-        latitude = this.data.mapSetting.markers.latitude;
-      }
-      MapContext.openMapApp({
-      longitude:100,
-      latitude:200,
-      destination:"HELL",
+
+    for (var i = 0; i < this.data.markers.length; i++) {
+      if (this.data.markers.id == e.detail) {
+        longitude = this.data.markers.longitude;
+        latitude = this.data.markers.latitude;
+      };
+    }
+    // console.log(MapContext);
+    // console.log(e.detail)
+    MapContext.openMapApp({
+      longitude: 100,
+      latitude: 100,
+      destination: 'HELL',
     })
   }
-}
 })
