@@ -19,6 +19,7 @@
         longitude="116.313972" latitude="39.980014" layer-style="3" scale='12'>
       </map>
     </view>
+    <view>行程详细信息显示如：XX之旅 第X天 </view>
     <view><button bindtap="show_subpage">编辑</button></view>
   </block>
 

@@ -7,7 +7,7 @@
   <view>推荐列表</view>
   <block wx:for="{{recmdList}}" wx:for-index="id" wx:key="id" >
     <view 
-    bindtap="load_schedule" 
+    bindtap="show_schedule" 
     data-index="{{id}}">
       ID:{{item.id}}
       地点:{{item.desName}}

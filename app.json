@@ -1,9 +1,10 @@
 {
   "pages": [
+    "pages/myMap/myMap",
     "pages/mine/mine",
     "pages/market/market",
-    "pages/myMap/myMap",
-    "pages/schedule/schedule"
+    "pages/showSchedule/showSchedule",
+    "pages/addSchedule/addSchedule"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -30,5 +31,6 @@
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
+  "cloud":true,
   "debug": true
 }

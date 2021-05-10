@@ -6,6 +6,12 @@
   <open-data type="userProvince"></open-data>
   <open-data type="userCountry"></open-data>
   <open-data type="userAvatarUrl"></open-data>
-  <view><button>分享我的行程</button></view>
-  <view>用户所有日程</view>
+  <button>分享行程</button>
+  <button>上传到市场</button>
+  <text>下方加载用户所有行程/可滑动</text>
+  <block wx:for="{{mySchedules}}">
+    <view>
+      
+    </view>
+  </block>
 </view>

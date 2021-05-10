@@ -1,0 +1,21 @@
+<!--pages/schedule/schedule.wxml-->
+<view class="container">
+  <view class="switch-data">
+    <!-- <button bindtap="nearby_search">搜索周边KFC</button> -->
+    <button bindtap="search_nearby"><text class="normal-text" decode='true'>&lt;</text></button>
+    <!-- <button bindtap="search_nearby">{{date}}</button> -->
+    <button>
+      第x天
+    </button>
+
+    <button bindtap="load_tomorrow"><text decode='true'>&gt;</text></button>
+
+  </view>
+  <view class="map">
+      <!--地图容器-->
+      <map id="map" subkey="ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB" markers="{{markers}}" polyline="{{polyline}}"
+        longitude="116.313972" latitude="39.980014" layer-style="3" scale='12'>
+      </map>
+    </view>
+    <button>展开详情页</button>
+<view><button>添加至我的日程</button></view></view>

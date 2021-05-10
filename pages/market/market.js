@@ -81,13 +81,13 @@ Page({
       index: e.detail.value
     })
   },
-  load_schedule:function(e){
-    console.log(e)
+  show_schedule:function(e){
+    // console.log(e)
     wx.navigateTo({
-      url: '../schedule/schedule',
+      url: '../showSchedule/showSchedule',
       success:function(res){
         res.eventChannel.emit('acceptDataFromOpenerPage',{data:e.currentTarget.dataset.index})
-      }
+      },
     })
   }
 })

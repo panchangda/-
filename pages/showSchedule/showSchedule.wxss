@@ -1,0 +1,17 @@
+/* pages/showSchedule/showSchedule.wxss */
+/* pages/schedule/schedule.wxss */
+/* 750rpx*1334rpx*/
+#map{
+  width:100%;
+  height:1100rpx;
+}
+/* .normal-text{
+  font-size: 30rpx;
+} */
+.switch-data {
+  height: 6%;
+  width: 100%;
+  display:flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

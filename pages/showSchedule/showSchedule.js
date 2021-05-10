@@ -1,4 +1,4 @@
-// pages/schedule/schedule.js
+// pages/showSchedule/showSchedule.js
 Page({
 
   /**
