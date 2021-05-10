@@ -8,6 +8,7 @@ Page({
   data: {
     key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
     hasSchedule: true,
+    showSelect:false,
     date: "5月7号",
     showSubPage: false,
     destinations: [{
@@ -74,7 +75,7 @@ Page({
           polyline: [{
             points: resPoints,
             color: "#DC143C",
-            width: 2,
+            width: 8,
           }]
         })
       },
@@ -120,7 +121,8 @@ Page({
           });
         }
         _this.setData({ //设置suggestion属性，将关键词搜索结果以列表形式展示
-          suggestion: sug
+          suggestion: sug,
+          showSelect:true,
         });
       },
       fail: function (error) {
@@ -130,6 +132,13 @@ Page({
         console.log(res);
       }
     });
+  },
+  add_location:function(){
+    this.setData({
+      suggestion:[],
+      backfill:'',
+      showSelect:false,
+    })
   },
   add_schedule: function () {
     var currendate = this.data.date

@@ -19,7 +19,7 @@
         longitude="116.313972" latitude="39.980014" layer-style="3" scale='12'>
       </map>
     </view>
-    <view>行程详细信息显示如：XX之旅 第X天 </view>
+    <view class="scheduleInfo">行程详细信息显示如：XX之旅 第X天 </view>
     <view><button bindtap="show_subpage">编辑</button></view>
   </block>
 
@@ -38,7 +38,8 @@
     <view><text>search_icon</text>
       <input style="border:1px solid black;" bindinput="getsuggest" value="{{backfill}}"></input>
     </view>
-    <scroll-view scroll-y="true" style="height: 200rpx;">
+    <button bindtap="add_location">添加</button>
+    <scroll-view scroll-y="true" style="height:{{showSelect?500:0}}rpx;">
       <!--绑定回填事件-->
       <view wx:for="{{suggestion}}" wx:key="index">
         <!--根据需求渲染相应数据-->
@@ -46,6 +47,7 @@
         <view style="text-align:center;" bindtap="backfill" id="{{index}}">{{item.title}}</view>
         <!--渲染详细地址-->
         <view style="font-size:12px;color:#666;text-align:center;">{{item.addr}}</view>
+        <button bindtap="show_onMap">icon在地图上显示</button>
       </view>
     </scroll-view>
     <block wx:for="{{destinations}}">

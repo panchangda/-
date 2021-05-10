@@ -15,5 +15,4 @@
       收藏次数:{{item.recmdTimes}}
   </view>
   </block>
-  <button bindtap>test</button>
 </view>
