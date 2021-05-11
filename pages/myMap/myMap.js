@@ -1,3 +1,5 @@
+//引入util类计算日期
+var util = require('../../utils/util.js');
 // 引入SDK核心类
 var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
 // 实例化API核心类
@@ -6,25 +8,32 @@ var qqmapsdk = new QQMapWX({
 });
 var mapSetting = {
   subkey: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
-  longitude: 116.313972,
-  latitude: 39.980014,
+  longitude: 106.301919,
+  latitude: 29.603818,
   scale: 12,
   layerStyle: 1,
   showLocation: true,
 };
+const milSecsInOneDay = 24 * 60 * 60 * 1000;
 // const query = wx.createSelectorQuery();
 // const MapContext = query.select('map');
 // const MapContext = wx.createMapContext('map');
-var util = require('../../utils/util.js');
 Page({
   data: {
+    //map data
     mapSetting: mapSetting,
     markers: [],
     polyline: [],
-    key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
-    hasSchedule: true,
+    title: '',
+    dest: '',
+    tmpDay: 0,
+
+    //date info
+    hasSchedule: false,
+    date: "",
+
+    //subPage data
     showSelect: false,
-    date: "5月7号",
     showSubPage: false,
     destinations: [{
         title: '湖滨银泰'
@@ -47,48 +56,111 @@ Page({
       console.log('CANNOT GET DATE!!!!!!')
     }
 
-    console.log(date);
-    if (this.data.hasSchedule) {
-      this.search_nearby()
-    } else {
-      console.log('shit!!!!!!!!!!!!!!!!!!!')
-    }
-  },
-  onShow:function(){
+    this.load_today()
 
   },
-  onReady: function () {
-  },
-  bindDateChange: function (e) {
+  onShow: function () {},
+  onReady: function () {},
+  bindPickerDateChange: function (e) {
     this.setData({
       date: e.detail.value,
     });
     this.load_today();
-    if (this.data.hasSchedule) {
-      this.setData({
-        hasSchedule: false,
-      })
-    } else {
-      this.setData({
-        hasSchedule: true,
-      })
-    }
   },
   load_today: function () {
     //读取数据库中今日Date的数据
     //设置hasSchedule
     //如果有记录
     //设置markers、polyline等
+    wx.cloud.callFunction({
+      name: 'findTodaySchedule',
+      data: {
+        dateString: JSON.stringify(this.data.date)
+        //+" 00:00:00.000"
+      },
+      success: res => {
+        console.log(res)
+        if (res.result.list.length) {
+          var markerPoints = [];
+          var polyLinesPoints = [];
+          for (var i = 0; i < res.result.list[0].locs.coordinates.length; i++) {
+            markerPoints.push({
+              id:i,
+              longitude: res.result.list[0].locs.coordinates[i][0],
+              latitude: res.result.list[0].locs.coordinates[i][1],
+              width: 40,
+              height: 40,
+              iconPath: '../../resources/my_marker.png', //图标路径
+              callout: {
+                color: '#ffffff',
+                content: 'description',
+                fontSize: 16,
+                padding: 10,
+                borderRadius: 10,
+                bgColor: '#FF0000',
+                textAlign: 'center',
+                display: "BYCLICK"
+              },
+            })
+            polyLinesPoints.push({
+              longitude: res.result.list[0].locs.coordinates[i][0],
+              latitude: res.result.list[0].locs.coordinates[i][1],
+              iconPath: '../../resources/my_marker.png', //图标路径
+              width: 20,
+              height: 20,
+              
+            })
+          }
+          this.setData({
+            hasSchedule:true,
+            title:res.result.list[0].title,   
+            dest:res.result.list[0].dest,
+            tmpDay:res.result.list[0].dayNmb,
+            markers:markerPoints,
+            polyline:[{
+              points: polyLinesPoints,
+              color: "#DC143C",
+              width: 8,
+            }],
+
+          })
+        } else {
+          this.setData({
+            hasSchedule: false,
+          })
+        }
+      },
+      fail: err => {
+        console.log('ERROR!!!!!CANNOT GET RESULT OF findTodaySchedule')
+        console.log(err)
+      }
+    })
   },
   load_yesterday: function () {
     //获取前一天日期并更改date
-    this.setData({})
+    //Date.parse():静态方法 转换为毫秒数 
+    //dataobj.setTime():动态方法 用毫秒设定Date
+    let secs = Date.parse(this.data.date) - milSecsInOneDay;
+    let d = new Date();
+    d.setTime(secs);
+    let yesterDate = util.formatDate(d)
+    // var yesterDate = util.formatDate(new Date(this.data.date))
+    // console.log(yesterDate)
+    this.setData({
+      date:yesterDate
+    })
     //使用load_today加载
     this.load_today()
   },
   load_tomorrow: function () {
     //获取后一天日期并更改date
-    this.setData({})
+    let secs = Date.parse(this.data.date) + milSecsInOneDay;
+    let d = new Date();
+    d.setTime(secs);
+    let tomorrowDate = util.formatDate(d)
+    this.setData({
+      date:tomorrowDate
+    })
     //使用load_today加载
     this.load_today()
   },
@@ -101,61 +173,6 @@ Page({
     this.setData({
       showSubPage: false
     })
-  },
-  // 事件触发，调用接口
-  search_nearby: function () {
-    var _this = this;
-    // 调用接口
-    qqmapsdk.search({
-      keyword: 'kfc', //搜索关键词
-      location: '39.980014,116.313972', //设置周边搜索中心点
-      success: function (res) { //搜索成功后的回调
-        var mks = []
-        var resPoints = []
-        for (var i = 0; i < res.data.length; i++) {
-          resPoints.push({
-            latitude: res.data[i].location.lat,
-            longitude: res.data[i].location.lng
-          })
-        }
-
-        for (var i = 0; i < res.data.length; i++) {
-          mks.push({ // 获取返回结果，放到mks数组中
-            // title: res.data[i].title,
-            id: res.data[i].id,
-            latitude: res.data[i].location.lat,
-            longitude: res.data[i].location.lng,
-            iconPath: '../../resources/my_marker.png', //图标路径
-            width: 20,
-            height: 20,
-            callout: {
-              color: '#ffffff',
-              content: 'destination description',
-              fontSize: 16,
-              padding: 10,
-              borderRadius: 10,
-              bgColor: '#FF0000',
-              textAlign: 'center',
-              display: "BYCLICK"
-            },
-          })
-        }
-        _this.setData({ //设置markers属性，将搜索结果显示在地图中
-          markers: mks,
-          polyline: [{
-            points: resPoints,
-            color: "#DC143C",
-            width: 8,
-          }],
-        })
-      },
-      fail: function (res) {
-        console.log(res);
-      },
-      complete: function (res) {
-        //  console.log(res);
-      }
-    });
   },
   backfill: function (e) {
     var id = e.currentTarget.id;

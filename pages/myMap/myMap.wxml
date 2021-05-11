@@ -5,20 +5,19 @@
     <button bindtap="load_yesterday"><text class="normal-text" decode='true'>&lt;</text></button>
     <!-- <button bindtap="search_nearby">{{date}}</button> -->
     <button class="button-date">
-      <picker mode="date" value="{{date}}" bindchange="bindDateChange">{{date}}
+      <picker mode="date" value="{{date}}" bindchange="bindPickerDateChange">{{date}}
       </picker>
     </button>
     <button bindtap="load_tomorrow"><text decode='true'>&gt;</text></button>
   </view>
+
   <!-- if tmp date has schedule -->
   <block wx:if="{{hasSchedule}}">
-
       <!--地图容器-->
-      <!-- markers polyline等属性放在字典中在实机测试中更新后不能自动渲染至map -->
-      <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{markers}}" polyline="{{polyline}}" latitude="{{latitude}}"
-      longitude="{{longitude}}">
+      <!-- 若将markers polyline等属性放在setting字典中: 实机测试时更新后不能自动渲染至map -->
+      <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{markers}}" polyline="{{polyline}}">
       </map>
-    <view class="scheduleInfo">行程详细信息显示如：XX之旅 第X天 </view>
+    <view class="scheduleInfo">{{dest}} {{title}} 第{{tmpDay+1}}天 </view>
     <view><button bindtap="show_subpage">编辑</button></view>
     <view><button bindtap="route_planning">test</button></view>
   </block>

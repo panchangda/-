@@ -25,7 +25,24 @@ Page({
       }
     ]
   },
-
+  add_schedule:function(){
+    individualCollection.add({
+      data:{
+        title:"魔都之旅",
+        days:"3天",
+        dest:"上海",
+        locations: [{
+          loc:new db.Geo.Point(113, 23),
+          serialNmb:1,
+        }]
+      },
+      success: function(res) {
+        // res 是一个对象，其中有 _id 字段标记刚创建的记录的 id
+        console.log(res)
+      },
+      fail: console.error
+    })
+  },
   /**
    * 生命周期函数--监听页面加载
    */
@@ -110,7 +127,6 @@ Page({
       }
     }
   },
-
   //触发关键词输入提示事件
   getsuggest: function (e) {
     var _this = this;
