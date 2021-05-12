@@ -1,3 +1,5 @@
+//async
+import regeneratorRuntime from '../../libs/runtime';
 //引入util类计算日期
 var util = require('../../utils/util.js');
 // 引入SDK核心类
@@ -29,7 +31,8 @@ Page({
     tmpDay: 0,
 
     //date info
-    hasSchedule: false,
+    //无法讲onload与load_today同步 为了防止出现用户在有日期的情况下点击+ 所以将hasSchedule置为true
+    hasSchedule: true,
     date: "",
 
     //subPage data
@@ -56,8 +59,88 @@ Page({
       console.log('CANNOT GET DATE!!!!!!')
     }
 
-    this.load_today()
+    this.load(date)
+    // this.load_today()
 
+  },
+  async load(date) {
+    let res = await wx.cloud.callFunction({
+      name: 'findTodaySchedule',
+      data: {
+        dateString: JSON.stringify(date)
+        //+" 00:00:00.000"
+      },
+    })
+    // console.log(res)
+    if (res.result && res.result.list.length) {
+      let markerPoints = [];
+      let polyLinesPoints = [];
+      for (var i = 0; i < res.result.list[0].locs.coordinates.length; i++) {
+        let addrDescrip = await this.getAddrDescrip(res.result.list[0].locs.coordinates[i][0], res.result.list[0].locs.coordinates[i][1])
+        markerPoints.push({
+          id: i,
+          longitude: res.result.list[0].locs.coordinates[i][0],
+          latitude: res.result.list[0].locs.coordinates[i][1],
+          width: 40,
+          height: 40,
+          iconPath: '../../resources/my_marker.png', //图标路径
+          callout: {
+            color: '#ffffff',
+            content: addrDescrip.result.address,
+            fontSize: 20,
+            padding: 10,
+            borderRadius: 10,
+            bgColor: '#FF0000',
+            textAlign: 'center',
+            display: "BYCLICK"
+          },
+        })
+
+        polyLinesPoints.push({
+          longitude: res.result.list[0].locs.coordinates[i][0],
+          latitude: res.result.list[0].locs.coordinates[i][1],
+          iconPath: '../../resources/my_marker.png', //图标路径
+          width: 20,
+          height: 20,
+
+        })
+      }
+      this.setData({
+        hasSchedule: true,
+        title: res.result.list[0].title,
+        dest: res.result.list[0].dest,
+        tmpDay: res.result.list[0].dayNmb,
+        markers: markerPoints,
+        polyline: [{
+          points: polyLinesPoints,
+          color: "#DC143C",
+          width: 8,
+        }],
+      })
+    } else {
+      this.setData({
+        hasSchedule: false
+      })
+    }
+
+  },
+  getAddrDescrip: function (longitude, latitude) {
+    return new Promise((resolve, reject) => {
+      qqmapsdk.reverseGeocoder({
+        location: {
+          longitude: longitude,
+          latitude: latitude,
+        },
+        success: res => {
+          console.log('@@@resolved',res)
+          resolve(res)
+        },
+        fail: err => {
+          console.log('@@@rejected',err)
+          reject(err)
+        }
+      })
+    })
   },
   onShow: function () {},
   onReady: function () {},
@@ -65,10 +148,10 @@ Page({
     this.setData({
       date: e.detail.value,
     });
-    this.load_today();
+    this.load_today(e.detail.value);
   },
   load_today: function () {
-    //读取数据库中今日Date的数据
+    //读取数据库中Date日期当天的数据
     //设置hasSchedule
     //如果有记录
     //设置markers、polyline等
@@ -81,11 +164,26 @@ Page({
       success: res => {
         console.log(res)
         if (res.result.list.length) {
-          var markerPoints = [];
-          var polyLinesPoints = [];
-          for (var i = 0; i < res.result.list[0].locs.coordinates.length; i++) {
+          let markerPoints = [];
+          let polyLinesPoints = [];
+          let callbackFinished = 0;
+          //使用let声明i i当前值被传入回调函数 使用var i声明i 回调函数的i都取的是最后一个值
+          for (let i = 0; i < res.result.list[0].locs.coordinates.length; i++) {
+            //使用qqMapSDK逆地址解析出坐标地址描述
+            qqmapsdk.reverseGeocoder({
+              location: {
+                longitude: res.result.list[0].locs.coordinates[i][0],
+                latitude: res.result.list[0].locs.coordinates[i][1],
+              },
+              //回调参数不能与上一级的res重名
+              // success: reverseRes => {
+              // },
+              // fail:err=>{
+              //   console.error(err)
+              // }
+            })
             markerPoints.push({
-              id:i,
+              id: i,
               longitude: res.result.list[0].locs.coordinates[i][0],
               latitude: res.result.list[0].locs.coordinates[i][1],
               width: 40,
@@ -93,8 +191,8 @@ Page({
               iconPath: '../../resources/my_marker.png', //图标路径
               callout: {
                 color: '#ffffff',
-                content: 'description',
-                fontSize: 16,
+                content: reverseRes.result.address,
+                fontSize: 20,
                 padding: 10,
                 borderRadius: 10,
                 bgColor: '#FF0000',
@@ -102,28 +200,33 @@ Page({
                 display: "BYCLICK"
               },
             })
+
             polyLinesPoints.push({
               longitude: res.result.list[0].locs.coordinates[i][0],
               latitude: res.result.list[0].locs.coordinates[i][1],
               iconPath: '../../resources/my_marker.png', //图标路径
               width: 20,
               height: 20,
-              
-            })
-          }
-          this.setData({
-            hasSchedule:true,
-            title:res.result.list[0].title,   
-            dest:res.result.list[0].dest,
-            tmpDay:res.result.list[0].dayNmb,
-            markers:markerPoints,
-            polyline:[{
-              points: polyLinesPoints,
-              color: "#DC143C",
-              width: 8,
-            }],
 
-          })
+            })
+
+            //最后一次回调后setData
+            this.setData({
+              hasSchedule: true,
+              title: res.result.list[0].title,
+              dest: res.result.list[0].dest,
+              tmpDay: res.result.list[0].dayNmb,
+              markers: markerPoints,
+              polyline: [{
+                points: polyLinesPoints,
+                color: "#DC143C",
+                width: 8,
+              }],
+            })
+
+
+          }
+
         } else {
           this.setData({
             hasSchedule: false,
@@ -147,7 +250,7 @@ Page({
     // var yesterDate = util.formatDate(new Date(this.data.date))
     // console.log(yesterDate)
     this.setData({
-      date:yesterDate
+      date: yesterDate
     })
     //使用load_today加载
     this.load_today()
@@ -159,7 +262,7 @@ Page({
     d.setTime(secs);
     let tomorrowDate = util.formatDate(d)
     this.setData({
-      date:tomorrowDate
+      date: tomorrowDate
     })
     //使用load_today加载
     this.load_today()
@@ -241,8 +344,6 @@ Page({
   },
   route_planning: function (e) {
     var MapContext = wx.createMapContext('map');
-    var longitude = 100;
-    var latitude = 100;
 
     for (var i = 0; i < this.data.markers.length; i++) {
       if (this.data.markers.id == e.detail) {
@@ -257,5 +358,5 @@ Page({
       latitude: 100,
       destination: 'HELL',
     })
-  }
+  },
 })
