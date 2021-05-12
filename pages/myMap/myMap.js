@@ -1,5 +1,5 @@
 //在es6转es5的同时 使用async/await新特性
-import regeneratorRuntime from '../../libs/runtime';
+// import regeneratorRuntime from '../../libs/runtime';
 //引入util类计算日期
 var util = require('../../utils/util.js');
 // 引入SDK核心类
@@ -36,18 +36,11 @@ Page({
 
     //subPage data
     showSelect: false,
-    showSubPage: true,
-    destinations: [{
-        title: '湖滨银泰'
-      },
-      {
-        title: '西湖'
-      },
-      {
-        title: 'ZJU'
-      }
-    ]
+    showSubPage: false,
+
   },
+
+  //天才般的同步处理
   onLoad: function () {
     var date = util.formatDate(new Date());
     if (date) {
@@ -58,11 +51,11 @@ Page({
       console.log('CANNOT GET DATE!!!!!!')
     }
 
-    // this.load_today(date)
+    this.load_today(date)
   },
   onShow: function () {},
   onReady: function () {},
-  async load(date) {
+  async load_today(date) {
     let res = await wx.cloud.callFunction({
       name: 'findTodaySchedule',
       data: {

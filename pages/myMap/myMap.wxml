@@ -32,7 +32,9 @@
 <page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
     close-on-slide-down="{{false}}" custom-style="height:94%" overlay-style="background-color: rgba(255, 255, 255, 0.7)"
     bind:enter="load_destinations" bind:leave="render_map">
+
     <view class="pullDownButton" bindtap="exit_subpage">^^^</view>
+
     <view class="searchBlock">
       <view class="searchIcon">Icon</view>
       <input class="inputForm" bindinput="getsuggest" value="{{backfill}}" placeholder="请输入想去的地点"></input>
@@ -50,9 +52,10 @@
         <view bindtap="show_onMap">Icon</view>
       </view>
     </scroll-view>
-    <block wx:for="{{destinations}}">
+
+    <block wx:for="{{markers}}">
       <view>
-        {{index}}:{{item.title}}
+        {{index+1}}:{{item.callout.content}}
       </view>
     </block>
     <view>
