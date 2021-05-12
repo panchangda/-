@@ -1,5 +1,5 @@
 //在es6转es5的同时 使用async/await新特性
-// import regeneratorRuntime from '../../libs/runtime';
+import regeneratorRuntime from '../../libs/runtime';
 //引入util类计算日期
 var util = require('../../utils/util.js');
 // 引入SDK核心类
@@ -31,9 +31,12 @@ Page({
     tmpDay: 0,
 
     //date info
-    hasSchedule: true,
+    hasSchedule: false,
     date: "",
-
+    //mainPage data
+    showCalendar:false,
+    // minCalendarDate:'2021-5-7',
+    // defaultCalendarDate:util.formatDate()
     //subPage data
     showSelect: false,
     showSubPage: false,
@@ -52,10 +55,14 @@ Page({
     }
 
     this.load_today(date)
+
   },
   onShow: function () {},
   onReady: function () {},
   async load_today(date) {
+    wx.showLoading({
+      title: '加载中',
+    })
     let res = await wx.cloud.callFunction({
       name: 'findTodaySchedule',
       data: {
@@ -76,6 +83,11 @@ Page({
           width: 40,
           height: 40,
           iconPath: '../../resources/my_marker.png', //图标路径
+          customCallout: { //自定义气泡
+            display: "ALWAYS", //显示方式，可选值BYCLICK
+            anchorX: 0, //横向偏移
+            anchorY: 0,
+          },
           callout: {
             color: '#ffffff',
             content: addrDescrip.result.address,
@@ -109,12 +121,13 @@ Page({
           width: 8,
         }],
       })
+  
     } else {
       this.setData({
         hasSchedule: false
       })
     }
-
+    wx.hideLoading()
   },
   getAddrDescrip: function (longitude, latitude) {
     return new Promise((resolve, reject) => {
@@ -124,24 +137,26 @@ Page({
           latitude: latitude,
         },
         success: res => {
-          console.log('@@@resolved',res)
+          console.log('@@@resolved', res)
           resolve(res)
         },
         fail: err => {
-          console.log('@@@rejected',err)
+          console.log('@@@rejected', err)
           reject(err)
         }
       })
     })
   },
-
-  bindPickerDateChange: function (e) {
-    this.setData({
-      date: e.detail.value,
-    });
-    this.load_today(e.detail.value);
+  onCalendarDisplay(){
+    this.setData({ showCalendar: true });
   },
-  
+  onCalendarClose(){
+    this.setData({ showCalendar: false });
+  },
+  onCalendarConfirm(e){
+    this.setData({ showCalendar: false,date:util.formatDate(e.detail)});
+    this.load_today(this.data.date)
+  },
   load_yesterday: function () {
     //获取前一天日期并更改date
     //Date.parse():静态方法 转换为毫秒数 
@@ -170,34 +185,20 @@ Page({
     //使用load_today加载
     this.load_today(tomorrowDate)
   },
-  show_subpage: function () {
-    this.setData({
-      showSubPage: true
-    })
+  show_subpage() {
+    this.setData({showSubPage: true})
   },
-  exit_subpage: function () {
-    this.setData({
-      showSubPage: false
-    })
-  },
-  backfill: function (e) {
-    var id = e.currentTarget.id;
-    for (var i = 0; i < this.data.suggestion.length; i++) {
-      if (i == id) {
-        this.setData({
-          backfill: this.data.suggestion[i].title
-        });
-      }
-    }
+  exit_subpage() {
+    this.setData({showSubPage: false})
   },
 
   //触发关键词输入提示事件
-  getsuggest: function (e) {
+  get_suggestion: function (e) {
     var _this = this;
     //调用关键词提示接口
     qqmapsdk.getSuggestion({
       //获取输入框值并设置keyword参数
-      keyword: e.detail.value, //用户输入的关键词，可设置固定值,如keyword:'KFC'
+      keyword: e.detail, //用户输入的关键词，可设置固定值,如keyword:'KFC'
       //region:'北京', //设置城市名，限制关键词所示的地域范围，非必填参数
       success: function (res) { //搜索成功后的回调
         console.log(res);
@@ -226,13 +227,22 @@ Page({
       }
     });
   },
-  add_location: function () {
-    this.setData({
-      suggestion: [],
-      backfill: '',
-      showSelect: false,
-    })
+  clear_search(){
+    this.setData({suggestion: [], chosenLocation: '',showSelect:false})
   },
+  add_location(e) {
+    var id = e.currentTarget.id;
+    for (var i = 0; i < this.data.suggestion.length; i++) {
+      if (i == id) {
+        this.setData({
+          chosenLocation: this.data.suggestion[i].title
+        });
+      }
+    }
+    //加入到目的地数组
+    this.setData({showSelect: false,})
+  },
+
   add_schedule: function () {
     var currendate = this.data.date
     console.log(currendate)

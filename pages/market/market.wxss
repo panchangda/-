@@ -1,1 +1,29 @@
 /* pages/market/market.wxss */
+.searchBlock{
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+}
+.searchIcon{
+  display:inline-block;
+}
+
+.inputForm{
+  display:inline-block;
+  border-radius: 30rpx;
+  border:1rpx solid black;
+  border-left:1rpx solid white;
+  /* height: 2rem;
+  min-height: 2rem; */
+  width:600rpx;
+}
+
+.pickerBlock{
+  display: flex;
+  justify-content: center;
+}
+.destBlock{
+  display:flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}

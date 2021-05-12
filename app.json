@@ -1,8 +1,8 @@
 {
   "pages": [
     "pages/myMap/myMap",
-    "pages/mine/mine",
     "pages/market/market",
+    "pages/mine/mine",
     "pages/showSchedule/showSchedule",
     "pages/addSchedule/addSchedule"
   ],
@@ -29,8 +29,17 @@
       "text": "我的"
     }]
   },
-  "style": "v2",
   "sitemapLocation": "sitemap.json",
   "cloud":true,
-  "debug": true
+  "debug": true,
+  "usingComponents": {
+    "van-cell": "@vant/weapp/cell/index",
+    "van-calendar": "@vant/weapp/calendar/index",
+    "van-search": "@vant/weapp/search/index",
+    "van-icon": "@vant/weapp/icon/index",
+
+    "wux-icon": "wux-weapp/icon/index",
+    "wux-timeline": "wux-weapp/timeline/index",
+    "wux-timeline-item": "wux-weapp/timeline-item/index"
+  }
 }

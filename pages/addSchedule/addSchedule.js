@@ -33,7 +33,7 @@ Page({
         dest:"上海",
         locations: [{
           loc:new db.Geo.Point(113, 23),
-          serialNmb:1,
+          type:''
         }]
       },
       success: function(res) {

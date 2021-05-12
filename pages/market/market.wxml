@@ -1,18 +1,23 @@
 <!--pages/market/market.wxml-->
 <view class="contaienr">
-  <view><input style="width:70%;border:1px solid black;"></input></view>
-  <view>
+  <view class="searchBlock">
+  <view class="searchIcon">Icon</view>
+  <input class="inputForm" bindtap="getsuggest" placeholder="输入目的地">
+  </input>
+  </view>
+  <view class="pickerBlock">
     <picker bindchange="bind_pickerchange" value="{{index}}" range="{{timeRange}}">行程天数：{{timeRange[index]}}</picker>
   </view>
-  <view>推荐列表</view>
+  <button>筛选</button>
+
+  <view class="container">
   <block wx:for="{{recmdList}}" wx:for-index="id" wx:key="id" >
-    <view 
-    bindtap="show_schedule" 
-    data-index="{{id}}">
-      ID:{{item.id}}
-      地点:{{item.desName}}
-      天数:{{item.days}}
-      收藏次数:{{item.recmdTimes}}
+    <view class="destBlock" data-index="{{id}}">
+    <view>{{item.dest}}</view>
+    <view>{{item.days}}天</view>
+    <view>收藏次数:{{item.addedTimes}}</view>
+    <view bindtap="show_schedule">MapIcon</view> 
   </view>
   </block>
+  </view>
 </view>

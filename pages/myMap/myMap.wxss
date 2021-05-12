@@ -8,26 +8,27 @@ scroll-view{
 
 #map{
   width:100%;
-  height:1150rpx;
+  height:1100rpx;
 }
 /* .normal-text{
   font-size: 30rpx;
 } */
-.switch-data {
-  height: 84rpx;
+.switch-date{
+  height:6%;
   width: 754rpx;
   display:flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   flex-grow:1;
-  flex-shrink:1;
 }
 /* 日期按钮不会自动缩小 */
-.button-date{
-  flex-shrink:0;
+.date{
+  color:black;
+  font-size: 20rpx;
 }
 .button-add{
-  padding-top: 50%;
+  height:rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,18 +40,34 @@ scroll-view{
   background-color: grey;
   text-align: left;
 }
-
+.icon-on-left{
+  position:absolute;
+  z-index:100;
+  top:40%;
+  left:0rpx;
+}
+.icon-on-right{
+  position:absolute;
+  z-index:100;
+  top:45%;
+  right:0rpx;
+}
 .pullUpButton{
   position:absolute;
   left:275rpx;
-  bottom:50rpx;
+  bottom:100rpx;
   z-index:100;
   width:200rpx;
   height:50rpx;
   background-color: white;
   text-align: center;
 }
+.customCallout{
+  color:aqua;
+  font-size: 14px;
+}
 
+/* 下面是page-container的css */
 .pullDownButton{
   background-color: white;
   text-align: center;
@@ -61,6 +78,7 @@ scroll-view{
   flex-direction: row;
   align-items: center;
 }
+
 .searchIcon{
   display:inline-block;
 }
@@ -75,7 +93,7 @@ scroll-view{
   width:600rpx;
 }
 
-.searchResults{
+.search-results{
   display:flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -84,10 +102,12 @@ scroll-view{
   flex-grow:0;
   flex-shrink:0;
 }
-.fontResult{
+
+.font-results{
   display:flex;
   flex-direction: column;
   flex-wrap:wrap;
   flex-grow:1;
   flex-shrink:1;
 }
+
