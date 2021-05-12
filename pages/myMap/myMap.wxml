@@ -1,7 +1,9 @@
 <!--pages/myMap/myMap.wxml-->
 <view class="container">
   <view class="switch-date">
+    <image src="./resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
     <van-cell class="date" value="{{ date }}" bind:click="onCalendarDisplay" />
+      <image src="./resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
     <van-calendar show="{{showCalendar}}" show-confirm="{{ false }}" bind:close="onCalendarClose"
       bind:confirm="onCalendarConfirm" show-mark="{{true}}" position="top" />
   </view>
@@ -18,6 +20,7 @@
     <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{markers}}"
       polyline="{{polyline}}">
       <cover-view slot="callout">
+      <!-- 绑定marker-id -->
         <cover-view wx:for="{{markers}}" marker-id="{{item.id}}" class="customCallout">{{item.id}}</cover-view>
       </cover-view>
       <cover-view></cover-view>

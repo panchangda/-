@@ -1,7 +1,7 @@
 {
   "pages": [
     "pages/myMap/myMap",
-    "pages/market/market",
+    "pages/discover/discover",
     "pages/mine/mine",
     "pages/showSchedule/showSchedule",
     "pages/addSchedule/addSchedule"
@@ -14,19 +14,24 @@
     "navigationStyle": "default"
   },
   "tabBar": {
-    "selectedColor": "",
-    "borderStyle": "white",
+    "color": "#808080",
+      "selectedColor": "#6e9eea",
+    "borderStyle": "black",
     "list": [{
       "pagePath": "pages/myMap/myMap",
       "text": "日程",
-      "iconPath": "/resources/my_marker.png",
-      "selectedIconPath": "/resources/my_marker.png"
+      "iconPath": "/resources/map.png",
+      "selectedIconPath": "/resources/map-selected.png"
     }, {
-      "pagePath": "pages/market/market",
-      "text": "市场"
+      "pagePath": "pages/discover/discover",
+      "text": "发现",
+      "iconPath": "/resources/discover.png",
+      "selectedIconPath": "/resources/discover-selected.png"
     }, {
       "pagePath": "pages/mine/mine",
-      "text": "我的"
+      "text": "个人",
+      "iconPath": "/resources/user.png",
+      "selectedIconPath": "/resources/user-selected.png"
     }]
   },
   "sitemapLocation": "sitemap.json",

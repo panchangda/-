@@ -80,23 +80,13 @@ Page({
           id: i,
           longitude: res.result.list[0].locs.coordinates[i][0],
           latitude: res.result.list[0].locs.coordinates[i][1],
-          width: 40,
-          height: 40,
-          iconPath: '../../resources/my_marker.png', //图标路径
+          width: 60,
+          height: 60,
+          iconPath: '../../resources/marker.png', //图标路径
           customCallout: { //自定义气泡
             display: "ALWAYS", //显示方式，可选值BYCLICK
             anchorX: 0, //横向偏移
-            anchorY: 0,
-          },
-          callout: {
-            color: '#ffffff',
-            content: addrDescrip.result.address,
-            fontSize: 20,
-            padding: 10,
-            borderRadius: 10,
-            bgColor: '#FF0000',
-            textAlign: 'center',
-            display: "BYCLICK"
+            anchorY: 20,
           },
         })
 
