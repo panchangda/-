@@ -8,13 +8,13 @@ scroll-view{
 
 #map{
   width:100%;
-  height:1100rpx;
+  height:1150rpx;
 }
 /* .normal-text{
   font-size: 30rpx;
 } */
 .switch-data {
-  height: 6%;
+  height: 84rpx;
   width: 754rpx;
   display:flex;
   flex-direction: row;
@@ -34,9 +34,60 @@ scroll-view{
 }
 
 .scheduleInfo{
+  width:100%;
+  height:50rpx;
+  background-color: grey;
+  text-align: left;
+}
+
+.pullUpButton{
   position:absolute;
-  left:20rpx;
-  bottom:100rpx;
+  left:275rpx;
+  bottom:50rpx;
   z-index:100;
+  width:200rpx;
+  height:50rpx;
   background-color: white;
+  text-align: center;
+}
+
+.pullDownButton{
+  background-color: white;
+  text-align: center;
+}
+
+.searchBlock{
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+}
+.searchIcon{
+  display:inline-block;
+}
+
+.inputForm{
+  display:inline-block;
+  border-radius: 30rpx;
+  border:1rpx solid black;
+  border-left:1rpx solid white;
+  /* height: 2rem;
+  min-height: 2rem; */
+  width:600rpx;
+}
+
+.searchResults{
+  display:flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-start;
+  text-align: center;
+  flex-grow:0;
+  flex-shrink:0;
+}
+.fontResult{
+  display:flex;
+  flex-direction: column;
+  flex-wrap:wrap;
+  flex-grow:1;
+  flex-shrink:1;
 }

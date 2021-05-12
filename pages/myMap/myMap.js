@@ -1,4 +1,4 @@
-//async
+//在es6转es5的同时 使用async/await新特性
 import regeneratorRuntime from '../../libs/runtime';
 //引入util类计算日期
 var util = require('../../utils/util.js');
@@ -31,13 +31,12 @@ Page({
     tmpDay: 0,
 
     //date info
-    //无法讲onload与load_today同步 为了防止出现用户在有日期的情况下点击+ 所以将hasSchedule置为true
     hasSchedule: true,
     date: "",
 
     //subPage data
     showSelect: false,
-    showSubPage: false,
+    showSubPage: true,
     destinations: [{
         title: '湖滨银泰'
       },
@@ -59,10 +58,10 @@ Page({
       console.log('CANNOT GET DATE!!!!!!')
     }
 
-    this.load(date)
-    // this.load_today()
-
+    // this.load_today(date)
   },
+  onShow: function () {},
+  onReady: function () {},
   async load(date) {
     let res = await wx.cloud.callFunction({
       name: 'findTodaySchedule',
@@ -142,103 +141,14 @@ Page({
       })
     })
   },
-  onShow: function () {},
-  onReady: function () {},
+
   bindPickerDateChange: function (e) {
     this.setData({
       date: e.detail.value,
     });
     this.load_today(e.detail.value);
   },
-  load_today: function () {
-    //读取数据库中Date日期当天的数据
-    //设置hasSchedule
-    //如果有记录
-    //设置markers、polyline等
-    wx.cloud.callFunction({
-      name: 'findTodaySchedule',
-      data: {
-        dateString: JSON.stringify(this.data.date)
-        //+" 00:00:00.000"
-      },
-      success: res => {
-        console.log(res)
-        if (res.result.list.length) {
-          let markerPoints = [];
-          let polyLinesPoints = [];
-          let callbackFinished = 0;
-          //使用let声明i i当前值被传入回调函数 使用var i声明i 回调函数的i都取的是最后一个值
-          for (let i = 0; i < res.result.list[0].locs.coordinates.length; i++) {
-            //使用qqMapSDK逆地址解析出坐标地址描述
-            qqmapsdk.reverseGeocoder({
-              location: {
-                longitude: res.result.list[0].locs.coordinates[i][0],
-                latitude: res.result.list[0].locs.coordinates[i][1],
-              },
-              //回调参数不能与上一级的res重名
-              // success: reverseRes => {
-              // },
-              // fail:err=>{
-              //   console.error(err)
-              // }
-            })
-            markerPoints.push({
-              id: i,
-              longitude: res.result.list[0].locs.coordinates[i][0],
-              latitude: res.result.list[0].locs.coordinates[i][1],
-              width: 40,
-              height: 40,
-              iconPath: '../../resources/my_marker.png', //图标路径
-              callout: {
-                color: '#ffffff',
-                content: reverseRes.result.address,
-                fontSize: 20,
-                padding: 10,
-                borderRadius: 10,
-                bgColor: '#FF0000',
-                textAlign: 'center',
-                display: "BYCLICK"
-              },
-            })
-
-            polyLinesPoints.push({
-              longitude: res.result.list[0].locs.coordinates[i][0],
-              latitude: res.result.list[0].locs.coordinates[i][1],
-              iconPath: '../../resources/my_marker.png', //图标路径
-              width: 20,
-              height: 20,
-
-            })
-
-            //最后一次回调后setData
-            this.setData({
-              hasSchedule: true,
-              title: res.result.list[0].title,
-              dest: res.result.list[0].dest,
-              tmpDay: res.result.list[0].dayNmb,
-              markers: markerPoints,
-              polyline: [{
-                points: polyLinesPoints,
-                color: "#DC143C",
-                width: 8,
-              }],
-            })
-
-
-          }
-
-        } else {
-          this.setData({
-            hasSchedule: false,
-          })
-        }
-      },
-      fail: err => {
-        console.log('ERROR!!!!!CANNOT GET RESULT OF findTodaySchedule')
-        console.log(err)
-      }
-    })
-  },
+  
   load_yesterday: function () {
     //获取前一天日期并更改date
     //Date.parse():静态方法 转换为毫秒数 
@@ -253,7 +163,7 @@ Page({
       date: yesterDate
     })
     //使用load_today加载
-    this.load_today()
+    this.load_today(yesterDate)
   },
   load_tomorrow: function () {
     //获取后一天日期并更改date
@@ -265,7 +175,7 @@ Page({
       date: tomorrowDate
     })
     //使用load_today加载
-    this.load_today()
+    this.load_today(tomorrowDate)
   },
   show_subpage: function () {
     this.setData({
