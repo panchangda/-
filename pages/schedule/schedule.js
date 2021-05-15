@@ -95,130 +95,56 @@ let listData = [{
 
 Page({
   data: {
+    //schedule settings
+    showSetting: true,
+    showCalendar: false,
+    minDate: new Date(2021, 4, 7).getTime(),
+    maxDate: new Date(2021, 4, 31).getTime(),
+
     //map data
     mapSetting: mapSetting,
     markers: [],
     polyline: [],
-    title: '',
-    dest: '',
-    tmpDay: 0,
+
 
     //date info
     hasSchedule: false,
     date: "",
 
+    //subPage data
+    showSubPage: true,
+    dayData: [{
+
+    }, {
+
+    }],
+    activeTag: 1,
+    title: '',
+    dest: '',
+    tmpDay: 0,
+    days:2,
+
     //mainPage data
     showSelect: false,
-    // minCalendarDate:'2021-5-7',
-    // defaultCalendarDate:util.formatDate()
-
-    //subPage data
-    showCalendar: false,
-    showSubPage: true,
 
     //wxp-drag data
     isIphoneX: app.globalData.isIphoneX,
     size: 1,
     listData: listData,
     scrollTop: 0,
-    pageMetaScrollTop:0
+    pageMetaScrollTop: 0
   },
 
   //天才般的同步处理
-  onLoad: function () {
-    var date = util.formatDate(new Date());
-    if (date) {
-      this.setData({
-        date: date
-      })
-    } else {
-      console.log('CANNOT GET DATE!!!!!!')
-    }
-
-    this.load_today(date)
-
+  onLoad: function (options) {
+    const eventChannel = this.getOpenerEventChannel()
+    eventChannel.on('acceptDataFromOpenerPage', function (data) {
+      console.log("SHOWING:")
+      console.log(data)
+    })
   },
   onShow: function () {},
   onReady: function () {},
-  async load_today(date) {
-    wx.showLoading({
-      title: '加载中',
-    })
-    let res = await wx.cloud.callFunction({
-      name: 'findTodaySchedule',
-      data: {
-        dateString: JSON.stringify(date)
-        //+" 00:00:00.000"
-      },
-    })
-    // console.log(res)
-    if (res.result && res.result.list.length) {
-      let markerPoints = [];
-      let polyLinesPoints = [];
-      for (var i = 0; i < res.result.list[0].locs.coordinates.length; i++) {
-        let addrDescrip = await this.getAddrDescrip(res.result.list[0].locs.coordinates[i][0], res.result.list[0].locs.coordinates[i][1])
-        markerPoints.push({
-          id: i,
-          longitude: res.result.list[0].locs.coordinates[i][0],
-          latitude: res.result.list[0].locs.coordinates[i][1],
-          width: 60,
-          height: 60,
-          iconPath: '../../resources/marker.png', //图标路径
-          customCallout: { //自定义气泡
-            display: "ALWAYS", //显示方式，可选值BYCLICK
-            anchorX: 0, //横向偏移
-            anchorY: 20,
-          },
-          address: addrDescrip.result.address
-        })
-
-        polyLinesPoints.push({
-          longitude: res.result.list[0].locs.coordinates[i][0],
-          latitude: res.result.list[0].locs.coordinates[i][1],
-          iconPath: '../../resources/my_marker.png', //图标路径
-          width: 20,
-          height: 20,
-
-        })
-      }
-      this.setData({
-        hasSchedule: true,
-        title: res.result.list[0].title,
-        dest: res.result.list[0].dest,
-        tmpDay: res.result.list[0].dayNmb,
-        markers: markerPoints,
-        polyline: [{
-          points: polyLinesPoints,
-          color: "#DC143C",
-          width: 8,
-        }],
-      })
-
-    } else {
-      this.setData({
-        hasSchedule: false
-      })
-    }
-    wx.hideLoading()
-  },
-  getAddrDescrip: function (longitude, latitude) {
-    return new Promise((resolve, reject) => {
-      qqmapsdk.reverseGeocoder({
-        location: {
-          longitude: longitude,
-          latitude: latitude,
-        },
-        success: res => {
-          console.log('@@@resolved', res)
-          resolve(res)
-        },
-        fail: err => {
-          console.log('@@@rejected', err)
-          reject(err)
-        }
-      })
-    })
-  },
   onCalendarDisplay() {
     this.setData({
       showCalendar: true
@@ -230,39 +156,43 @@ Page({
     });
   },
   onCalendarConfirm(e) {
+    // console.log(e)
+    const [start, end] = e.detail;
+    let dateS = util.formatDate(new Date(start));
+    let dateE = util.formatDate(new Date(end));
     this.setData({
       showCalendar: false,
-      date: util.formatDate(e.detail)
+      date: dateS + ' - ' + dateE,
     });
-    this.load_today(this.data.date)
   },
+
+  confirm_setting() {
+    this.setData({
+      showSetting: false,
+    })
+  },
+
+  //switch to tmpDay and reload infos
+  onTagClick(e) {
+    console.log(e.detail.index)
+    this.setData({
+      tmpDay: e.detail.index,
+    })
+  },
+
   load_yesterday: function () {
-    //获取前一天日期并更改date
-    //Date.parse():静态方法 转换为毫秒数 
-    //dataobj.setTime():动态方法 用毫秒设定Date
-    let secs = Date.parse(this.data.date) - milSecsInOneDay;
-    let d = new Date();
-    d.setTime(secs);
-    let yesterDate = util.formatDate(d)
-    // var yesterDate = util.formatDate(new Date(this.data.date))
-    // console.log(yesterDate)
     this.setData({
       date: yesterDate
     })
     //使用load_today加载
-    this.load_today(yesterDate)
+
   },
   load_tomorrow: function () {
-    //获取后一天日期并更改date
-    let secs = Date.parse(this.data.date) + milSecsInOneDay;
-    let d = new Date();
-    d.setTime(secs);
-    let tomorrowDate = util.formatDate(d)
+
     this.setData({
       date: tomorrowDate
     })
-    //使用load_today加载
-    this.load_today(tomorrowDate)
+
   },
 
   //触发关键词输入提示事件
@@ -322,19 +252,6 @@ Page({
     })
   },
 
-  add_schedule: function () {
-    var currendate = this.data.date
-    console.log(currendate)
-    wx.navigateTo({
-      url: '../schedule/schedule',
-      success: function (res) {
-        res.eventChannel.emit('acceptDataFromOpenerPage', {
-          data: currendate
-        })
-      },
-    })
-  },
-
   route_planning: function (e) {
     var MapContext = wx.createMapContext('map');
 
@@ -354,7 +271,6 @@ Page({
   },
 
   //subPage func
-
   show_subpage() {
     this.drag = this.selectComponent('#drag');
     // 模仿异步加载数据
@@ -366,6 +282,7 @@ Page({
       this.drag.init();
     }, 100)
   },
+
   exit_subpage() {
     this.setData({
       showSubPage: false
@@ -408,21 +325,16 @@ Page({
   },
 
   scroll(e) {
-    console.log('@@@View')
-    console.log(e.detail.scrollTop)
-
     this.setData({
-			pageMetaScrollTop: e.detail.scrollTop
-		})
-
+      pageMetaScrollTop: e.detail.scrollTop
+    })
   },
 
   // 页面滚动
   onDragScroll(e) {
-    console.log('@@@Drag')
-    console.log(e.detail.scrollTop)
     this.setData({
       scrollTop: e.detail.scrollTop,
     });
-  }
+  },
+
 })

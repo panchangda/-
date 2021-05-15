@@ -1,58 +1,10 @@
 <!--pages/myMap/myMap.wxml-->
+<page-meta scroll-top="{{pageMetaScrollTop}}"></page-meta>
 <view class="container">
-  <view class="switch-date">
-    <image src="./resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
-    <van-cell class="date" value="{{ date }}" bind:click="onCalendarDisplay" />
-      <image src="./resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
-    <van-calendar show="{{showCalendar}}" show-confirm="{{ false }}" bind:close="onCalendarClose"
-      bind:confirm="onCalendarConfirm" show-mark="{{true}}" position="top" />
-  </view>
-  <view class="icon-on-left">
-    <van-icon bind:click="load_yesterday" name="arrow-left" size="2em" />
-  </view>
-  <view class="icon-on-right">
-    <van-icon bind:click="load_tomorrow" name="arrow" size="2em" />
-  </view>
-  <!-- if tmp date has schedule -->
-  <block wx:if="{{hasSchedule}}">
-    <!--地图容器-->
-    <!-- 若将markers polyline等属性放在setting字典中: 实机测试时更新后不能自动渲染至map -->
-    <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{markers}}"
-      polyline="{{polyline}}">
-      <cover-view slot="callout">
-      <!-- 绑定marker-id -->
-        <cover-view wx:for="{{markers}}" marker-id="{{item.id}}" class="customCallout">{{item.id}}</cover-view>
-      </cover-view>
-      <cover-view></cover-view>
-
-    </map>
-    <view class="pullUpButton" bindtap="show_subpage">^^^</view>
-    <view class="scheduleInfo">{{dest}} {{title}} 第{{tmpDay+1}}天 </view>
-    <!-- <view><button bindtap="route_planning">test</button></view> -->
-  </block>
-
-  <block wx:else>
-    <view class="button-add">
-      <button bindtap="add_schedule">+添加日程+</button>
-    </view>
-  </block>
-
-</view>
-<page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
-  close-on-slide-down="{{false}}" custom-style="height:94%" overlay-style="background-color: rgba(255, 255, 255, 0.7)"
-  bind:enter="load_destinations" bind:leave="render_map">
-
-  <view class="pullDownButton" bindtap="exit_subpage">^^^</view>
-
-  <!-- <view class="searchBlock">
-    <view class="searchIcon">Icon</view>
-    <input class="inputForm" bindinput="getsuggest" value="{{backfill}}" placeholder="请输入想去的地点"></input>
-    <view bindtap="add_location">添加</view>
-  </view> -->
   <van-search value="{{chosenLocation}}" placeholder="请输入搜索关键词" bind:change="get_suggestion"
     bind:clear="clear_search" />
 
-  <scroll-view scroll-y="true" style="height:{{showSelect?500:0}}rpx;">
+  <scroll-view scroll-y="true" style="height:{{showSelect?700:0}}rpx;">
     <!--绑定回填事件-->
     <view class="search-results" wx:for="{{suggestion}}" wx:key="index">
       <!--根据需求渲染相应数据-->
@@ -66,11 +18,59 @@
     </view>
   </scroll-view>
 
-  <block wx:for="{{markers}}">
-    <view>
-      {{index+1}}:{{item.callout.content}}
-    </view>
-  </block>
-  <view>
+    <view style="margin: 4rpx;">
+    <wxp-drag id="drag" generic:item="wxp-drag-item" bind:click="itemClick" bind:change="change" bind:sortend="sortEnd"
+      bind:scroll="scroll" item-wrap-class="drag-item-wrap" extra-nodes="{{extraNodes}}" list-data="{{listData}}"
+      columns="{{size}}" scroll-top="{{scrollTop}}" item-height="{{(750 - 8) / size}}" top-size="80" bottom-size="0">
+    </wxp-drag>
   </view>
+
+  <image src="../../resources/icons8-double-up.gif" class="icon-double-up" bindtap="show_subpage"></image>
+
+</view>
+
+<page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom" close-on-slide-down="{{false}}"
+  custom-style="z-index:1;height:100%" overlay-style="background-color: rgba(255, 255, 255, 0.7)"
+  bind:enter="load_destinations" bind:leave="render_map">
+
+  <image src="../../resources/icons8-double-down.gif" class="icon-double-down" bindtap="exit_subpage"></image>
+  <view class="switch-date">
+    <image src="./resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
+    <van-cell class="date" value="{{ date }}" bind:click="onCalendarDisplay" />
+    <image src="./resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
+    <van-calendar show="{{showCalendar}}" show-confirm="{{ false }}" bind:close="onCalendarClose"
+      bind:confirm="onCalendarConfirm" show-mark="{{true}}" position="top" />
+  </view>
+
+  <view class="icon-on-left">
+    <van-icon bind:click="load_yesterday" name="arrow-left" size="2em" />
+  </view>
+  <view class="icon-on-right">
+    <van-icon bind:click="load_tomorrow" name="arrow" size="2em" />
+  </view>
+  <!-- if tmp date has schedule -->
+  <block wx:if="{{hasSchedule}}">
+    <!--地图容器-->
+    <!-- 若将markers polyline等属性放在setting字典中: 实机测试时更新后不能自动渲染至map -->
+    <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{markers}}"
+      polyline="{{polyline}}">
+      <cover-view slot="callout">
+        <!-- 绑定marker-id -->
+        <cover-view wx:for="{{markers}}" marker-id="{{item.id}}" class="customCallout">{{item.id}}</cover-view>
+      </cover-view>
+      <cover-view></cover-view>
+
+    </map>
+
+    <view class="scheduleInfo">{{dest}} {{title}} 第{{tmpDay+1}}天 </view>
+    <!-- <view><button bindtap="route_planning">test</button></view> -->
+  </block>
+
+  <block wx:else>
+  <view style="height:100%;display:flex;justify-content:center;align-items:center;"> 
+    <image class="icon-add" src="../../resources/icons8-add-64.png" bindtap="add_schedule"></image>
+  </view>
+
+  </block>
+
 </page-container>

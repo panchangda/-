@@ -1,10 +1,28 @@
 {
+  "usingComponents": {
+    "van-cell": "@vant/weapp/cell/index",
+    "van-swipe-cell": "@vant/weapp/swipe-cell/index",
+    "van-calendar": "@vant/weapp/calendar/index",
+    "van-search": "@vant/weapp/search/index",
+    "van-icon": "@vant/weapp/icon/index",
+    "van-uploader": "@vant/weapp/uploader/index",
+    "van-button": "@vant/weapp/button/index",
+    "van-tab": "@vant/weapp/tab/index",
+    "van-tabs": "@vant/weapp/tabs/index",
+    "wux-icon": "wux-weapp/icon/index",
+    "wux-timeline": "wux-weapp/timeline/index",
+    "wux-timeline-item": "wux-weapp/timeline-item/index",
+    "wux-filterbar": "wux-weapp/filterbar/index",
+    "wxp-drag":"/components/drag/index",
+    "wxp-drag-item": "/components/drag-item/index"
+  },
   "pages": [
     "pages/myMap/myMap",
+    "pages/schedule/schedule",
+
     "pages/discover/discover",
-    "pages/mine/mine",
-    "pages/showSchedule/showSchedule",
-    "pages/addSchedule/addSchedule"
+    "pages/mine/mine"
+
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -15,36 +33,29 @@
   },
   "tabBar": {
     "color": "#808080",
-      "selectedColor": "#6e9eea",
+    "selectedColor": "#6e9eea",
     "borderStyle": "black",
     "list": [{
-      "pagePath": "pages/myMap/myMap",
-      "text": "日程",
-      "iconPath": "/resources/map.png",
-      "selectedIconPath": "/resources/map-selected.png"
-    }, {
-      "pagePath": "pages/discover/discover",
-      "text": "发现",
-      "iconPath": "/resources/discover.png",
-      "selectedIconPath": "/resources/discover-selected.png"
-    }, {
-      "pagePath": "pages/mine/mine",
-      "text": "个人",
-      "iconPath": "/resources/user.png",
-      "selectedIconPath": "/resources/user-selected.png"
-    }]
+        "pagePath": "pages/myMap/myMap",
+        "text": "日程",
+        "iconPath": "/resources/map.png",
+        "selectedIconPath": "/resources/map-selected.png"
+      },
+      {
+        "pagePath": "pages/discover/discover",
+        "text": "发现",
+        "iconPath": "/resources/discover.png",
+        "selectedIconPath": "/resources/discover-selected.png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "个人",
+        "iconPath": "/resources/user.png",
+        "selectedIconPath": "/resources/user-selected.png"
+      }
+    ]
   },
   "sitemapLocation": "sitemap.json",
-  "cloud":true,
-  "debug": true,
-  "usingComponents": {
-    "van-cell": "@vant/weapp/cell/index",
-    "van-calendar": "@vant/weapp/calendar/index",
-    "van-search": "@vant/weapp/search/index",
-    "van-icon": "@vant/weapp/icon/index",
-
-    "wux-icon": "wux-weapp/icon/index",
-    "wux-timeline": "wux-weapp/timeline/index",
-    "wux-timeline-item": "wux-weapp/timeline-item/index"
-  }
+  "cloud": true,
+  "debug": true
 }
