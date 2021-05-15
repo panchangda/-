@@ -22,8 +22,10 @@ Component({
 		/**
 		 * 删除事件
 		 */
-		 delete() {
-			this.triggerEvent('delete');
+		itemDelete(e) {
+			this.triggerEvent('delete',{
+				test: "这是一个来自drag-item的测试信息"
+			});
 		},
 		/**
 		 * movable-view 滚动监听

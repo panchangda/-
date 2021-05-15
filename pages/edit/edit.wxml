@@ -1,0 +1,7 @@
+<!--pages/edit/edit.wxml-->
+<view class="container">
+<view>@@@标题{{title}}</view>
+<view>@@@正文{{description}}</view>
+<view>@@@图片</view>
+<van-uploader file-list="{{ picList }}" bind:after-read="afterRead" deletable="{{ true }}" max-count="9"/>
+</view>

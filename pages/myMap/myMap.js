@@ -121,7 +121,7 @@ Page({
     size: 1,
     listData: listData,
     scrollTop: 0,
-    pageMetaScrollTop:0
+    pageMetaScrollTop: 0
   },
 
   //天才般的同步处理
@@ -382,6 +382,7 @@ Page({
   change(e) {
     console.log("change", e.detail.listData)
   },
+
   sizeChange(e) {
     wx.pageScrollTo({
       scrollTop: 0
@@ -391,7 +392,25 @@ Page({
     });
     this.drag.columnChange();
   },
+  itemDelete(e){
+    console.log("delete",e)
+  },
   itemClick(e) {
+    wx.navigateTo({
+      url: '../edit/edit',
+      events: {
+        acceptChangedData: function (data) {
+          console.log(data) //这是从B页面向A页面传输的数据
+        }
+      },
+      success: function (res) {
+        res.eventChannel.emit('acceptOriginalData', {
+          title: e.detail.data.title,
+          description: e.detail.data.description,
+          picList: [{}],
+        })
+      },
+    })
     console.log(e);
   },
   toggleFixed(e) {
@@ -412,8 +431,8 @@ Page({
     console.log(e.detail.scrollTop)
 
     this.setData({
-			pageMetaScrollTop: e.detail.scrollTop
-		})
+      pageMetaScrollTop: e.detail.scrollTop
+    })
 
   },
 

@@ -19,7 +19,7 @@
   </scroll-view>
 
     <view style="margin: 4rpx;">
-    <wxp-drag id="drag" generic:item="wxp-drag-item" bind:click="itemClick" bind:change="change" bind:sortend="sortEnd"
+    <wxp-drag id="drag" generic:item="wxp-drag-item" bind:delete="itemDelete" bind:click="itemClick" bind:change="change" bind:sortend="sortEnd"
       bind:scroll="scroll" item-wrap-class="drag-item-wrap" extra-nodes="{{extraNodes}}" list-data="{{listData}}"
       columns="{{size}}" scroll-top="{{scrollTop}}" item-height="{{(750 - 8) / size}}" top-size="80" bottom-size="0">
     </wxp-drag>

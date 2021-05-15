@@ -109,6 +109,16 @@ Component({
 				extra: e.detail
 			});
 		},
+		itemDelete(e){
+			let index = e.currentTarget.dataset.index;
+			let item = this.data.listWxs[index];
+
+			this.triggerEvent('delete',{
+				key: item.realKey,
+				data:item.data,
+				extra: e.detail
+			})
+		},
 		/**
 		 *  初始化获取 dom 信息
 		 */

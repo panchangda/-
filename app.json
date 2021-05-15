@@ -19,10 +19,9 @@
   "pages": [
     "pages/myMap/myMap",
     "pages/schedule/schedule",
-
     "pages/discover/discover",
-    "pages/mine/mine"
-
+    "pages/mine/mine",
+    "pages/edit/edit"
   ],
   "window": {
     "backgroundTextStyle": "light",

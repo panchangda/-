@@ -18,7 +18,7 @@
 																</view>
 												</view>
 								</view>
-								<view id="movable_delete" class="side__del" bindtap="delete">
+								<view id="movable_delete" class="side__del" catchtap="itemDelete">
 												<text>删除</text>
 								</view>
 				</movable-view>

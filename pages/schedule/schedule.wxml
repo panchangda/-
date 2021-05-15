@@ -45,8 +45,6 @@
     </view>
 
     <image src="../../resources/icons8-double-up.gif" class="icon-double-up" bindtap="show_subpage"></image>
-
-
   </view>
 
   <page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
