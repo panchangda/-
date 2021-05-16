@@ -4,7 +4,7 @@
   <van-search value="{{chosenLocation}}" placeholder="请输入搜索关键词" bind:change="get_suggestion"
     bind:clear="clear_search" />
 
-  <scroll-view scroll-y="true" style="height:{{showSelect?700:0}}rpx;">
+  <scroll-view class="search-page" scroll-y="true" style="height:{{showSelect?700:0}}rpx;">
     <!--绑定回填事件-->
     <view class="search-results" wx:for="{{suggestion}}" wx:key="index">
       <!--根据需求渲染相应数据-->
@@ -35,11 +35,11 @@
 
   <image src="../../resources/icons8-double-down.gif" class="icon-double-down" bindtap="exit_subpage"></image>
   <view class="switch-date">
-    <image src="./resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
-    <van-cell class="date" value="{{ date }}" bind:click="onCalendarDisplay" />
-    <image src="./resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
-    <van-calendar show="{{showCalendar}}" show-confirm="{{ false }}" bind:close="onCalendarClose"
-      bind:confirm="onCalendarConfirm" show-mark="{{true}}" position="top" />
+    <image src="../../resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
+    <van-cell value="{{ date }}" bind:click="onCalendarDisplay" />
+    <image src="../../resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
+    <van-calendar show="{{showCalendar}}" show-confirm="{{ true }}" bind:close="onCalendarClose"
+      bind:confirm="onCalendarConfirm" show-mark="{{true}}" position="bottom" />
   </view>
 
   <view class="icon-on-left">

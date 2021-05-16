@@ -1,6 +1,7 @@
 {
   "usingComponents": {
     "van-cell": "@vant/weapp/cell/index",
+    "van-cell-group": "@vant/weapp/cell-group/index",
     "van-swipe-cell": "@vant/weapp/swipe-cell/index",
     "van-calendar": "@vant/weapp/calendar/index",
     "van-search": "@vant/weapp/search/index",
@@ -14,7 +15,7 @@
     "wux-timeline": "wux-weapp/timeline/index",
     "wux-timeline-item": "wux-weapp/timeline-item/index",
     "wux-filterbar": "wux-weapp/filterbar/index",
-    "wxp-drag":"/components/drag/index",
+    "wxp-drag": "/components/drag/index",
     "wxp-drag-item": "/components/drag-item/index"
   },
   "pages": [

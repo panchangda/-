@@ -22,7 +22,7 @@
   readonly
   />
   <van-calendar show="{{showCalendar}}" bind:close="onCalendarClose" bind:confirm="onCalendarConfirm"
-      show-confirm="{{false}}" type="range" allow-same-day="{{true}}" max-range="{{ 14 }}" position="bottom"
+      show-confirm="{{true}}" type="range" allow-same-day="{{true}}" max-range="{{ 14 }}" position="bottom"
       min-date="{{ minDate }}" max-date="{{ maxDate }}" />
   <van-field
     value="{{days}}"
@@ -31,18 +31,15 @@
     readonly
   />
 </van-cell-group>
-
     <van-button round block type="primary" bind:tap="confirm_setting">确认</van-button>
     <van-button round block type="primary">保存</van-button>
-
-
 </block>
 
 <block wx:else>
   <view class="container">
     <van-search value="{{chosenLocation}}" placeholder="请输入搜索关键词" bind:change="get_suggestion"
       bind:clear="clear_search" />
-    <scroll-view scroll-y="true" style="height:{{showSelect?700:0}}rpx;">
+    <scroll-view class="search-page" scroll-y="true" style="height:{{showSelect?700:0}}rpx;">
       <!--绑定回填事件-->
       <view class="search-results" wx:for="{{suggestion}}" wx:key="index">
         <!--根据需求渲染相应数据-->

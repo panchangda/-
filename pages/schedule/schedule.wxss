@@ -6,11 +6,11 @@
   flex-direction: column;
   flex-wrap: wrap;
 } */
-scroll-view{
+.search-page{
   position: absolute;
   top:108rpx;
   left:0rpx;
-  background-color: rgb(3, 55, 122);
+  background-color: rgb(12, 107, 233);
   z-index: 100;
 }
 
