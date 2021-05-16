@@ -1,7 +1,24 @@
 <!--pages/edit/edit.wxml-->
 <view class="container">
-<view>@@@标题{{title}}</view>
-<view>@@@正文{{description}}</view>
-<view>@@@图片</view>
-<van-uploader file-list="{{ picList }}" bind:after-read="afterRead" deletable="{{ true }}" max-count="9"/>
+<van-uploader file-list="{{ picList }}" bind:before-read="beforeRead" bind:after-read="afterRead" deletable="{{ true }}" max-count="9"/>
+<van-cell-group>
+
+  <van-field
+    value="{{title}}"
+    label="地点"
+    readonly
+    autosize
+    border="{{ false }}"
+  />
+  <van-field
+    model:value="{{ description }}"
+    autosize
+    type="textarea"
+    label="描述"
+    border="{{ false }}"
+    bind:change="onChange"
+    show-confirm-bar
+  />
+</van-cell-group>
+
 </view>

@@ -329,12 +329,24 @@ Page({
       url: '../schedule/schedule',
       success: function (res) {
         res.eventChannel.emit('acceptDataFromOpenerPage', {
-          data: currendate
+          data: currendate,
+          type: 'new',
         })
       },
     })
   },
-
+  edit_schedule:function(){
+    var currendate = this.data.date
+    wx.navigateTo({
+      url: '../schedule/schedule',
+      success: function (res) {
+        res.eventChannel.emit('acceptDataFromOpenerPage', {
+          data: currendate,
+          type: 'edit',
+        })
+      },
+    })
+  },
   route_planning: function (e) {
     var MapContext = wx.createMapContext('map');
 

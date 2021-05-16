@@ -9,6 +9,7 @@
     "van-button": "@vant/weapp/button/index",
     "van-tab": "@vant/weapp/tab/index",
     "van-tabs": "@vant/weapp/tabs/index",
+    "van-field": "@vant/weapp/field/index",
     "wux-icon": "wux-weapp/icon/index",
     "wux-timeline": "wux-weapp/timeline/index",
     "wux-timeline-item": "wux-weapp/timeline-item/index",

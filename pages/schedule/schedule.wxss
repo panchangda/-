@@ -1,11 +1,11 @@
 /* pages/myMap/myMap.wxss */
 /* 750rpx*1334rpx*/
-.container{
+/* .container{
   display: flex;
   justify-content: center;
   flex-direction: column;
   flex-wrap: wrap;
-}
+} */
 scroll-view{
   position: absolute;
   top:108rpx;

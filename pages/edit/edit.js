@@ -9,6 +9,20 @@ Page({
       url: 'https://img.yzcdn.cn/vant/leaf.jpg',
     },{
       url: 'http://iph.href.lu/60x60?text=default',
+    },{
+      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
+    },{
+      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
+    },{
+      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
+    },{
+      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
+    },{
+      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
+    },{
+      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
+    },{
+      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
     },]
   },
 
@@ -24,7 +38,7 @@ Page({
       this.setData({
         title:data.title,
         description:data.description,
-        picList:data.picList,
+        // picList:data.picList,
       })
     })  
 
@@ -36,6 +50,11 @@ Page({
 
   },
 
+  beforeRead(e){
+    const {file, callback} = e.detail
+    //callback:true=>success :false=>fail
+    callback(file.type=== 'image')
+  },
   /**
    * 生命周期函数--监听页面初次渲染完成
    */

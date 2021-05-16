@@ -4,17 +4,37 @@
 
 <page-meta scroll-top="{{pageMetaScrollTop}}"></page-meta>
 <block wx:if="{{showSetting}}">
-  <view class="container">
-    <view>行程命名</view>
-    <van-cell title="行程名称"></van-cell>
-    <van-cell class="date" value="{{ date }}" title="选择日期" bind:click="onCalendarDisplay" />
-    <van-calendar show="{{showCalendar}}" bind:close="onCalendarClose" bind:confirm="onCalendarConfirm"
+
+  <van-cell-group>
+  <van-field
+    model:value="{{name}}"
+    placeholder="给你的行程起一个名字"
+    label="行程名称"
+    bind:change="onChange"
+    required
+  />
+  <van-field 
+  value="{{date}}" 
+  placeholder="点击选择日期"
+  label="行程日期" 
+  bind:click-input="onCalendarDisplay" 
+  required
+  readonly
+  />
+  <van-calendar show="{{showCalendar}}" bind:close="onCalendarClose" bind:confirm="onCalendarConfirm"
       show-confirm="{{false}}" type="range" allow-same-day="{{true}}" max-range="{{ 14 }}" position="bottom"
       min-date="{{ minDate }}" max-date="{{ maxDate }}" />
-    <van-cell title="天数"></van-cell>
-    <van-button round type="primary" bind:tap="confirm_setting">确认</van-button>
-    <van-button round type="primary">保存</van-button>
-  </view>
+  <van-field
+    value="{{days}}"
+    label="行程天数"
+    type="idcard"
+    readonly
+  />
+</van-cell-group>
+
+    <van-button round block type="primary" bind:tap="confirm_setting">确认</van-button>
+    <van-button round block type="primary">保存</van-button>
+
 
 </block>
 
@@ -37,7 +57,7 @@
     </scroll-view>
 
     <view style="margin: 4rpx;">
-      <wxp-drag id="drag" generic:item="wxp-drag-item" bind:click="itemClick" bind:change="change"
+      <wxp-drag id="drag" generic:item="wxp-drag-item" bind:delete="itemDelete" bind:click="itemClick" bind:change="change"
         bind:sortend="sortEnd" bind:scroll="scroll" item-wrap-class="drag-item-wrap" extra-nodes="{{extraNodes}}"
         list-data="{{listData}}" columns="{{size}}" scroll-top="{{scrollTop}}" item-height="{{(750 - 8) / size}}"
         top-size="80" bottom-size="0">
@@ -68,6 +88,7 @@
       </cover-view>
       <cover-view></cover-view>
     </map>
+    <view><button bindtap="route_planning">test</button></view>
     <view class="bottom-tagbar">
       <van-tabs active="{{activeTag}}" bind:click="onTagClick" z-index="100" animated="true" color="blue">
         <block wx:for="{{dayData}}">
@@ -75,6 +96,6 @@
         </block>
       </van-tabs>
     </view>
-    <view><button bindtap="route_planning">test</button></view>
+
   </page-container>
 </block>
