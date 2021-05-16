@@ -27,6 +27,7 @@ Page({
   data: {
     //schedule settings
     showSetting: true,
+    //calendar
     showCalendar: false,
     minDate: new Date(2021, 4, 7).getTime(),
     maxDate: new Date(2021, 4, 31).getTime(),
@@ -98,15 +99,13 @@ Page({
 
   confirm_setting() {
 
-    this.setData({
-      showSetting: false,
-    })
-
     //初始化拖拽列表
+    //关闭setting
     this.drag = this.selectComponent('#drag');
         setTimeout(() => {
           this.setData({
-            listData:listData
+            listData:listData,
+            showSetting:false,
           });
           this.drag.init();
         }, 300)
@@ -201,6 +200,7 @@ Page({
     }
     this.setData({
       showSelect: false,
+      chosenLocation:'',
     })
   },
 
