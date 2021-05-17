@@ -105,7 +105,6 @@ Page({
             anchorX: 0, //横向偏移
             anchorY: 20,
           },
-          address: addrDescrip.result.address
         })
         lonAndlat.push({
           longitude: res.result.list[0].locs.coordinates[i][0],

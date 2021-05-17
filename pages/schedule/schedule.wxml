@@ -10,7 +10,7 @@
     model:value="{{name}}"
     placeholder="给你的行程起一个名字"
     label="行程名称"
-    bind:change="onChange"
+    bind:change="onNameChange"
     required
   />
   <van-field 
@@ -25,34 +25,36 @@
       show-confirm="{{true}}" type="range" allow-same-day="{{true}}" max-range="{{ 14 }}" position="bottom"
       min-date="{{ minDate }}" max-date="{{ maxDate }}" />
   <van-field
-    value="{{days}}"
+    value="{{totalDay}}"
     label="行程天数"
-    type="idcard"
+    placeholder="选择日期后自动显示"
     readonly
   />
 </van-cell-group>
-    <van-button round block type="primary" bind:tap="confirm_setting">确认</van-button>
-    <van-button round block type="primary">保存</van-button>
+    <van-button round block disabled="{{!(calendarSet&&nameSet)}}" type="primary" bind:click="confirm_setting">确认</van-button>
+    <!-- <van-button round block type="primary">保存</van-button> -->
 </block>
 
 <block wx:else>
   <view class="container">
+    <!-- 搜索框 -->
     <van-search value="{{chosenLocation}}" placeholder="请输入搜索关键词" bind:change="get_suggestion"
       bind:clear="clear_search" />
+
+      <!-- 搜索结果动态展示下拉栏 -->
     <scroll-view class="search-page" scroll-y="true" style="height:{{showSelect?700:0}}rpx;">
       <!--绑定回填事件-->
       <view class="search-results" wx:for="{{suggestion}}" wx:key="index">
         <!--根据需求渲染相应数据-->
-        <!--渲染地址title-->
         <view class="font-results" bind:tap="add_location" id="{{index}}">
           <view>{{item.title}}</view>
           <view style="font-size:12px;color:#666;">{{item.addr}}</view>
         </view>
-        <!--渲染详细地址-->
         <view bindtap="show_onMap">Icon</view>
       </view>
     </scroll-view>
 
+    <!-- 拖拽排序组件 -->
     <view style="margin: 4rpx;">
       <wxp-drag id="drag" generic:item="wxp-drag-item" bind:delete="itemDelete" bind:click="itemClick" bind:change="change"
         bind:sortend="sortEnd" bind:scroll="scroll" item-wrap-class="drag-item-wrap" extra-nodes="{{extraNodes}}"
@@ -62,6 +64,16 @@
     </view>
 
     <image src="../../resources/icons8-double-up.gif" class="icon-double-up" bindtap="show_subpage"></image>
+
+    <!-- 底部标签栏 -->
+    <view class="bottom-tagbar">
+      <van-tabs active="{{activeTag}}"  bind:click="onTagClick" swipeable animated="true" color="blue">
+        <block wx:for="{{allDatesData}}">
+          <van-tab title="第{{index+1}}天"></van-tab>
+        </block>
+      </van-tabs>
+    </view>
+
   </view>
 
   <page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
@@ -70,29 +82,23 @@
 
     <image src="../../resources/icons8-double-down.gif" class="icon-double-down" bindtap="exit_subpage"></image>
 
-    <view wx:if="{{tmpDay==0?false:true}}"class="icon-on-left">
+    <view wx:if="{{tmpDay==0?false:true}}" class="icon-on-left">
       <van-icon bind:click="load_yesterday" name="arrow-left" size="2em" />
     </view>
-    <view wx:if="{{tmpDay==days-1?false:true}}"class="icon-on-right">
+    <view wx:if="{{tmpDay==totalDay-1?false:true}}" class="icon-on-right">
       <van-icon bind:click="load_tomorrow" name="arrow" size="2em" />
     </view>
 
-    <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{markers}}"
-      polyline="{{polyline}}">
+    <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{listData}}"
+      polyline="{{polyline}}" include-points="{{logAndLats}}">
       <cover-view slot="callout">
         <!-- 绑定marker-id -->
-        <cover-view wx:for="{{markers}}" marker-id="{{item.id}}" class="customCallout">{{item.id}}</cover-view>
+        <cover-view wx:for="{{listData}}" marker-id="{{item.id}}" class="customCallout">{{item.sortKey+1}}</cover-view>
       </cover-view>
       <cover-view></cover-view>
     </map>
+
     <view><button bindtap="route_planning">test</button></view>
-    <view class="bottom-tagbar">
-      <van-tabs active="{{activeTag}}" bind:click="onTagClick" z-index="100" animated="true" color="blue">
-        <block wx:for="{{dayData}}">
-          <van-tab title="第{{index+1}}天"></van-tab>
-        </block>
-      </van-tabs>
-    </view>
 
   </page-container>
 </block>

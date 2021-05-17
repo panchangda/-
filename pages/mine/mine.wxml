@@ -5,21 +5,32 @@
   <open-data type="userCity"></open-data>
   <open-data type="userProvince"></open-data>
   <open-data type="userCountry"></open-data> -->
+  
+  <!-- 用户信息 -->
   <view class="user-info">
     <view class="user-avatar">
       <open-data type="userAvatarUrl"></open-data>
     </view>
   </view>
+
+  <!-- 按钮组 -->
   <view class="user-options">
     <button>分享行程</button>
     <button>上传到市场</button>
   </view>
 
-    <wux-timeline>
-      <block wx:for="{{content}}">
-        <wux-timeline-item content="{{item}}" />
-        <view>你好！我在东北玩泥巴</view>
-      </block>
-    </wux-timeline>
+  <!-- 时间轴 -->
+  <van-tabs type="card" swipeable>
+    <van-tab title="历史行程">
+      <wux-timeline>
+        <block wx:for="{{content}}">
+          <wux-timeline-item content="{{item}}" />
+          <view>你好！我在东北玩泥巴</view>
+        </block>
+      </wux-timeline>
+    </van-tab>
+    <van-tab title="未来行程" swipeable></van-tab>
+  </van-tabs>
+
 
 </view>

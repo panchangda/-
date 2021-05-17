@@ -38,7 +38,7 @@
     <image src="../../resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
     <van-cell value="{{ date }}" bind:click="onCalendarDisplay" />
     <image src="../../resources/calendar.gif" style="width:40rpx;height:40rpx;"></image>
-    <van-calendar show="{{showCalendar}}" show-confirm="{{ true }}" bind:close="onCalendarClose" 
+    <van-calendar show="{{showCalendar}}" show-confirm="{{ false }}" bind:close="onCalendarClose" 
       bind:confirm="onCalendarConfirm" show-mark="{{true}}" position="bottom" min-date="{{ minDate }}" max-date="{{ maxDate }}" />
   </view>
 
