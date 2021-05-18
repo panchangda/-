@@ -3,12 +3,12 @@ const app = getApp()
 import regeneratorRuntime from '../../libs/runtime';
 //引入util类计算日期
 var util = require('../../utils/util.js');
-// 引入SDK核心类
+// 引入SDK核心类 实例化API核心类
 var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
-// 实例化API核心类
 var qqmapsdk = new QQMapWX({
   key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB' // 必填
 });
+//map组件基本设置
 var mapSetting = {
   subkey: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
   longitude: 106.301919,
@@ -17,47 +17,34 @@ var mapSetting = {
   layerStyle: 1,
   showLocation: true,
 };
-const milSecsInOneDay = 24 * 60 * 60 * 1000;
-// const query = wx.createSelectorQuery();
-// const MapContext = query.select('#map');
-// const MapContext = wx.createMapContext('map');
-let listData = [];
-
 Page({
   data: {
-    //AllDatesData
-    allDatesData: [],
+
     //schedule settings
     showSetting: true,
     settingComplete: false,
+    name: '',
     //calendar
     showCalendar: false,
     minDate: new Date(2021, 4, 7).getTime(),
     maxDate: new Date(2021, 4, 31).getTime(),
+    //date info
+    date: "",
 
+    //AllDatesData
+    allDatesData: [],
     //map data
     mapSetting: mapSetting,
     polyline: [{
       points: [],
     }],
     logAndLats: [],
-
-    //date info
-    hasSchedule: false,
-    date: "",
-
+    
     //subPage data
     showSubPage: true,
 
-    activeTag: 0,
-    title: '',
-    dest: '',
-    tmpDay: 0,
-    totalDay: '',
-
     //mainPage data
     showSelect: false,
-
     //wxp-drag data
     isIphoneX: app.globalData.isIphoneX,
     size: 1,
@@ -65,15 +52,28 @@ Page({
     scrollTop: 0,
     pageMetaScrollTop: 0,
     count: 0,
-  },
 
-  //天才般的同步处理
-  onLoad: function (options) {
-    const eventChannel = this.getOpenerEventChannel()
-    eventChannel.on('acceptDataFromOpenerPage', function (data) {
-      console.log(data)
+    //nav data
+    activeTag: 0,
+    tmpDay: 0,
+    totalDay: '',
+    
+  },
+  //上传新行程
+  //调用云函数存入数据库
+  //jyj说的就是你 速度
+  upload() {
+    wx.cloud.callFunction({
+      name: 'upLoadNewSchedule',
+      data: {
+        //DateFormate: yyyy-mm-dd - yyyy-mm-dd
+        name: this.data.name,
+        date: this.data.date,
+        allDatesData: this.data.allDatesData,
+      },
     })
   },
+  onLoad: function (options) {},
   onShow: function () {},
   onReady: function () {},
   onNameChange() {
@@ -115,7 +115,8 @@ Page({
         listData: [],
         polyline: [],
         logAndLats: [],
-      })
+        count: 0,
+      });
     this.setData({
       showCalendar: false,
       date: dateS + ' - ' + dateE,
@@ -146,20 +147,20 @@ Page({
       let thisDayData = {
         listData: this.data.listData,
         polyline: this.data.polyline,
-        logAndlats: this.data.logAndLats,
+        logAndLats: this.data.logAndLats,
+        count: this.data.count,
       }
-      setTimeout(() => {
-        this.setData({
-          [`allDatesData[${this.data.tmpDay}]`]: thisDayData,
-          listData: this.data.allDatesData[e.detail.index].listData,
-          polyline: this.data.allDatesData[e.detail.index].polyline,
-          logAndlats: this.data.allDatesData[e.detail.index].logAndlats,
-          tmpDay: e.detail.index,
-        });
-        this.drag.init();
-      }, 300)
+      this.setData({
+        [`allDatesData[${this.data.tmpDay}]`]: thisDayData,
+        listData: this.data.allDatesData[e.detail.index].listData,
+        polyline: this.data.allDatesData[e.detail.index].polyline,
+        logAndLats: this.data.allDatesData[e.detail.index].logAndLats,
+        count: this.data.allDatesData[e.detail.index].count,
+        tmpDay: e.detail.index,
+      });
+      this.drag.init();
+      console.log(this.data.allDatesData, this.data.listData, this.data.polyline, this.data.logAndLats)
     }
-    console.log(this.data.allDatesData, this.listData, this.polyline, this.logAndLats)
 
   },
   load_yesterday: function () {
@@ -233,7 +234,7 @@ Page({
           dragId: `item${this.data.count}`,
           title: this.data.suggestion[i].title,
           description: this.data.suggestion[i].addr,
-          // images: "/assets/image/swipe/1.png",
+          picList: [],
           fixed: false,
 
           //markers data
@@ -251,18 +252,29 @@ Page({
           },
         });
         setTimeout(() => {
-          this.setData({
-            listData,
-            // markers,
-            polyline: [{
-              points: logAndLats,
-              color: "#DC143C",
-              width: 8,
-            }],
-            logAndLats,
-            showSelect: false,
-            chosenLocation: '',
-          });
+          if (logAndLats.length > 1) {
+            this.setData({
+              listData,
+              // markers,
+              polyline: [{
+                points: logAndLats,
+                color: "#DC143C",
+                width: 8,
+              }],
+              logAndLats,
+              showSelect: false,
+              chosenLocation: '',
+            });
+          } else {
+            this.setData({
+              listData,
+              // markers,
+              logAndLats,
+              showSelect: false,
+              chosenLocation: '',
+            });
+          }
+
           this.drag.init();
         }, 300)
         break;
@@ -338,20 +350,52 @@ Page({
     for (let i = e.detail.key; i < listData.length; i++)
       listData[i].sortKey--;
     setTimeout(() => {
-      this.setData({
-        listData,
-        polyline: [{
-          points: logAndLats,
-          color: "#DC143C",
-          width: 8,
-        }],
-        logAndLats,
-      });
+      if (logAndLats.length > 1) {
+        this.setData({
+          listData,
+          polyline: [{
+            points: logAndLats,
+            color: "#DC143C",
+            width: 8,
+          }],
+          logAndLats,
+        });
+      } else {
+        this.setData({
+          listData,
+          logAndLats,
+        });
+      }
       this.drag.init();
     }, 300)
     console.log("afterDelete", listData)
   },
-
+  //link to edit Page and get edited data
+  itemClick(e) {
+    console.log(e)
+    let _this = this;
+    wx.navigateTo({
+      url: '../edit/edit',
+      events: {
+        acceptChangedData: function (data) {
+          console.log(data)
+          _this.setData({
+            [`listData[${e.detail.key}].picList`]: data.picList,
+            [`listData[${e.detail.key}].description`]: data.description,
+          })
+          _this.drag.init()
+        }
+      },
+      success: function (res) {
+        res.eventChannel.emit('acceptOriginalData', {
+          title: e.detail.data.title,
+          description: e.detail.data.description,
+          picList: e.detail.data.picList,
+        })
+      },
+    })
+    console.log(e);
+  },
   change(e) {
     console.log("change", e.detail.listData)
   },
@@ -364,44 +408,21 @@ Page({
     });
     this.drag.columnChange();
   },
-
-
-  itemClick(e) {
-    wx.navigateTo({
-      url: '../edit/edit',
-      events: {
-        acceptChangedData: function (data) {
-          console.log(data) //这是从B页面向A页面传输的数据
-        }
-      },
-      success: function (res) {
-        res.eventChannel.emit('acceptOriginalData', {
-          title: e.detail.data.title,
-          description: e.detail.data.description,
-          picList: [{}],
-        })
-      },
-    })
-    console.log(e);
-  },
   toggleFixed(e) {
     let key = e.currentTarget.dataset.key;
     let {
       listData
     } = this.data;
     listData[key].fixed = !listData[key].fixed
-
     this.setData({
       listData: listData
     });
   },
-
   scroll(e) {
     this.setData({
       pageMetaScrollTop: e.detail.scrollTop
     })
   },
-
   // 页面滚动
   onDragScroll(e) {
     this.setData({

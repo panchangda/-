@@ -3,12 +3,10 @@ const app = getApp()
 import regeneratorRuntime from '../../libs/runtime';
 //引入util类计算日期
 var util = require('../../utils/util.js');
-// 引入SDK核心类
+// 引入SDK核心类 实例化
 var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
-// 实例化API核心类
-var qqmapsdk = new QQMapWX({
-  key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB' // 必填
-});
+var qqmapsdk = new QQMapWX({key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB' });
+//地图基本设置
 var mapSetting = {
   subkey: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
   // longitude: 106.301919,
@@ -40,6 +38,8 @@ Page({
     showSelect: false,
     // minCalendarDate:'2021-5-7',
     // defaultCalendarDate:util.formatDate()
+    minDate: new Date(2021, 4, 7).getTime(),
+    maxDate: new Date(2021, 4, 31).getTime(),
 
     //subPage data
     showSubPage: true,

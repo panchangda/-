@@ -5,25 +5,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-    picList:[{
-      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
-    },{
-      url: 'http://iph.href.lu/60x60?text=default',
-    },{
-      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
-    },{
-      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
-    },{
-      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
-    },{
-      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
-    },{
-      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
-    },{
-      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
-    },{
-      url: 'https://img.yzcdn.cn/vant/leaf.jpg',
-    },]
+    picList: [],
   },
 
   /**
@@ -32,28 +14,49 @@ Page({
   onLoad: function (options) {
     // console.log(options)
     const eventChannel = this.getOpenerEventChannel()
-
-    eventChannel.once('acceptOriginalData',(data)=>{
+    eventChannel.once('acceptOriginalData', (data) => {
       console.log(data)
       this.setData({
-        title:data.title,
-        description:data.description,
-        // picList:data.picList,
+        title: data.title,
+        description: data.description,
+        picList:data.picList,
       })
-    })  
-
-    eventChannel.emit('acceptChangedData',{
-      title:'SHIT!',
-      description:'STILL SHIT!',
-      picList:[{}],
     })
-
   },
-
-  beforeRead(e){
-    const {file, callback} = e.detail
-    //callback:true=>success :false=>fail
-    callback(file.type=== 'image')
+  //组件删除出现问题 拿回调参数重写delete
+  delete(e) {
+    // console.log(e)
+    let picList = this.data.picList;
+    if (picList[e.detail.index].url == e.detail.file.url) {
+      picList.splice(e.detail.index, 1);
+      this.setData({
+        picList,
+      })
+    }
+    else{
+      console.log("@@@组件删除方法重新生效了")
+    }
+  },
+  afterRead(e) {
+    // console.log(e)
+    const picList = this.data.picList
+    for (let i = 0; i < e.detail.file.length; i++) {
+      picList.push({
+        url: e.detail.file[i].url,
+        deletable: true,
+      })
+    }
+    this.setData({
+      picList,
+    })
+  },
+  //emit data to openerPage
+  onUnload: function () {
+    const eventChannel = this.getOpenerEventChannel();
+    eventChannel.emit('acceptChangedData', {
+      description: this.data.description,
+      picList:this.data.picList,
+    })
   },
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -79,9 +82,7 @@ Page({
   /**
    * 生命周期函数--监听页面卸载
    */
-  onUnload: function () {
 
-  },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作

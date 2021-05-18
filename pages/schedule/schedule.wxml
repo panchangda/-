@@ -93,12 +93,14 @@
       polyline="{{polyline}}" include-points="{{logAndLats}}">
       <cover-view slot="callout">
         <!-- 绑定marker-id -->
-        <cover-view wx:for="{{listData}}" marker-id="{{item.id}}" class="customCallout">{{item.sortKey+1}}</cover-view>
+        <cover-view wx:for="{{listData}}" marker-id="{{item.sortKey}}" class="customCallout">{{item.sortKey+1}}</cover-view>
       </cover-view>
       <cover-view></cover-view>
     </map>
-
-    <view><button bindtap="route_planning">test</button></view>
+    
+    <button bindtap="upload">保存行程</button>
+    <button bindtap="route_planning">test</button>
+    
 
   </page-container>
 </block>
