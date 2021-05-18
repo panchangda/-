@@ -23,5 +23,6 @@
 
 .wux-timeline{
   padding-top: 50rpx;
-  padding-left: 30rpx;
+  padding-left: 50rpx;
+  padding-right: 50rpx;
 }

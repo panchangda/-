@@ -1,11 +1,5 @@
 <!--pages/mine/mine.wxml-->
 <view class="container">
-  <!-- <open-data type="userNickName"></open-data>
-  <open-data type="userGender"></open-data>
-  <open-data type="userCity"></open-data>
-  <open-data type="userProvince"></open-data>
-  <open-data type="userCountry"></open-data> -->
-  
   <!-- 用户信息 -->
   <view class="user-info">
     <view class="user-avatar">
@@ -17,20 +11,38 @@
   <view class="user-options">
     <button>分享行程</button>
     <button>上传到市场</button>
+    <button>使用教程</button>
   </view>
 
   <!-- 时间轴 -->
-  <van-tabs type="card" swipeable>
+  <van-tabs type="card" swipeable animated sticky>
     <van-tab title="历史行程">
-      <wux-timeline>
-        <block wx:for="{{content}}">
-          <wux-timeline-item content="{{item}}" />
-          <view>你好！我在东北玩泥巴</view>
+      <wux-timeline pending="{{true}}">
+        <block wx:for="{{pastList}}" wx:key="{{id}}">
+          <wux-timeline-item content="{{item.date}}  {{item.name}}"> 
+            <view bind:tap="onClick" data-id="{{item.id}}">你好！我在东北玩泥巴</view>
+            </wux-timeline-item>
         </block>
       </wux-timeline>
     </van-tab>
-    <van-tab title="未来行程" swipeable></van-tab>
+    <van-tab title="未来行程">
+      <wux-timeline pending="{{true}}" position="right">
+        <block wx:for="{{futureList}}" wx:key="{{id}}">
+          <wux-timeline-item content="{{item.date}}  {{item.name}}"> 
+            <view bind:tap="onClick" data-id="{{item.id}}">我在海南吃椰子</view>
+            </wux-timeline-item>
+        </block>
+      </wux-timeline>
+      </van-tab>
   </van-tabs>
-
+  <van-action-sheet
+  show="{{ show }}"
+  actions="{{ actions }}"
+  cancel-text="取消"
+  bind:cancel="onCancel"
+  bind:close="onClose"
+  bind:select="onSelect"
+/>
+  <van-loading wx:if="{{loading}}" size="120rpx" vertical >加载中...</van-loading>
 
 </view>

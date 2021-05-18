@@ -3,12 +3,10 @@
 <view class="container">
   <van-search value="{{chosenLocation}}" placeholder="请输入搜索关键词" bind:change="get_suggestion"
     bind:clear="clear_search" />
-
   <scroll-view class="search-page" scroll-y="true" style="height:{{showSelect?700:0}}rpx;">
     <!--绑定回填事件-->
     <view class="search-results" wx:for="{{suggestion}}" wx:key="index">
-      <!--根据需求渲染相应数据-->
-      <!--渲染地址title-->
+      <!--根据需求渲染相应数据 渲染地址title-->
       <view class="font-results" bind:tap="add_location" id="{{index}}">
         <view>{{item.title}}</view>
         <view style="font-size:12px;color:#666;">{{item.addr}}</view>
