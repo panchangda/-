@@ -1,11 +1,10 @@
 const app = getApp()
-//在es6转es5的同时 使用async/await新特性
-import regeneratorRuntime from '../../libs/runtime';
-//引入util类计算日期
-var util = require('../../utils/util.js');
-// 引入SDK核心类 实例化
-var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
-var qqmapsdk = new QQMapWX({key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB' });
+import regeneratorRuntime from '../../libs/runtime'; //在es6转es5的同时 使用async/await新特性
+var util = require('../../utils/util.js'); //引入util类计算日期
+var QQMapWX = require('../../libs/qqmap-wx-jssdk.js'); // 引入SDK核心类 实例化
+var qqmapsdk = new QQMapWX({
+  key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB'
+});
 //地图基本设置
 var mapSetting = {
   subkey: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
@@ -22,13 +21,15 @@ const milSecsInOneDay = 24 * 60 * 60 * 1000;
 
 Page({
   data: {
+    //main data
+    name: '',
+    listData: [],
+    polyline: [],
+    logAndLats: [],
+    count: 0,
+
     //map data
     mapSetting: mapSetting,
-    markers: [],
-    polyline: [],
-    title: '',
-    dest: '',
-    tmpDay: 0,
 
     //date info
     hasSchedule: false,
@@ -36,25 +37,21 @@ Page({
 
     //mainPage data
     showSelect: false,
-    // minCalendarDate:'2021-5-7',
-    // defaultCalendarDate:util.formatDate()
-    minDate: new Date(2021, 4, 7).getTime(),
-    maxDate: new Date(2021, 4, 31).getTime(),
 
     //subPage data
     showSubPage: true,
+
     //calendar
     showCalendar: false,
     minDate: new Date(2021, 4, 7).getTime(),
     maxDate: new Date(2021, 4, 31).getTime(),
+
     //wxp-drag data
-    count:0,
     isIphoneX: app.globalData.isIphoneX,
     size: 1,
     listData: [],
     scrollTop: 0,
     pageMetaScrollTop: 0,
-
   },
 
   //天才般的同步处理
@@ -62,19 +59,48 @@ Page({
     var date = util.formatDate(new Date());
     if (date) {
       this.setData({
-        date: date
+        date: date,
+        todayDate: new Date(date).getTime(),
       })
     } else {
-      console.log('CANNOT GET DATE!!!!!!')
+      console.log('@@@Error:CAN NOT GET DATE')
     }
     this.drag = this.selectComponent('#drag');
     this.load_today(date);
-    
-
-
   },
   onShow: function () {},
   onReady: function () {},
+  async load() {
+    wx.showLoading({
+      title: '加载中',
+    })
+    let res = await wx.cloud.callFunction({
+      name: 'findTodaySchedule',
+      data: {
+        date: this.data.date,
+      },
+    })
+    this.setData({
+      name:res.name,
+      listData: res.listData,
+      polyline: res.polyline,
+      logAndLats: res.logAndLats,
+      count: res.count,
+    })
+    wx.hideloading()
+  },
+  //对页面数据进行操作后的更新
+  update(){
+    wx.cloud.callFunction({
+      name:'updateTodaySchedule',
+      date:{
+        listData:this.data.listData,
+        polyline:this.data.polyline,
+        logAndLats:this.data.logAndLats,
+        count: this.data.count,
+      }
+    })
+  },
   async load_today(date) {
     wx.showLoading({
       title: '加载中',
@@ -82,7 +108,7 @@ Page({
     let res = await wx.cloud.callFunction({
       name: 'findTodaySchedule',
       data: {
-        dateString: JSON.stringify(date)
+        dateString: JSON.stringify(date),
         //+" 00:00:00.000"
       },
     })
@@ -90,7 +116,7 @@ Page({
     if (res.result && res.result.list.length) {
       let markerPoints = [];
       let lonAndlat = [];
-      let listData =[];
+      let listData = [];
       for (var i = 0; i < res.result.list[0].locs.coordinates.length; i++) {
         let addrDescrip = await this.getAddrDescrip(res.result.list[0].locs.coordinates[i][0], res.result.list[0].locs.coordinates[i][1])
         markerPoints.push({
@@ -130,20 +156,17 @@ Page({
           color: "#DC143C",
           width: 8,
         }],
-        includePoints:lonAndlat,
-        listData:listData,
+        includePoints: lonAndlat,
+        listData: listData,
       })
       console.log(this.data.listData)
       //先更新listData后再init()
       this.drag.init()
-
-
     } else {
       this.setData({
         hasSchedule: false
       })
     }
-    
     wx.hideLoading()
   },
   getAddrDescrip: function (longitude, latitude) {
@@ -253,100 +276,156 @@ Page({
     })
   },
   add_location(e) {
+    console.log(this.data.listData)
     var id = e.currentTarget.id;
     for (var i = 0; i < this.data.suggestion.length; i++) {
       if (i == id) {
         //加入到listData数组
         let listData = this.data.listData;
+        let logAndLats = this.data.logAndLats;
+        logAndLats.push({
+          longitude: this.data.suggestion[i].longitude,
+          latitude: this.data.suggestion[i].latitude,
+        })
         listData.push({
-          dragId: `${this.data.count++}`,
+          //drag data
+          dragId: `item${this.data.count}`,
           title: this.data.suggestion[i].title,
           description: this.data.suggestion[i].addr,
-          // images: "/assets/image/swipe/1.png",
+          picList: [],
           fixed: false,
+
+          //markers data
+          sortKey: this.data.listData.length,
+          id: this.data.count++,
+          longitude: this.data.suggestion[i].longitude,
+          latitude: this.data.suggestion[i].latitude,
+          width: 60,
+          height: 60,
+          iconPath: '../../resources/marker.png', //图标路径
+          customCallout: { //自定义气泡
+            display: "ALWAYS", //显示方式，可选值BYCLICK
+            anchorX: 0, //横向偏移
+            anchorY: 20,
+          },
         });
         setTimeout(() => {
-          this.setData({
-            listData
-          });
+          if (logAndLats.length > 1) {
+            this.setData({
+              listData,
+              // markers,
+              polyline: [{
+                points: logAndLats,
+                color: "#DC143C",
+                width: 8,
+              }],
+              logAndLats,
+              showSelect: false,
+              chosenLocation: '',
+            });
+          } else {
+            this.setData({
+              listData,
+              // markers,
+              logAndLats,
+              showSelect: false,
+              chosenLocation: '',
+            });
+          }
           this.drag.init();
         }, 300)
         break;
       }
     }
-    this.setData({
-      showSelect:false,
-      chosenLocation:'',
-    })
-  },  
-  add_schedule: function () {
-    var currendate = this.data.date
-    console.log(currendate)
-    wx.navigateTo({
-      url: '../schedule/schedule',
-      success: function (res) {
-        res.eventChannel.emit('acceptDataFromOpenerPage', {
-          data: currendate,
-          type: 'new',
-        })
-      },
-    })
-  },
-  edit_schedule:function(){
-    var currendate = this.data.date
-    wx.redirectTo({
-      url: '../schedule/schedule',
-      success: function (res) {
-        res.eventChannel.emit('acceptDataFromOpenerPage', {
-          data: currendate,
-          type: 'edit',
-        })
-      },
-    })
-  },
-  route_planning: function (e) {
-    var MapContext = wx.createMapContext('map');
-
-    for (var i = 0; i < this.data.markers.length; i++) {
-      if (this.data.markers.id == e.detail) {
-        longitude = this.data.markers.longitude;
-        latitude = this.data.markers.latitude;
-      };
-    }
-    // console.log(MapContext);
-    // console.log(e.detail)
-    MapContext.openMapApp({
-      longitude: 100,
-      latitude: 80,
-      destination: 'HELL',
-    })
-  },
-
-  //subPage func
-
-  show_subpage() {
-    this.setData({
-      showSubPage: true
-    })
-  },
-
-  exit_subpage() {
-    this.setData({
-      showSubPage: false
-    })
+    // 查找不到id对应suggestion的处理
+    // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
+    // console.log("afterAdded", this.data.listData)
   },
 
   //wxp-drag func
   sortEnd(e) {
     console.log("sortEnd", e.detail.listData)
+    let listData = e.detail.listData;
+    let logAndLats = [];
+    //reset sortKey & polyline
+    for (let i = 0; i < listData.length; i++) {
+      listData[i].sortKey = i;
+      logAndLats.push({
+        longitude: listData[i].longitude,
+        latitude: listData[i].latitude,
+      });
+    }
     this.setData({
-      listData: e.detail.listData
+      listData,
+      polyline: [{
+        points: logAndLats,
+        color: "#DC143C",
+        width: 8,
+      }],
+      logAndLats,
     });
+    console.log("afterResetKey", listData);
+  },
+  itemDelete(e) {
+    console.log("delete", e)
+    let listData = this.data.listData;
+    let logAndLats = this.data.logAndLats;
+    listData.splice(e.detail.key, 1);
+    logAndLats.splice(e.detail.key, 1);
+    //reset sortKey
+    for (let i = e.detail.key; i < listData.length; i++)
+      listData[i].sortKey--;
+    setTimeout(() => {
+      if (logAndLats.length > 1) {
+        this.setData({
+          listData,
+          polyline: [{
+            points: logAndLats,
+            color: "#DC143C",
+            width: 8,
+          }],
+          logAndLats,
+        });
+      } else {
+        this.setData({
+          listData,
+          logAndLats,
+        });
+      }
+      this.drag.init();
+    }, 300)
+    console.log("afterDelete", listData)
+  },
+
+  //myMap页面中events回调时需要更新数据库
+  itemClick(e) {
+    console.log(e)
+    let _this = this;
+    wx.navigateTo({
+      url: '../edit/edit',
+      events: {
+        acceptChangedData: function (data) {
+          console.log(data)
+          _this.setData({
+            [`listData[${e.detail.key}].picList`]: data.picList,
+            [`listData[${e.detail.key}].description`]: data.description,
+          })
+          _this.drag.init()
+        }
+      },
+      success: function (res) {
+        res.eventChannel.emit('acceptOriginalData', {
+          title: e.detail.data.title,
+          description: e.detail.data.description,
+          picList: e.detail.data.picList,
+        })
+      },
+    })
+    console.log(e);
   },
   change(e) {
     console.log("change", e.detail.listData)
   },
-
   sizeChange(e) {
     wx.pageScrollTo({
       scrollTop: 0
@@ -356,59 +435,23 @@ Page({
     });
     this.drag.columnChange();
   },
-  itemDelete(e){
-    console.log("delete",e)
-    let listData = this.data.listData
-    listData.splice(e.detail.key,1)
-    setTimeout(() => {
-      this.setData({
-        listData
-      });
-      this.drag.init();
-    }, 300)
-  },
-
-  itemClick(e) {
-    wx.navigateTo({
-      url: '../edit/edit',
-      events: {
-        acceptChangedData: function (data) {
-          console.log(data) //这是从B页面向A页面传输的数据
-        }
-      },
-      success: function (res) {
-        res.eventChannel.emit('acceptOriginalData', {
-          title: e.detail.data.title,
-          description: e.detail.data.description,
-          picList: [{}],
-        })
-      },
-    })
-    console.log(e);
-  },
   toggleFixed(e) {
     let key = e.currentTarget.dataset.key;
     let {
       listData
     } = this.data;
-
     listData[key].fixed = !listData[key].fixed
-
     this.setData({
       listData: listData
     });
   },
-
   scroll(e) {
-    console.log('@@@View')
-    console.log(e.detail.scrollTop)
-
+    // console.log('@@@View')
+    // console.log(e.detail.scrollTop)
     this.setData({
       pageMetaScrollTop: e.detail.scrollTop
     })
-
   },
-
   // 页面滚动
   onDragScroll(e) {
     console.log('@@@Drag')
@@ -416,5 +459,40 @@ Page({
     this.setData({
       scrollTop: e.detail.scrollTop,
     });
-  }
+  },
+  //subPage func
+  show_subpage() {
+    this.setData({
+      showSubPage: true
+    })
+  },
+  exit_subpage() {
+    this.setData({
+      showSubPage: false
+    })
+  },
+  add_schedule: function () {
+    var currendate = this.data.date
+    wx.redirectTo({
+      url: '../schedule/schedule',
+    })
+  },
+
+  //fucking shit api！！！
+  route_planning: function (e) {
+    // var MapContext = wx.createMapContext('#map');
+    // for (var i = 0; i < this.data.markers.length; i++) {
+    //   if (this.data.markers.id == e.detail) {
+    //     longitude = this.data.markers.longitude;
+    //     latitude = this.data.markers.latitude;
+    //   };
+    // }
+    // console.log(MapContext);
+    // console.log(e.detail)
+    // MapContext.openMapApp({
+    //   longitude: 100,
+    //   latitude: 80,
+    //   destination: 'HELL',
+    // })
+  },
 })

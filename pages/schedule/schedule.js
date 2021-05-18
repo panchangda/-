@@ -1,70 +1,70 @@
-const app = getApp()
-//在es6转es5的同时 使用async/await新特性
-import regeneratorRuntime from '../../libs/runtime';
-//引入util类计算日期
-var util = require('../../utils/util.js');
-// 引入SDK核心类 实例化API核心类
-var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
+const app = getApp();
+import regeneratorRuntime from '../../libs/runtime'; //在es6转es5的同时 使用async/await新特性
+var util = require('../../utils/util.js'); //引入util类计算日期 
+var QQMapWX = require('../../libs/qqmap-wx-jssdk.js'); // 引入SDK核心类 实例化API核心类
 var qqmapsdk = new QQMapWX({
   key: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB' // 必填
 });
 //map组件基本设置
 var mapSetting = {
   subkey: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
-  longitude: 106.301919,
-  latitude: 29.603818,
+  // longitude: 106.301919,
+  // latitude: 29.603818,
   scale: 12,
   layerStyle: 1,
   showLocation: true,
 };
+
 Page({
   data: {
-
     //schedule settings
     showSetting: true,
     settingComplete: false,
     name: '',
+
     //calendar
     showCalendar: false,
     minDate: new Date(2021, 4, 7).getTime(),
     maxDate: new Date(2021, 4, 31).getTime(),
+
     //date info
     date: "",
 
     //AllDatesData
     allDatesData: [],
+    listData: [],
+    polyline: [],
+    logAndLats: [],
+    count: 0,
+
     //map data
     mapSetting: mapSetting,
-    polyline: [{
-      points: [],
-    }],
-    logAndLats: [],
-    
+
     //subPage data
     showSubPage: true,
 
     //mainPage data
     showSelect: false,
+
     //wxp-drag data
     isIphoneX: app.globalData.isIphoneX,
     size: 1,
-    listData: [],
     scrollTop: 0,
     pageMetaScrollTop: 0,
-    count: 0,
 
     //nav data
     activeTag: 0,
     tmpDay: 0,
     totalDay: '',
-    
+
   },
   //上传新行程
   //调用云函数存入数据库
+  //特殊要求请详询温州昶哥
   //jyj说的就是你 速度
-  upload() {
+  upload_schedule() {
     wx.cloud.callFunction({
-      name: 'upLoadNewSchedule',
+      name: 'uploadNewSchedule',
       data: {
         //DateFormate: yyyy-mm-dd - yyyy-mm-dd
         name: this.data.name,
@@ -73,13 +73,19 @@ Page({
       },
     })
   },
-  onLoad: function (options) {},
+  onLoad: function () {},
   onShow: function () {},
   onReady: function () {},
   onNameChange() {
-    this.setData({
-      nameSet: true,
-    })
+    if (this.data.name != '') {
+      this.setData({
+        nameSet: true,
+      })
+    } else {
+      this.setData({
+        nameSet: false,
+      })
+    }
   },
   onCalendarDisplay() {
     this.setData({
@@ -109,36 +115,31 @@ Page({
     let dateS = util.formatDate(new Date(start));
     let dateE = util.formatDate(new Date(end));
     let totalDay = this.getDaysBetween(dateS, dateE);
+    this.setData({
+      showCalendar: false,
+      date: dateS + ' - ' + dateE,
+      calendarSet: true,
+      totalDay,
+    });
+  },
+  confirm_setting() {
+    //初始化allDatesData
     let allDatesData = []
-    for (let i = 0; i < totalDay; i++)
+    for (let i = 0; i < this.data.totalDay; i++)
       allDatesData.push({
         listData: [],
         polyline: [],
         logAndLats: [],
         count: 0,
       });
-    this.setData({
-      showCalendar: false,
-      date: dateS + ' - ' + dateE,
-      calendarSet: true,
-      totalDay,
-      allDatesData,
-    });
-  },
-
-  confirm_setting() {
     //关闭setting后拖拽列表才会加载
     //所以先关闭再初始化拖拽列表
     this.setData({
       showSetting: false,
+      allDatesData
     })
+    //获取拖拽列表
     this.drag = this.selectComponent('#drag');
-    setTimeout(() => {
-      this.setData({
-        listData: listData,
-      });
-      this.drag.init();
-    }, 300)
   },
   //switch to tmpDay and reload infos
   onTagClick(e) {
@@ -157,11 +158,10 @@ Page({
         logAndLats: this.data.allDatesData[e.detail.index].logAndLats,
         count: this.data.allDatesData[e.detail.index].count,
         tmpDay: e.detail.index,
-      });
+      })
       this.drag.init();
       console.log(this.data.allDatesData, this.data.listData, this.data.polyline, this.data.logAndLats)
     }
-
   },
   load_yesterday: function () {
     this.setData({
@@ -219,6 +219,7 @@ Page({
   },
 
   add_location(e) {
+    console.log(this.data.listData)
     var id = e.currentTarget.id;
     for (var i = 0; i < this.data.suggestion.length; i++) {
       if (i == id) {
@@ -274,45 +275,14 @@ Page({
               chosenLocation: '',
             });
           }
-
           this.drag.init();
         }, 300)
         break;
       }
     }
-    //查找不到id对应suggestion的处理
-    // this.setData({
-    // })
-    console.log("afterAdded", listData)
-  },
-
-  route_planning: function (e) {
-    var MapContext = wx.createMapContext('#map');
-    // for (var i = 0; i < this.data.markers.length; i++) {
-    //   if (this.data.markers.id == e.detail) {
-    //     longitude = this.data.markers.longitude;
-    //     latitude = this.data.markers.latitude;
-    //   };
-    // }
-    // console.log(MapContext);
-    // console.log(e.detail)
-    MapContext.openMapApp({
-      longitude: 100,
-      latitude: 80,
-      destination: 'HELL',
-    })
-  },
-
-  //subPage func
-  show_subpage() {
-    this.setData({
-      showSubPage: true,
-    })
-  },
-  exit_subpage() {
-    this.setData({
-      showSubPage: false
-    })
+    // 查找不到id对应suggestion的处理
+    // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
+    // console.log("afterAdded", this.data.listData)
   },
 
   //wxp-drag func
@@ -339,7 +309,6 @@ Page({
     });
     console.log("afterResetKey", listData);
   },
-  //**unfinished**
   itemDelete(e) {
     console.log("delete", e)
     let listData = this.data.listData;
@@ -428,6 +397,34 @@ Page({
     this.setData({
       scrollTop: e.detail.scrollTop,
     });
+  },
+  //subPage func
+  show_subpage() {
+    this.setData({
+      showSubPage: true,
+    })
+  },
+  exit_subpage() {
+    this.setData({
+      showSubPage: false
+    })
+  },
+  //fucking shit api！！！
+  route_planning: function (e) {
+    // var MapContext = wx.createMapContext('#map');
+    // for (var i = 0; i < this.data.markers.length; i++) {
+    //   if (this.data.markers.id == e.detail) {
+    //     longitude = this.data.markers.longitude;
+    //     latitude = this.data.markers.latitude;
+    //   };
+    // }
+    // console.log(MapContext);
+    // console.log(e.detail)
+    // MapContext.openMapApp({
+    //   longitude: 100,
+    //   latitude: 80,
+    //   destination: 'HELL',
+    // })
   },
 
 })

@@ -78,8 +78,8 @@
 
   <page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
     close-on-slide-down="{{false}}" custom-style="z-index:1;height:100%"
-    overlay-style="background-color: rgba(255, 255, 255, 0.7)" bind:enter="load_destinations" bind:leave="render_map">
-
+    overlay-style="background-color: rgba(255, 255, 255, 0.7)">
+    
     <image src="../../resources/icons8-double-down.gif" class="icon-double-down" bindtap="exit_subpage"></image>
 
     <view wx:if="{{tmpDay==0?false:true}}" class="icon-on-left">
@@ -98,7 +98,7 @@
       <cover-view></cover-view>
     </map>
     
-    <button bindtap="upload">保存行程</button>
+    <button bindtap="upload_schedule">保存行程</button>
     <button bindtap="route_planning">test</button>
     
 
