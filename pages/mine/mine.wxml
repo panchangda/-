@@ -5,44 +5,52 @@
     <view class="user-avatar">
       <open-data type="userAvatarUrl"></open-data>
     </view>
+    <view class="user-nickname">
+      <open-data type="userNickName"></open-data>
+    </view>
   </view>
 
   <!-- 按钮组 -->
   <view class="user-options">
-    <button>分享行程</button>
-    <button>上传到市场</button>
     <button>使用教程</button>
+    <button>关于作者</button>
   </view>
 
   <!-- 时间轴 -->
-  <van-tabs type="card" swipeable animated sticky>
-    <van-tab title="历史行程">
-      <wux-timeline pending="{{true}}">
-        <block wx:for="{{pastList}}" wx:key="{{id}}">
-          <wux-timeline-item content="{{item.date}}  {{item.name}}"> 
-            <view bind:tap="onClick" data-id="{{item.id}}">你好！我在东北玩泥巴</view>
+
+    <van-tabs id="tabs" type="card" style="width:100vw;" bind:click="onTagChange" swipeable sticky animated duration="0.5">
+      <van-tab title="历史行程">
+        <wux-timeline pending="{{true}}">
+          <block wx:for="{{pastList}}" wx:key="id">
+            <wux-timeline-item content="{{item.date}}  {{item.name}}">
+              <view class="dots" bind:tap="onClick" data-id="{{item.id}}">```</view>
+              <scroll-view class="gallery1" scroll-x="{{true}}" scroll-y="{{false}}">
+                <block wx:for="{{item.picList}}">
+                  <image class="pics" src="{{item}}" mode="heightFix"></image>
+                </block>
+              </scroll-view>
             </wux-timeline-item>
-        </block>
-      </wux-timeline>
-    </van-tab>
-    <van-tab title="未来行程">
-      <wux-timeline pending="{{true}}" position="right">
-        <block wx:for="{{futureList}}" wx:key="{{id}}">
-          <wux-timeline-item content="{{item.date}}  {{item.name}}"> 
-            <view bind:tap="onClick" data-id="{{item.id}}">我在海南吃椰子</view>
-            </wux-timeline-item>
-        </block>
-      </wux-timeline>
+          </block>
+        </wux-timeline>
       </van-tab>
-  </van-tabs>
-  <van-action-sheet
-  show="{{ show }}"
-  actions="{{ actions }}"
-  cancel-text="取消"
-  bind:cancel="onCancel"
-  bind:close="onClose"
-  bind:select="onSelect"
-/>
-  <van-loading wx:if="{{loading}}" size="120rpx" vertical >加载中...</van-loading>
+      <van-tab title="未来行程">
+        <wux-timeline pending="{{true}}">
+          <block wx:for="{{futureList}}" wx:key="id">
+            <wux-timeline-item content="{{item.date}}  {{item.name}}">
+              <view class="dots" bind:tap="onClick" data-id="{{item.id}}">```</view>
+              <scroll-view class="gallery2" scroll-x="{{true}}" scroll-y="{{false}}">
+                <block wx:for="{{item.picList}}">
+                  <image class="pics" src="{{item}}" mode="heightFix"></image>
+                </block>
+              </scroll-view>
+            </wux-timeline-item>
+          </block>
+        </wux-timeline>
+      </van-tab>
+    </van-tabs>
+
+  <van-action-sheet show="{{ show }}" actions="{{ actions }}" cancel-text="取消" bind:cancel="onCancel"
+    bind:close="onClose" bind:select="onSelect" />
+  <van-loading wx:if="{{loading}}" size="120rpx" vertical>加载中...</van-loading>
 
 </view>

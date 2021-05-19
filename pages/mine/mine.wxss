@@ -15,12 +15,48 @@
   display: block;  
   border-radius: 50%;  
 }
+.user-nickname{
+  padding-top: 50rpx;
+}
 .user-options{
   display: flex;
   flex-direction: row;
   justify-content: center;
+  padding-bottom:50rpx;
 }
-
+.dots{
+  position: relative;
+  height:50rpx;
+  width:50rpx;
+  top:-20rpx;
+  left:400rpx;
+}
+.gallery1{
+  width:600rpx;
+  height:180rpx;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.gallery2{
+  width:600rpx;
+  height:180rpx;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.gallery1 .pics{
+  height:100%;
+  display:inline-block;
+}
+.gallery2 .pics{
+  height:100%;
+  display:inline-block;
+}
 .wux-timeline{
   padding-top: 50rpx;
   padding-left: 50rpx;
