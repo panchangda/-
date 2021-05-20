@@ -41,10 +41,19 @@ Page({
     // console.log(e)
     const picList = this.data.picList
     for (let i = 0; i < e.detail.file.length; i++) {
-      picList.push({
-        url: e.detail.file[i].url,
-        deletable: true,
-      })
+        const Ext = GetFileExt(e.detail.file[i].url);
+        console.log("?")
+        wx.cloud.uploadFile({
+          cloudPath:'image/' + Math.round(Math.random()*1000000) + Ext,
+          filePath:e.detail.file[i].url,
+          success(res){
+            console.log(res)
+            picList.push({
+              url: res.fileID,
+              deletable: true,
+            })
+          }
+        })
     }
     this.setData({
       picList,
@@ -105,3 +114,12 @@ Page({
 
   }
 })
+
+//提取文件tmp名
+function GetFileExt(filepath) {
+  if (filepath != "") {
+    console.log(filepath)
+      var pos = filepath.replace(/.+\//, "");
+      return pos;
+  }
+}

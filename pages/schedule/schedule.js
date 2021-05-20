@@ -60,8 +60,6 @@ Page({
   },
   //上传新行程
   //调用云函数存入数据库
-  //特殊要求请详询温州昶哥
-  //jyj说的就是你 速度
   upload_schedule() {
     wx.cloud.callFunction({
       name: 'uploadNewSchedule',
