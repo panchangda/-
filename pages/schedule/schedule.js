@@ -1,5 +1,6 @@
 const app = getApp();
 import regeneratorRuntime from '../../libs/runtime'; //在es6转es5的同时 使用async/await新特性
+import Notify from '../../miniprogram_npm/@vant/weapp/notify/notify';
 var util = require('../../utils/util.js'); //引入util类计算日期 
 var QQMapWX = require('../../libs/qqmap-wx-jssdk.js'); // 引入SDK核心类 实例化API核心类
 var qqmapsdk = new QQMapWX({
@@ -18,7 +19,7 @@ var mapSetting = {
 Page({
   data: {
     //schedule settings
-    showSetting: true,
+    showSetting: false,
     settingComplete: false,
     name: '',
 
@@ -60,9 +61,50 @@ Page({
   },
   //上传新行程
   //调用云函数存入数据库
-  upload_schedule() {
-    //save today's data to allDatesData
-    let thisDayData = {
+
+  add_a_day() {
+    let allDatesData = this.data.allDatesData;
+    allDatesData.push({
+      listData: [],
+      polyline: [],
+      logAndLats: [],
+      count: 0,
+    })
+    let tmpDay = this.data.tmpDay + 1;
+    let totalDay = this.data.totalDay + 1;
+    this.onTagClick({
+      detail: {
+        index: tmpDay
+      }
+    })
+    this.setData({
+      totalDay,
+      allDatesData,
+      tmpDay,
+    })
+    this.selectComponent('#tabs').resize();
+  },
+  delete_today() {
+    //total day must be bigger than 1 
+    if (this.data.totalDay > 1) {
+      let allDatesData = this.data.allDatesData;
+      allDatesData.splice(this.data.tmpDay, 1);
+      let tmpDay = this.data.tmpDay;
+      let totalDay = this.data.totalDay - 1;
+      if (tmpDay == totalDay) {
+        tmpDay--;
+      }
+      this.setData({
+        tmpDay,
+        allDatesData,
+        totalDay,
+      })
+      this.selectComponent('#tabs').resize();
+    }
+  },
+  show_setting(){
+     //save today's data to allDatesData
+     let thisDayData = {
       listData: this.data.listData,
       polyline: this.data.polyline,
       logAndLats: this.data.logAndLats,
@@ -70,19 +112,29 @@ Page({
     }
     this.setData({
       [`allDatesData[${this.data.tmpDay}]`]: thisDayData,
-    })
-    //call cloudFunc
-    wx.cloud.callFunction({
-      name: 'uploadNewSchedule',
-      data: {
-        //DateFormate: yyyy-mm-dd - yyyy-mm-dd
-        name: this.data.name,
-        date: this.data.date,
-        allDatesData: this.data.allDatesData,
-      },
+      showSetting:true,
     })
   },
-  onLoad: function () {},
+  onLoad: function () {
+    this.drag = this.selectComponent('#drag');
+    if (true) {
+      //"add schedule" initialize
+      let allDatesData = this.data.allDatesData
+      allDatesData.push({
+        listData: [],
+        polyline: [],
+        logAndLats: [],
+        count: 0,
+      })
+      this.setData({
+        allDatesData,
+        tmpDay: 0,
+        totalDay: 1,
+      })
+    } else {
+      //"discover schedule" initialize
+    }
+  },
   onShow: function () {},
   onReady: function () {},
   onNameChange() {
@@ -119,48 +171,55 @@ Page({
     return days;
   },
   onCalendarConfirm(e) {
-    // console.log(e)
-    const [start, end] = e.detail;
-    let dateS = util.formatDate(new Date(start));
-    let dateE = util.formatDate(new Date(end));
-    let totalDay = this.getDaysBetween(dateS, dateE);
+    console.log(e)
+    const date = e.detail;
+    let dateS = util.formatDate(new Date(date));
+    let secs = Date.parse(date)+(this.data.totalDay==1?0:this.data.totalDay-1) * (1 * 24 * 60 * 60 * 1000);
+    let dateE = new Date();
+    dateE.setTime(secs);
+    dateE = util.formatDate(dateE);
     this.setData({
+      calendarSet:true,
       showCalendar: false,
       date: dateS + ' - ' + dateE,
-      calendarSet: true,
-      totalDay,
     });
   },
   confirm_setting() {
-    //初始化allDatesData
-    let allDatesData = []
-    for (let i = 0; i < this.data.totalDay; i++)
-      allDatesData.push({
-        listData: [],
-        polyline: [],
-        logAndLats: [],
-        count: 0,
-      });
-    //关闭setting后拖拽列表才会加载
-    //所以先关闭再初始化拖拽列表
-    this.setData({
-      showSetting: false,
-      allDatesData
-    })
-    //获取拖拽列表
-    this.drag = this.selectComponent('#drag');
+      //call cloudFunc
+      wx.cloud.callFunction({
+        name: 'uploadNewSchedule',
+        data: {
+          //DateFormate: yyyy-mm-dd - yyyy-mm-dd
+          name: this.data.name,
+          date: this.data.date,
+          allDatesData: this.data.allDatesData,
+        },
+        success:res=>{
+          if(res.result){
+            Notify({ type: 'success', message: '成了兄弟' });
+
+          }else{
+            Notify({ type: 'danger', message: '你这个日期不行懂吗' });
+          }
+        },
+        fail:err=>{
+          console.log(err)
+        },
+      })
   },
+  //FUCK THIS SHITTYSHIT!
   //switch to tmpDay and reload infos
-  FUCKYOUWXSHITAPI(){
+  FUCKYOUWXSHITAPI() {
     let MapContext = wx.createMapContext("map");
     MapContext.includePoints({
-      points:this.data.logAndLats,
-      padding:[80,80,80,80,],
+      points: this.data.logAndLats,
+      padding: [80, 80, 80, 80, ],
     })
   },
   onTagClick(e) {
+    // console.log(e)
     if (this.data.tmpDay != e.detail.index) {
-      console.log("@@@from " + this.data.tmpDay + " going to " + e.detail.index)
+      // console.log("@@@from " + this.data.tmpDay + " going to " + e.detail.index)
       let thisDayData = {
         listData: this.data.listData,
         polyline: this.data.polyline,
@@ -181,21 +240,20 @@ Page({
       //refresh include points
       let MapContext = wx.createMapContext("map");
       MapContext.includePoints({
-        points:this.data.logAndLats,
-        padding:[80,80,80,80,],
+        points: this.data.logAndLats,
+        padding: [80, 80, 80, 80, ],
       })
     }
   },
   load_yesterday: function () {
-    this.setData({
-      date: yesterDate
-    })
-    //使用load_today加载
+    this.onTagClick({detail:{
+      index:this.data.tmpDay-1,
+    }})
   },
   load_tomorrow: function () {
-    this.setData({
-      date: tomorrowDate
-    })
+    this.onTagClick({detail:{
+      index:this.data.tmpDay+1,
+    }})
   },
   //触发关键词输入提示事件
   get_suggestion: function (e) {
@@ -206,7 +264,7 @@ Page({
       keyword: e.detail, //用户输入的关键词，可设置固定值,如keyword:'KFC'
       //region:'北京', //设置城市名，限制关键词所示的地域范围，非必填参数
       success: function (res) { //搜索成功后的回调
-        console.log(res);
+        // console.log(res);
         var sug = [];
         for (var i = 0; i < res.data.length; i++) {
           sug.push({ // 获取返回结果，放到sug数组中
@@ -248,7 +306,7 @@ Page({
         //加入到listData数组
         let listData = this.data.listData;
         let logAndLats = this.data.logAndLats;
-        
+
         logAndLats.push({
           latitude: this.data.suggestion[i].latitude,
           longitude: this.data.suggestion[i].longitude,
@@ -282,15 +340,15 @@ Page({
               color: "#DC143C",
               width: 8,
             }],
-            listData:listData,
-            logAndLats:logAndLats,
+            listData: listData,
+            logAndLats: logAndLats,
             showSelect: false,
             chosenLocation: '',
           });
         } else {
           this.setData({
-            listData:listData,
-            logAndLats:logAndLats,
+            listData: listData,
+            logAndLats: logAndLats,
             showSelect: false,
             chosenLocation: '',
           });
@@ -301,7 +359,7 @@ Page({
     }
     // 查找不到id对应suggestion的处理
     // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
-    console.log("afterAdded", this.data.listData,this.data.polyline,this.data.logAndLats)
+    console.log("afterAdded", this.data.listData, this.data.polyline, this.data.logAndLats)
   },
 
   //wxp-drag func

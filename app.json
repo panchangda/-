@@ -13,6 +13,7 @@
     "van-field": "@vant/weapp/field/index",
     "van-loading": "@vant/weapp/loading/index",
     "van-action-sheet": "@vant/weapp/action-sheet/index",
+    "van-notify": "@vant/weapp/notify/index",
     "wux-icon": "wux-weapp/icon/index",
     "wux-timeline": "wux-weapp/timeline/index",
     "wux-timeline-item": "wux-weapp/timeline-item/index",
@@ -21,8 +22,8 @@
     "wxp-drag-item": "/components/drag-item/index"
   },
   "pages": [
-    "pages/myMap/myMap",
     "pages/schedule/schedule",
+    "pages/myMap/myMap",
     "pages/mine/mine",
     "pages/discover/discover",
     "pages/edit/edit"

@@ -12,6 +12,16 @@
   width:100%;
   flex-grow:1;
 }
+.button-group{
+  position: absolute;
+  width: 750rpx;
+  height:200rpx;
+  left:0rpx;
+  bottom:300rpx;
+  display: flex;
+  flex-direction: row;
+  z-index:1;
+}
 
 .search-page{
   position: absolute;
@@ -46,14 +56,16 @@
 .icon-on-left{
   position:absolute;
   z-index:1;
-  top:45%;
+  top:50%;
   left:0rpx;
+  margin-top:-2rem;
 }
 .icon-on-right{
   position:absolute;
   z-index:1;
-  top:45%;
+  top:50%;
   right:0rpx;
+  margin-top:-2rem;
 }
 .icon-double-down{
   position:fixed;
