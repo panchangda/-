@@ -121,6 +121,7 @@ Page({
     });
   },
   confirm_setting() {
+<<<<<<< Updated upstream
     //初始化allDatesData
     let allDatesData = []
     for (let i = 0; i < this.data.totalDay; i++)
@@ -135,6 +136,37 @@ Page({
     this.setData({
       showSetting: false,
       allDatesData
+=======
+      //call cloudFunc
+      wx.cloud.callFunction({
+        name: 'uploadNewSchedule',
+        data: {
+          //DateFormate: yyyy-mm-dd - yyyy-mm-dd
+          name: this.data.name,
+          date: this.data.date,
+          allDatesData: this.data.allDatesData,
+        },
+        success:res=>{
+          if(res.result){
+            Notify({ type: 'success', message: '成了兄弟' });
+          }else{
+            Notify({ type: 'danger', message: '你这个日期不行懂吗' });
+          }
+          console.log(res)
+        },
+        fail:err=>{
+          console.log(err)
+        },
+      })
+  },
+  //FUCK THIS SHITTYSHIT!
+  //switch to tmpDay and reload infos
+  FUCKYOUWXSHITAPI() {
+    let MapContext = wx.createMapContext("map");
+    MapContext.includePoints({
+      points: this.data.logAndLats,
+      padding: [80, 80, 80, 80, ],
+>>>>>>> Stashed changes
     })
     //获取拖拽列表
     this.drag = this.selectComponent('#drag');

@@ -42,7 +42,7 @@ exports.main = async (event, context) => {
       endDate:_.gte(dateRange[1]),
     }).end()
 
-    if (result1.list.length1 != 0 || result2.list.length2 != 0 ){
+    if (result1.list.length != 0 || result2.list.length != 0 ){
       return false;
     }
 
@@ -57,5 +57,10 @@ exports.main = async (event, context) => {
     }
   }).then(res=>{
     console.log(res)
+    return true;
+  }).catch(err=>{
+    console.log(err)
+    return false;
   })
+  //return true;
 }

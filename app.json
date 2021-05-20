@@ -21,6 +21,11 @@
     "wxp-drag-item": "/components/drag-item/index"
   },
   "pages": [
+<<<<<<< Updated upstream
+=======
+    "pages/myMap/myMap",
+    "pages/schedule/schedule",
+>>>>>>> Stashed changes
     "pages/mine/mine",
     "pages/myMap/myMap",
     "pages/schedule/schedule",

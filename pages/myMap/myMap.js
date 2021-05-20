@@ -96,7 +96,6 @@ Page({
         //+" 00:00:00.000"
       },
     })
-    console.log(res)
     if (res.result && res.result.list.length) {
       const targetDay = getDaysBetween(res.result.list[0].beginDate,date)
       this.setData({
@@ -107,7 +106,6 @@ Page({
         logAndLats: res.result.list[0].allDatesData[targetDay-1].logAndLats,
         count: res.result.list[0].allDatesData[targetDay-1].count,
       })
-      console.log(this.data)
     } else {
       this.setData({
         hasSchedule: false
