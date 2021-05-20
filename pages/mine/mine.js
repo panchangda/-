@@ -8,7 +8,7 @@ Page({
       id: '0',
       date: '2021-5-7 - 2021-5-11',
       name: '重庆之旅',
-      picList: ['http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png','http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png','http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png','http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png','http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png','http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png',],
+      picList: ['http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', ],
     }, {
       id: '1',
       date: '2021-5-7 - 2021-5-11',
@@ -49,11 +49,14 @@ Page({
       },
       {
         name: "分享行程",
-      }
+      },
+      {
+        name: "上传市场",
+      }, 
     ],
 
     //tmpTag( 0:past 1:future )
-    tmpTag:0,
+    tmpTag: 0,
     show: false,
     pageNo: 0,
     pageSize: 5,
@@ -65,26 +68,26 @@ Page({
   onReachBottom: function () {
     let pageNo = this.data.pageNo + 1;
     wx.cloud.callFunction({
-      name:"getPersonalSchedule",
-      data:{
-        tmpTag:this.data.tmpTag,
-        pageNo:this.data.pageNo,
-        pageSize:this.data.pageSize,
+      name: "getPersonalSchedule",
+      data: {
+        tmpTag: this.data.tmpTag,
+        pageNo: this.data.pageNo,
+        pageSize: this.data.pageSize,
       },
-      success:res=>{
+      success: res => {
         console.log(res.result)
-        if(!this.data.tmpTag){
+        if (!this.data.tmpTag) {
           let pastList = this.data.pastList;
           let catList = pastList.concat(res.result);
           this.setData({
-            pastList:catList,
+            pastList: catList,
             pageNo,
           })
-        }else{
+        } else {
           let futureList = this.data.futureList;
           let catList = futureList.concat(res.result);
           this.setData({
-            futureList:catList,
+            futureList: catList,
             pageNo,
           })
         }
@@ -94,11 +97,11 @@ Page({
   },
   onSelect(e) {
     console.log(e.detail)
-    if(e.detail.name=="行程详情"){
+    if (e.detail.name == "行程详情") {
 
-    }else if(e.detail.name=="删除行程"){
+    } else if (e.detail.name == "删除行程") {
 
-    }else if(e.detail.name=="分享行程"){
+    } else if (e.detail.name == "分享行程") {
 
     }
   },
@@ -118,7 +121,7 @@ Page({
       show: false,
     })
   },
-  onTagChange(){
+  onTagChange() {
     this.selectComponent('#tabs').resize();
     console.log('@@resized')
   },

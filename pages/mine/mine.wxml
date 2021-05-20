@@ -17,7 +17,6 @@
   </view>
 
   <!-- 时间轴 -->
-
     <van-tabs id="tabs" type="card" style="width:100vw;" bind:click="onTagChange" swipeable sticky animated duration="0.5">
       <van-tab title="历史行程">
         <wux-timeline pending="{{true}}">

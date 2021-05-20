@@ -8,8 +8,8 @@ var qqmapsdk = new QQMapWX({
 //map组件基本设置
 var mapSetting = {
   subkey: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
-  // longitude: 106.301919,
-  // latitude: 29.603818,
+  longitude: 106.301919,
+  latitude: 29.603818,
   scale: 12,
   layerStyle: 1,
   showLocation: true,
@@ -61,6 +61,17 @@ Page({
   //上传新行程
   //调用云函数存入数据库
   upload_schedule() {
+    //save today's data to allDatesData
+    let thisDayData = {
+      listData: this.data.listData,
+      polyline: this.data.polyline,
+      logAndLats: this.data.logAndLats,
+      count: this.data.count,
+    }
+    this.setData({
+      [`allDatesData[${this.data.tmpDay}]`]: thisDayData,
+    })
+    //call cloudFunc
     wx.cloud.callFunction({
       name: 'uploadNewSchedule',
       data: {
@@ -140,6 +151,13 @@ Page({
     this.drag = this.selectComponent('#drag');
   },
   //switch to tmpDay and reload infos
+  FUCKYOUWXSHITAPI(){
+    let MapContext = wx.createMapContext("map");
+    MapContext.includePoints({
+      points:this.data.logAndLats,
+      padding:[80,80,80,80,],
+    })
+  },
   onTagClick(e) {
     if (this.data.tmpDay != e.detail.index) {
       console.log("@@@from " + this.data.tmpDay + " going to " + e.detail.index)
@@ -158,7 +176,14 @@ Page({
         tmpDay: e.detail.index,
       })
       this.drag.init();
-      console.log(this.data.allDatesData, this.data.listData, this.data.polyline, this.data.logAndLats)
+      // console.log(this.data.allDatesData, this.data.listData, this.data.polyline, this.data.logAndLats)
+
+      //refresh include points
+      let MapContext = wx.createMapContext("map");
+      MapContext.includePoints({
+        points:this.data.logAndLats,
+        padding:[80,80,80,80,],
+      })
     }
   },
   load_yesterday: function () {
@@ -172,7 +197,6 @@ Page({
       date: tomorrowDate
     })
   },
-
   //触发关键词输入提示事件
   get_suggestion: function (e) {
     var _this = this;
@@ -217,16 +241,17 @@ Page({
   },
 
   add_location(e) {
-    console.log(this.data.listData)
-    var id = e.currentTarget.id;
+    // console.log(this.data.listData)
+    let id = e.currentTarget.id;
     for (var i = 0; i < this.data.suggestion.length; i++) {
       if (i == id) {
         //加入到listData数组
         let listData = this.data.listData;
         let logAndLats = this.data.logAndLats;
+        
         logAndLats.push({
-          longitude: this.data.suggestion[i].longitude,
           latitude: this.data.suggestion[i].latitude,
+          longitude: this.data.suggestion[i].longitude,
         })
         listData.push({
           //drag data
@@ -250,37 +275,33 @@ Page({
             anchorY: 20,
           },
         });
-        setTimeout(() => {
-          if (logAndLats.length > 1) {
-            this.setData({
-              listData,
-              // markers,
-              polyline: [{
-                points: logAndLats,
-                color: "#DC143C",
-                width: 8,
-              }],
-              logAndLats,
-              showSelect: false,
-              chosenLocation: '',
-            });
-          } else {
-            this.setData({
-              listData,
-              // markers,
-              logAndLats,
-              showSelect: false,
-              chosenLocation: '',
-            });
-          }
-          this.drag.init();
-        }, 300)
+        if (logAndLats.length > 1) {
+          this.setData({
+            polyline: [{
+              points: logAndLats,
+              color: "#DC143C",
+              width: 8,
+            }],
+            listData:listData,
+            logAndLats:logAndLats,
+            showSelect: false,
+            chosenLocation: '',
+          });
+        } else {
+          this.setData({
+            listData:listData,
+            logAndLats:logAndLats,
+            showSelect: false,
+            chosenLocation: '',
+          });
+        }
+        this.drag.init();
         break;
       }
     }
     // 查找不到id对应suggestion的处理
     // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
-    // console.log("afterAdded", this.data.listData)
+    console.log("afterAdded", this.data.listData,this.data.polyline,this.data.logAndLats)
   },
 
   //wxp-drag func

@@ -78,7 +78,7 @@
 
   <page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
     close-on-slide-down="{{false}}" custom-style="z-index:1;height:100%"
-    overlay-style="background-color: rgba(255, 255, 255, 0.7)">
+    overlay-style="background-color: rgba(255, 255, 255, 0.7)" bind:afterenter="FUCKYOUWXSHITAPI">
     
     <image src="../../resources/icons8-double-down.gif" class="icon-double-down" bindtap="exit_subpage"></image>
 
@@ -88,19 +88,19 @@
     <view wx:if="{{tmpDay==totalDay-1?false:true}}" class="icon-on-right">
       <van-icon bind:click="load_tomorrow" name="arrow" size="2em" />
     </view>
+    <view class="map-container">
+      <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{listData}}"
+      polyline="{{polyline}}" >
 
-    <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{listData}}"
-      polyline="{{polyline}}" include-points="{{logAndLats}}">
       <cover-view slot="callout">
         <!-- 绑定marker-id -->
-        <cover-view wx:for="{{listData}}" marker-id="{{item.sortKey}}" class="customCallout">{{item.sortKey+1}}</cover-view>
+        <cover-view wx:for="{{listData}}" marker-id="{{item.id}}" class="customCallout">{{item.sortKey+1}}</cover-view>
       </cover-view>
       <cover-view></cover-view>
     </map>
-    
-    <button bindtap="upload_schedule">保存行程</button>
     <button bindtap="route_planning">test</button>
-    
+    <button bindtap="upload_schedule">保存行程</button>
+    </view>
 
   </page-container>
 </block>

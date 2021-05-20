@@ -10,14 +10,12 @@ var mapSetting = {
   subkey: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
   // longitude: 106.301919,
   // latitude: 29.603818,
-  scale: 12,
+  // scale: 12,
   layerStyle: 1,
   showLocation: true,
 };
 const milSecsInOneDay = 24 * 60 * 60 * 1000;
-// const query = wx.createSelectorQuery();
-// const MapContext = query.select('map');
-// const MapContext = wx.createMapContext('map');
+// const MapContext = wx.createMapContext('#map');
 
 Page({
   data: {
@@ -98,14 +96,14 @@ Page({
     })
     console.log(res)
     if (res.result && res.result.list.length) {
-      const targetDay = getDaysBetween(res.result.list[0].beginDate,date)
+      const targetDay = getDaysBetween(res.result.list[0].beginDate, date)
       this.setData({
         hasSchedule: true,
-        name:res.result.list[0].name,
-        listData: res.result.list[0].allDatesData[targetDay-1].listData,
-        polyline: res.result.list[0].allDatesData[targetDay-1].polyline,
-        logAndLats: res.result.list[0].allDatesData[targetDay-1].logAndLats,
-        count: res.result.list[0].allDatesData[targetDay-1].count,
+        name: res.result.list[0].name,
+        listData: res.result.list[0].allDatesData[targetDay - 1].listData,
+        polyline: res.result.list[0].allDatesData[targetDay - 1].polyline,
+        logAndLats: res.result.list[0].allDatesData[targetDay - 1].logAndLats,
+        count: res.result.list[0].allDatesData[targetDay - 1].count,
       })
       console.log(this.data)
     } else {
@@ -115,22 +113,32 @@ Page({
     }
     this.drag.init()
     wx.hideLoading()
-    },
+    
+    //refresh include-points
+    this.FUCKYOUWXSHITAPI()
+  },
 
   //对页面数据进行操作后的更新
-  async update(){
+  async update() {
     console.log(this.data.date)
     wx.cloud.callFunction({
-      name:'updateTodaySchedule',
-      data:{
+      name: 'updateTodaySchedule',
+      data: {
         dateString: (this.data.date),
-        listData:this.data.listData,
-        polyline:this.data.polyline,
-        logAndLats:this.data.logAndLats,
+        listData: this.data.listData,
+        polyline: this.data.polyline,
+        logAndLats: this.data.logAndLats,
         count: this.data.count,
       }
     })
     console.log("update")
+  },
+  FUCKYOUWXSHITAPI(){
+    let MapContext = wx.createMapContext("map");
+    MapContext.includePoints({
+      points:this.data.logAndLats,
+      padding:[80,80,80,80,],
+    })
   },
 
   // async load_today(date) {
@@ -145,7 +153,7 @@ Page({
   //     },
   //   })
   //   console.log(res)
-    
+
   //   if (res.result && res.result.list.length) {
   //     let markerPoints = [];
   //     let lonAndlat = [];
@@ -323,8 +331,8 @@ Page({
         let listData = this.data.listData;
         let logAndLats = this.data.logAndLats;
         logAndLats.push({
-          longitude: this.data.suggestion[i].longitude,
           latitude: this.data.suggestion[i].latitude,
+          longitude: this.data.suggestion[i].longitude,
         })
         listData.push({
           //drag data
@@ -348,37 +356,36 @@ Page({
             anchorY: 20,
           },
         });
-        setTimeout(() => {
-          if (logAndLats.length > 1) {
-            this.setData({
-              listData,
-              // markers,
-              polyline: [{
-                points: logAndLats,
-                color: "#DC143C",
-                width: 8,
-              }],
-              logAndLats,
-              showSelect: false,
-              chosenLocation: '',
-            });
-          } else {
-            this.setData({
-              listData,
-              // markers,
-              logAndLats,
-              showSelect: false,
-              chosenLocation: '',
-            });
-          }
-          this.drag.init();
-        }, 300)
+
+        if (logAndLats.length > 1) {
+          this.setData({
+            listData,
+            // markers,
+            polyline: [{
+              points: logAndLats,
+              color: "#DC143C",
+              width: 8,
+            }],
+            logAndLats,
+            showSelect: false,
+            chosenLocation: '',
+          });
+        } else {
+          this.setData({
+            listData,
+            // markers,
+            logAndLats,
+            showSelect: false,
+            chosenLocation: '',
+          });
+        }
+        this.drag.init();
         break;
       }
     }
     // 查找不到id对应suggestion的处理
     // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
-    // console.log("afterAdded", this.data.listData)
+    console.log("afterAdded", this.data.listData,this.data.logAndLats)
   },
 
   //wxp-drag func
@@ -527,12 +534,12 @@ Page({
     //     latitude = this.data.markers.latitude;
     //   };
     // }
-    // console.log(MapContext);
-    // console.log(e.detail)
+    // this.MapContext = wx.createMapContext("#map");
+    // console.log(MapContext)
     // MapContext.openMapApp({
-    //   longitude: 100,
-    //   latitude: 80,
-    //   destination: 'HELL',
+    //   longitude: 50,
+    //   latitude: 50,
+    //   destination: '微信小程序你妈死了',
     // })
   },
 })

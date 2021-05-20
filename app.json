@@ -21,9 +21,9 @@
     "wxp-drag-item": "/components/drag-item/index"
   },
   "pages": [
-    "pages/mine/mine",
     "pages/myMap/myMap",
     "pages/schedule/schedule",
+    "pages/mine/mine",
     "pages/discover/discover",
     "pages/edit/edit"
   ],
