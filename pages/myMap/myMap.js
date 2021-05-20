@@ -26,6 +26,7 @@ Page({
     listData: [],
     polyline: [],
     logAndLats: [],
+    scheduleID: '',
     count: 0,
 
     //map data
@@ -57,6 +58,12 @@ Page({
   //天才般的同步处理
   onLoad: function () {
     var date = util.formatDate(new Date());
+    // let res = wx.cloud.callFunction({
+    //   name: 'findScheduleID',
+    //   data: {
+    //     date: date,
+    //   },
+    // })
     if (date) {
       this.setData({
         date: date,
@@ -66,45 +73,22 @@ Page({
       console.log('@@@Error:CAN NOT GET DATE')
     }
     this.drag = this.selectComponent('#drag');
-    this.load_today(date);
+    // this.load_today(date);
+    this.load(date);
   },
   onShow: function () {},
   onReady: function () {},
-  async load() {
+
+  async load(date) {
     wx.showLoading({
       title: '加载中',
     })
-    let res = await wx.cloud.callFunction({
-      name: 'findTodaySchedule',
-      data: {
-        date: this.data.date,
-      },
-    })
-    this.setData({
-      name:res.name,
-      listData: res.listData,
-      polyline: res.polyline,
-      logAndLats: res.logAndLats,
-      count: res.count,
-    })
-    wx.hideloading()
-  },
-  //对页面数据进行操作后的更新
-  update(){
-    wx.cloud.callFunction({
-      name:'updateTodaySchedule',
-      date:{
-        listData:this.data.listData,
-        polyline:this.data.polyline,
-        logAndLats:this.data.logAndLats,
-        count: this.data.count,
-      }
-    })
-  },
-  async load_today(date) {
-    wx.showLoading({
-      title: '加载中',
-    })
+    // let res = await wx.cloud.callFunction({
+    //   name: 'findTodaySchedule',
+    //   data: {
+    //     date: this.data.date,
+    //   },
+    // })
     let res = await wx.cloud.callFunction({
       name: 'findTodaySchedule',
       data: {
@@ -112,63 +96,118 @@ Page({
         //+" 00:00:00.000"
       },
     })
-    // console.log(res)
+    console.log(res)
     if (res.result && res.result.list.length) {
-      let markerPoints = [];
-      let lonAndlat = [];
-      let listData = [];
-      for (var i = 0; i < res.result.list[0].locs.coordinates.length; i++) {
-        let addrDescrip = await this.getAddrDescrip(res.result.list[0].locs.coordinates[i][0], res.result.list[0].locs.coordinates[i][1])
-        markerPoints.push({
-          id: i,
-          longitude: res.result.list[0].locs.coordinates[i][0],
-          latitude: res.result.list[0].locs.coordinates[i][1],
-          width: 60,
-          height: 60,
-          iconPath: '../../resources/marker.png', //图标路径
-          customCallout: { //自定义气泡
-            display: "ALWAYS", //显示方式，可选值BYCLICK
-            anchorX: 0, //横向偏移
-            anchorY: 20,
-          },
-        })
-        lonAndlat.push({
-          longitude: res.result.list[0].locs.coordinates[i][0],
-          latitude: res.result.list[0].locs.coordinates[i][1],
-        })
-        //listData对象的draId必须为唯一 所以采用count++自加
-        listData.push({
-          dragId: `item${this.data.count++}`,
-          title: addrDescrip.result.address,
-          description: '',
-          // images: "/assets/image/swipe/1.png",
-          fixed: false,
-        })
-      }
+      const targetDay = getDaysBetween(res.result.list[0].beginDate,date)
       this.setData({
         hasSchedule: true,
-        title: res.result.list[0].title,
-        dest: res.result.list[0].dest,
-        tmpDay: res.result.list[0].dayNmb,
-        markers: markerPoints,
-        polyline: [{
-          points: lonAndlat,
-          color: "#DC143C",
-          width: 8,
-        }],
-        includePoints: lonAndlat,
-        listData: listData,
+        name:res.result.list[0].name,
+        listData: res.result.list[0].allDatesData[targetDay-1].listData,
+        polyline: res.result.list[0].allDatesData[targetDay-1].polyline,
+        logAndLats: res.result.list[0].allDatesData[targetDay-1].logAndLats,
+        count: res.result.list[0].allDatesData[targetDay-1].count,
       })
-      console.log(this.data.listData)
-      //先更新listData后再init()
-      this.drag.init()
+      console.log(this.data)
     } else {
       this.setData({
         hasSchedule: false
       })
     }
+    this.drag.init()
     wx.hideLoading()
+    },
+
+  //对页面数据进行操作后的更新
+  async update(){
+    console.log(this.data.date)
+    wx.cloud.callFunction({
+      name:'updateTodaySchedule',
+      data:{
+        dateString: (this.data.date),
+        listData:this.data.listData,
+        polyline:this.data.polyline,
+        logAndLats:this.data.logAndLats,
+        count: this.data.count,
+      }
+    })
+    console.log("update")
   },
+
+  // async load_today(date) {
+  //   wx.showLoading({
+  //     title: '加载中',
+  //   })
+  //   let res = await wx.cloud.callFunction({
+  //     name: 'findTodaySchedule',
+  //     data: {
+  //       dateString: JSON.stringify(date),
+  //       //+" 00:00:00.000"
+  //     },
+  //   })
+  //   console.log(res)
+    
+  //   if (res.result && res.result.list.length) {
+  //     let markerPoints = [];
+  //     let lonAndlat = [];
+  //     let listData = [];
+  //     //第i天有几个点全部标识出来
+  //     const targetDay = getDaysBetween(res.result.list[0].beginDate,date)
+  //     for (var i = 0; i < res.result.list[0].allDatesData[targetDay-1].count; i++) {
+  //       let longtitude = res.result.list[0].allDatesData[targetDay-1].logAndLats[0].longitude
+  //       let latitude = res.result.list[0].allDatesData[targetDay-1].logAndLats[0].latitude
+  //       let addrDescrip = await this.getAddrDescrip(longtitude, latitude)
+  //       markerPoints.push({
+  //         id: i,
+  //         longitude: longtitude,
+  //         latitude: latitude,
+  //         width: 60,
+  //         height: 60,
+  //         iconPath: '../../resources/marker.png', //图标路径
+  //         customCallout: { //自定义气泡
+  //           display: "ALWAYS", //显示方式，可选值BYCLICK
+  //           anchorX: 0, //横向偏移
+  //           anchorY: 20,
+  //         },
+  //       })
+  //       lonAndlat.push({
+  //         longitude: longtitude,
+  //         latitude: latitude,
+  //       })
+  //       //listData对象的draId必须为唯一 所以采用count++自加
+  //       listData.push({
+  //         dragId: `item${this.data.count++}`,
+  //         title: addrDescrip.result.address,
+  //         description: '',
+  //         // images: "/assets/image/swipe/1.png",
+  //         fixed: false,
+  //       })
+  //     }
+  //     this.setData({
+  //       hasSchedule: true,
+  //       title: res.result.list[0].name,
+  //       //dest: res.result.list[0].dest,
+  //       //tmpDay: res.result.list[0].dayNmb,
+  //       dest: "???",
+  //       tmpDay: targetDay,
+  //       markers: markerPoints,
+  //       polyline: [{
+  //         points: lonAndlat,
+  //         color: "#DC143C",
+  //         width: 8,
+  //       }],
+  //       includePoints: lonAndlat,
+  //       listData: listData,
+  //     })
+  //     console.log(this.data)
+  //     //先更新listData后再init()
+  //     this.drag.init()
+  //   } else {
+  //     this.setData({
+  //       hasSchedule: false
+  //     })
+  //   }
+  //   wx.hideLoading()
+  // },
   getAddrDescrip: function (longitude, latitude) {
     return new Promise((resolve, reject) => {
       qqmapsdk.reverseGeocoder({
@@ -202,7 +241,7 @@ Page({
       showCalendar: false,
       date: util.formatDate(e.detail)
     });
-    this.load_today(this.data.date)
+    this.load(this.data.date)
   },
   load_yesterday: function () {
     //获取前一天日期并更改date
@@ -218,7 +257,7 @@ Page({
       date: yesterDate
     })
     //使用load_today加载
-    this.load_today(yesterDate)
+    this.load(yesterDate)
   },
   load_tomorrow: function () {
     //获取后一天日期并更改date
@@ -230,7 +269,7 @@ Page({
       date: tomorrowDate
     })
     //使用load_today加载
-    this.load_today(tomorrowDate)
+    this.load(tomorrowDate)
   },
 
   //触发关键词输入提示事件
@@ -365,6 +404,7 @@ Page({
       logAndLats,
     });
     console.log("afterResetKey", listData);
+    this.update();
   },
   itemDelete(e) {
     console.log("delete", e)
@@ -496,3 +536,17 @@ Page({
     // })
   },
 })
+
+//PCD函数
+function getDaysBetween(dateString1, dateString2) {
+  var startDate = Date.parse(dateString1);
+  var endDate = Date.parse(dateString2);
+  if (startDate > endDate) {
+    return 0;
+  }
+  if (startDate == endDate) {
+    return 1;
+  }
+  var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000) + 1;
+  return days;
+}
