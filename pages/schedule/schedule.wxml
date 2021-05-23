@@ -92,14 +92,12 @@
 
 
     <view class="map-container">
-      <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{listData}}"
-      polyline="{{polyline}}" >
-
-      <cover-view slot="callout">
+      <map id="map" setting="{{mapSetting}}" markers="{{listData}}" polyline="{{polyline}}" >
+        <cover-view slot="callout">
         <!-- 绑定marker-id -->
-        <cover-view wx:for="{{listData}}" marker-id="{{item.id}}" class="customCallout">{{item.sortKey+1}}</cover-view>
+        <cover-view wx:for="{{listData}}" wx:key="id" marker-id="{{item.id}}" class="customCallout">{{item.sortKey+1}}
+        </cover-view>
       </cover-view>
-      <cover-view></cover-view>
     </map>
     </view>
 

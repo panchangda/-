@@ -23,9 +23,10 @@
     "wxp-drag-item": "/components/drag-item/index"
   },
   "pages": [
-    "pages/myMap/myMap",
-    "pages/discover/discover",
     "pages/schedule/schedule",
+    "pages/myMap/myMap",
+
+    "pages/discover/discover",
     "pages/mine/mine",
     "pages/edit/edit"
   ],
@@ -60,6 +61,18 @@
       }
     ]
   },
+  "plugins": {
+    "routePlan": {
+      "version": "1.0.12",
+      "provider": "wx50b5593e81dd937a"
+    }
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于小程序定位"
+    }
+  },
+
   "sitemapLocation": "sitemap.json",
   "cloud": true,
   "debug": true

@@ -1,5 +1,8 @@
 const app = getApp();
 import regeneratorRuntime from '../../libs/runtime'; //在es6转es5的同时 使用async/await新特性
+import {
+  WHITE
+} from '../../miniprogram_npm/@vant/weapp/common/color';
 import Notify from '../../miniprogram_npm/@vant/weapp/notify/notify';
 var util = require('../../utils/util.js'); //引入util类计算日期 
 var QQMapWX = require('../../libs/qqmap-wx-jssdk.js'); // 引入SDK核心类 实例化API核心类
@@ -88,18 +91,28 @@ Page({
     //total day must be bigger than 1 
     if (this.data.totalDay > 1) {
       let allDatesData = this.data.allDatesData;
-      allDatesData.splice(this.data.tmpDay, 1);
       let tmpDay = this.data.tmpDay;
       let totalDay = this.data.totalDay - 1;
+      allDatesData.splice(tmpDay, 1);
       if (tmpDay == totalDay) {
         tmpDay--;
       }
+      let listData = allDatesData[tmpDay].listData;
+      let polyline = allDatesData[tmpDay].polyline;
+      let logAndLats = allDatesData[tmpDay].logAndLats;
+      let count = allDatesData[tmpDay].count;
       this.setData({
-        tmpDay,
+        listData,
+        polyline,
+        logAndLats,
+        count,
         allDatesData,
         totalDay,
+        tmpDay,
       })
       this.selectComponent('#tabs').resize();
+      this.drag.init();
+      this.FUCKYOUWXSHITAPI()
     }
   },
   show_setting() {
@@ -220,9 +233,9 @@ Page({
           });
           //如果是加载的他人行程的保存成功的话 该行程收藏数加1
           const eventChannel = this.getOpenerEventChannel();
-          if(eventChannel.emit){
+          if (eventChannel.emit) {
             eventChannel.emit('acceptChangedData', {
-              sign:'stars ++ ',
+              sign: 'stars ++ ',
             })
           }
         } else {
@@ -297,7 +310,7 @@ Page({
         chosenLocation: '',
         showSelect: false
       })
-      return ;
+      return;
     }
     var _this = this;
     //调用关键词提示接口
@@ -365,21 +378,29 @@ Page({
           id: this.data.count++,
           longitude: this.data.suggestion[i].longitude,
           latitude: this.data.suggestion[i].latitude,
-          width: 60,
-          height: 60,
-          iconPath: '../../resources/marker.png', //图标路径
-          customCallout: { //自定义气泡
+          width: 50,
+          height: 50,
+          iconPath: '../../resources/icons8-region-64.png', //图标路径
+          callout: {
+            content: (this.data.listData.length + 1).toString(),
+            fontSize: 18,
+            color: '#ff9966',
+            textAlign: 'center',
+            borderRadius: 50,
+            bgColor: '#ffff99',
+            padding: 2,
             display: "ALWAYS", //显示方式，可选值BYCLICK
             anchorX: 0, //横向偏移
-            anchorY: 20,
+            anchorY: 37,
           },
         });
         if (logAndLats.length > 1) {
           this.setData({
             polyline: [{
               points: logAndLats,
-              color: "#DC143C",
+              color: '#ff4d4d',
               width: 8,
+              arrowLine: true,
             }],
             listData: listData,
             logAndLats: logAndLats,
@@ -411,6 +432,7 @@ Page({
     //reset sortKey & polyline
     for (let i = 0; i < listData.length; i++) {
       listData[i].sortKey = i;
+      listData[i].callout.content = (i + 1).toString();
       logAndLats.push({
         longitude: listData[i].longitude,
         latitude: listData[i].latitude,
@@ -420,8 +442,9 @@ Page({
       listData,
       polyline: [{
         points: logAndLats,
-        color: "#DC143C",
+        color: '#ff4d4d',
         width: 8,
+        arrowLine: true,
       }],
       logAndLats,
     });
@@ -434,16 +457,19 @@ Page({
     listData.splice(e.detail.key, 1);
     logAndLats.splice(e.detail.key, 1);
     //reset sortKey
-    for (let i = e.detail.key; i < listData.length; i++)
+    for (let i = e.detail.key; i < listData.length; i++) {
       listData[i].sortKey--;
+      listData[i].callout.content = (i+1).toString();
+    }
     setTimeout(() => {
       if (logAndLats.length > 1) {
         this.setData({
           listData,
           polyline: [{
             points: logAndLats,
-            color: "#DC143C",
+            color: '#ff4d4d',
             width: 8,
+            arrowLine: true,
           }],
           logAndLats,
         });
@@ -527,22 +553,8 @@ Page({
       showSubPage: false
     })
   },
-  //fucking shit api！！！
   route_planning: function (e) {
-    // var MapContext = wx.createMapContext('#map');
-    // for (var i = 0; i < this.data.markers.length; i++) {
-    //   if (this.data.markers.id == e.detail) {
-    //     longitude = this.data.markers.longitude;
-    //     latitude = this.data.markers.latitude;
-    //   };
-    // }
-    // console.log(MapContext);
-    // console.log(e.detail)
-    // MapContext.openMapApp({
-    //   longitude: 100,
-    //   latitude: 80,
-    //   destination: 'HELL',
-    // })
+    console.log(e.detail.markerId)
   },
 
 })

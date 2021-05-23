@@ -27,7 +27,7 @@
 </view>
 
 <page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
-  close-on-slide-down="{{false}}" custom-style="z-index:1;height:100%"
+  close-on-slide-down="{{true}}" custom-style="z-index:1;height:100%"
   overlay-style="background-color: rgba(255, 255, 255, 0.7)" bind:afterenter="FUCKYOUWXSHITAPI" >
   <!-- 日期选择 -->
   <view class="switch-date">
@@ -52,12 +52,6 @@
     <view class="map-container">
       <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{listData}}"
       polyline="{{polyline}}">
-      <cover-view slot="callout">
-        <!-- 绑定marker-id -->
-        <cover-view wx:for="{{listData}}" marker-id="{{item.sortKey}}" class="customCallout">{{item.sortKey+1}}
-        </cover-view>
-      </cover-view>
-      <cover-view></cover-view>
     </map>
     </view>
   </block>

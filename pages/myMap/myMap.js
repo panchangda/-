@@ -1,4 +1,5 @@
 const app = getApp()
+let plugin = requirePlugin('routePlan');
 import regeneratorRuntime from '../../libs/runtime'; //在es6转es5的同时 使用async/await新特性
 var util = require('../../utils/util.js'); //引入util类计算日期
 var QQMapWX = require('../../libs/qqmap-wx-jssdk.js'); // 引入SDK核心类 实例化
@@ -292,7 +293,7 @@ Page({
         chosenLocation: '',
         showSelect: false
       })
-      return ;
+      return;
     }
     //调用关键词提示接口
     qqmapsdk.getSuggestion({
@@ -361,21 +362,26 @@ Page({
           width: 60,
           height: 60,
           iconPath: '../../resources/marker.png', //图标路径
-          customCallout: { //自定义气泡
+          callout: {
+            content: (this.data.listData.length + 1).toString(),
+            fontSize: 18,
+            color: '#ff9966',
+            textAlign: 'center',
+            borderRadius: 50,
+            bgColor: '#ffff99',
+            padding: 2,
             display: "ALWAYS", //显示方式，可选值BYCLICK
             anchorX: 0, //横向偏移
-            anchorY: 20,
+            anchorY: 37,
           },
         });
-
         if (logAndLats.length > 1) {
           this.setData({
-            listData,
-            // markers,
             polyline: [{
               points: logAndLats,
-              color: "#DC143C",
+              color: '#ff4d4d',
               width: 8,
+              arrowLine: true,
             }],
             logAndLats,
             showSelect: false,
@@ -407,6 +413,7 @@ Page({
     //reset sortKey & polyline
     for (let i = 0; i < listData.length; i++) {
       listData[i].sortKey = i;
+      listData[i].callout.content = (i+1).toString();
       logAndLats.push({
         longitude: listData[i].longitude,
         latitude: listData[i].latitude,
@@ -416,8 +423,9 @@ Page({
       listData,
       polyline: [{
         points: logAndLats,
-        color: "#DC143C",
+        color: '#ff4d4d',
         width: 8,
+        arrowLine: true,
       }],
       logAndLats,
     });
@@ -431,16 +439,20 @@ Page({
     listData.splice(e.detail.key, 1);
     logAndLats.splice(e.detail.key, 1);
     //reset sortKey
-    for (let i = e.detail.key; i < listData.length; i++)
+    for (let i = e.detail.key; i < listData.length; i++){
       listData[i].sortKey--;
+      listData[i].callout.content=(i+1).toString();
+    }
+      
     setTimeout(() => {
       if (logAndLats.length > 1) {
         this.setData({
           listData,
           polyline: [{
             points: logAndLats,
-            color: "#DC143C",
+            color: '#ff4d4d',
             width: 8,
+            arrowLine: true,
           }],
           logAndLats,
         });
@@ -538,20 +550,18 @@ Page({
 
   //fucking shit api！！！
   route_planning: function (e) {
-    // var MapContext = wx.createMapContext('#map');
-    // for (var i = 0; i < this.data.markers.length; i++) {
-    //   if (this.data.markers.id == e.detail) {
-    //     longitude = this.data.markers.longitude;
-    //     latitude = this.data.markers.latitude;
-    //   };
-    // }
-    // this.MapContext = wx.createMapContext("#map");
-    // console.log(MapContext)
-    // MapContext.openMapApp({
-    //   longitude: 50,
-    //   latitude: 50,
-    //   destination: '微信小程序你妈死了',
-    // })
+    console.log(e)
+    let key = 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB'; //使用在腾讯位置服务申请的key
+    let referer = '从今天开始出发'; //调用插件的app的名称
+    let endPoint = JSON.stringify({ //终点
+      'name': '北京西站',
+      'latitude': 39.894806,
+      'longitude': 116.321592
+    });
+    // let themeColor = '#7FFFD4';
+    wx.navigateTo({
+      url: 'plugin://routePlan/index?key=' + key + '&referer=' + referer + '&endPoint=' + endPoint 
+    });
   },
 })
 

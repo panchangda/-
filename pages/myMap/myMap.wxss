@@ -52,6 +52,7 @@
   font-size: 30rpx;
 } */
 .switch-date {
+  flex:0;
   height: 6%;
   width: 754rpx;
   display: flex;
@@ -102,9 +103,10 @@
 
 .icon-double-down {
   position: fixed;
-  top: 0rpx;
-  left: 0rpx;
-  width: 90rpx;
+  top: 0;
+  left: 50%;
+  margin-left:-50rpx;
+  width: 100rpx;
   height: 60rpx;
   z-index: 100;
 }
