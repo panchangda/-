@@ -54,27 +54,30 @@ Page({
   },
 
   //天才般的同步处理
-  onLoad: function () {
-    var date = util.formatDate(new Date());
-    // let res = wx.cloud.callFunction({
-    //   name: 'findScheduleID',
-    //   data: {
-    //     date: date,
-    //   },
-    // })
-    if (date) {
+  onLoad: function () {},
+  onShow: function () {
+    if (!app.globalData.date) {
+      var date = util.formatDate(new Date());
+      if (date) {
+        this.setData({
+          date: date,
+          todayDate: new Date(date).getTime(),
+        })
+      } else {
+        console.log('@@@Error:CAN NOT GET DATE')
+      }
+    } else {
+      var date = app.globalData.date
       this.setData({
-        date: date,
+        date,
         todayDate: new Date(date).getTime(),
       })
-    } else {
-      console.log('@@@Error:CAN NOT GET DATE')
+      app.globalData.date = '';
     }
     this.drag = this.selectComponent('#drag');
     // this.load_today(date);
     this.load(date);
   },
-  onShow: function () {},
   onReady: function () {},
 
   async load(date) {
@@ -113,7 +116,7 @@ Page({
     }
     this.drag.init()
     wx.hideLoading()
-    
+
     //refresh include-points
     this.FUCKYOUWXSHITAPI()
   },
@@ -133,11 +136,11 @@ Page({
     })
     console.log("update")
   },
-  FUCKYOUWXSHITAPI(){
+  FUCKYOUWXSHITAPI() {
     let MapContext = wx.createMapContext("map");
     MapContext.includePoints({
-      points:this.data.logAndLats,
-      padding:[80,80,80,80,],
+      points: this.data.logAndLats,
+      padding: [80, 80, 80, 80, ],
     })
   },
 
@@ -283,6 +286,14 @@ Page({
   //触发关键词输入提示事件
   get_suggestion: function (e) {
     var _this = this;
+    if (e.detail == '') {
+      this.setData({
+        suggestion: [],
+        chosenLocation: '',
+        showSelect: false
+      })
+      return ;
+    }
     //调用关键词提示接口
     qqmapsdk.getSuggestion({
       //获取输入框值并设置keyword参数
@@ -385,7 +396,7 @@ Page({
     }
     // 查找不到id对应suggestion的处理
     // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
-    console.log("afterAdded", this.data.listData,this.data.logAndLats)
+    console.log("afterAdded", this.data.listData, this.data.logAndLats)
   },
 
   //wxp-drag func

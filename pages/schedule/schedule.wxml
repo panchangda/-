@@ -50,7 +50,7 @@
           <view>{{item.title}}</view>
           <view style="font-size:12px;color:#666;">{{item.addr}}</view>
         </view>
-        <view bindtap="show_onMap">Icon</view>
+        <image class="location-icon" src="../../resources/icons8-near-me-81.png" bindtap="show_onMap" mode="scaleToFill"></image>
       </view>
     </scroll-view>
 
@@ -68,7 +68,7 @@
     <!-- 底部标签栏 -->
     <view class="bottom-tagbar">
       <van-tabs id="tabs" active="{{tmpDay}}"  bind:click="onTagClick" swipeable animated="true" color="blue">
-        <block wx:for="{{totalDay}}">
+        <block wx:for="{{totalDay}}" wx:key="">
           <van-tab title="第{{index+1}}天"></van-tab>
         </block>
       </van-tabs>
@@ -81,12 +81,9 @@
     overlay-style="background-color: rgba(255, 255, 255, 0.7)" bind:afterenter="FUCKYOUWXSHITAPI">
     
     <image src="../../resources/icons8-double-down.gif" class="icon-double-down" bindtap="exit_subpage"></image>
-    <view wx:if="{{tmpDay==0?false:true}}" class="icon-on-left">
-      <van-icon bind:click="load_yesterday" name="arrow-left" size="2em" />
-    </view>
-    <view wx:if="{{tmpDay==totalDay-1?false:true}}" class="icon-on-right">
-      <van-icon bind:click="load_tomorrow" name="arrow" size="2em" />
-    </view>
+      <image wx:if="{{tmpDay==0?false:true}}" bind:tap="load_yesterday" src="../../resources/icons8-back-64.png" class="icon-on-left"></image>
+    <image wx:if="{{tmpDay==totalDay-1?false:true}}" bind:tap="load_tomorrow" src="../../resources/icons8-forward-64.png" class="icon-on-right"></image>
+
     <view class="button-group">
     <button bindtap="show_setting">保存</button>
     <button bindtap="delete_today">删除</button>

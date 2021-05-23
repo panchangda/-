@@ -102,9 +102,9 @@ Page({
       this.selectComponent('#tabs').resize();
     }
   },
-  show_setting(){
-     //save today's data to allDatesData
-     let thisDayData = {
+  show_setting() {
+    //save today's data to allDatesData
+    let thisDayData = {
       listData: this.data.listData,
       polyline: this.data.polyline,
       logAndLats: this.data.logAndLats,
@@ -112,13 +112,32 @@ Page({
     }
     this.setData({
       [`allDatesData[${this.data.tmpDay}]`]: thisDayData,
-      showSetting:true,
+      showSetting: true,
     })
   },
   onLoad: function () {
     this.drag = this.selectComponent('#drag');
-    if (true) {
+    const eventChannel = this.getOpenerEventChannel()
+    //判断是否有once属性
+    if (eventChannel.once) {
+      console.log('@@DISCOVER SCHEDULE')
+      //"discover schedule" initialize
+      eventChannel.once('acceptDiscoverPageData', (data) => {
+        console.log(data)
+        wx.cloud.callFunction({
+          name: 'getDiscoverSchedule',
+          data: data.id,
+          success: res => {
+            console.log('@@getDiscoverSchedule Success')
+          },
+          failse: err => {
+            console.log('@@getDiscoverSchedule Failed')
+          }
+        })
+      })
+    } else {
       //"add schedule" initialize
+      console.log('@@NEW SCHEDULE')
       let allDatesData = this.data.allDatesData
       allDatesData.push({
         listData: [],
@@ -131,8 +150,6 @@ Page({
         tmpDay: 0,
         totalDay: 1,
       })
-    } else {
-      //"discover schedule" initialize
     }
   },
   onShow: function () {},
@@ -174,38 +191,51 @@ Page({
     console.log(e)
     const date = e.detail;
     let dateS = util.formatDate(new Date(date));
-    let secs = Date.parse(date)+(this.data.totalDay==1?0:this.data.totalDay-1) * (1 * 24 * 60 * 60 * 1000);
+    let secs = Date.parse(date) + (this.data.totalDay == 1 ? 0 : this.data.totalDay - 1) * (1 * 24 * 60 * 60 * 1000);
     let dateE = new Date();
     dateE.setTime(secs);
     dateE = util.formatDate(dateE);
     this.setData({
-      calendarSet:true,
+      calendarSet: true,
       showCalendar: false,
       date: dateS + ' - ' + dateE,
     });
   },
   confirm_setting() {
-      //call cloudFunc
-      wx.cloud.callFunction({
-        name: 'uploadNewSchedule',
-        data: {
-          //DateFormate: yyyy-mm-dd - yyyy-mm-dd
-          name: this.data.name,
-          date: this.data.date,
-          allDatesData: this.data.allDatesData,
-        },
-        success:res=>{
-          if(res.result){
-            Notify({ type: 'success', message: '成了兄弟' });
-
-          }else{
-            Notify({ type: 'danger', message: '你这个日期不行懂吗' });
+    //call cloudFunc
+    wx.cloud.callFunction({
+      name: 'uploadNewSchedule',
+      data: {
+        //DateFormate: yyyy-mm-dd - yyyy-mm-dd
+        name: this.data.name,
+        date: this.data.date,
+        allDatesData: this.data.allDatesData,
+      },
+      success: res => {
+        console.log('@@success', res)
+        if (res.result) {
+          Notify({
+            type: 'success',
+            message: '成了兄弟'
+          });
+          //如果是加载的他人行程的保存成功的话 该行程收藏数加1
+          const eventChannel = this.getOpenerEventChannel();
+          if(eventChannel.emit){
+            eventChannel.emit('acceptChangedData', {
+              sign:'stars ++ ',
+            })
           }
-        },
-        fail:err=>{
-          console.log(err)
-        },
-      })
+        } else {
+          Notify({
+            type: 'danger',
+            message: '你这个日期不行懂吗'
+          });
+        }
+      },
+      fail: err => {
+        console.log('@@err', err)
+      },
+    })
   },
   //FUCK THIS SHITTYSHIT!
   //switch to tmpDay and reload infos
@@ -246,17 +276,29 @@ Page({
     }
   },
   load_yesterday: function () {
-    this.onTagClick({detail:{
-      index:this.data.tmpDay-1,
-    }})
+    this.onTagClick({
+      detail: {
+        index: this.data.tmpDay - 1,
+      }
+    })
   },
   load_tomorrow: function () {
-    this.onTagClick({detail:{
-      index:this.data.tmpDay+1,
-    }})
+    this.onTagClick({
+      detail: {
+        index: this.data.tmpDay + 1,
+      }
+    })
   },
   //触发关键词输入提示事件
   get_suggestion: function (e) {
+    if (e.detail == '') {
+      this.setData({
+        suggestion: [],
+        chosenLocation: '',
+        showSelect: false
+      })
+      return ;
+    }
     var _this = this;
     //调用关键词提示接口
     qqmapsdk.getSuggestion({
@@ -297,7 +339,6 @@ Page({
       showSelect: false
     })
   },
-
   add_location(e) {
     // console.log(this.data.listData)
     let id = e.currentTarget.id;

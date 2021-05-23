@@ -1,23 +1,28 @@
 <!--pages/market/market.wxml-->
-<view class="contaienr">
-  <view class="searchBlock">
-  <view class="searchIcon">Icon</view>
-  <input class="inputForm" bindtap="getsuggest" placeholder="输入目的地">
-  </input>
-  </view>
-  <view class="pickerBlock">
-    <picker bindchange="bind_pickerchange" value="{{index}}" range="{{timeRange}}">行程天数：{{timeRange[index]}}</picker>
-  </view>
-  <button>筛选</button>
-
-  <view class="container">
-  <block wx:for="{{recmdList}}" wx:for-index="id" wx:key="id" >
-    <view class="destBlock" data-index="{{id}}">
-    <view>{{item.dest}}</view>
-    <view>{{item.days}}天</view>
-    <view>收藏次数:{{item.addedTimes}}</view>
-    <view bindtap="show_schedule">MapIcon</view> 
-  </view>
+<view class="container">
+  <van-search
+  model:value="{{ value }}"
+  placeholder="请输入行程名称关键词"
+  use-action-slot
+  bind:search="onSearch"
+>
+  <view slot="action" bind:tap="onSearch">搜索</view>
+</van-search>
+  <wux-filterbar items="{{ items }}" bind:change="onChange"/>
+  <block wx:for="{{repos}}" wx:key="id">
+    <view class="item-container" data-id="{{item.id}}" bind:tap="onClick">
+    <view class="pic">
+      <image class="image" src="{{item.pic}}" mode="aspectFit" alt="" ></image>
+    </view>
+      <view class="texts">
+        <view class="name">{{item.name}}</view>
+        <view class="description">{{item.description}}</view>
+        <view class="attrs">
+          <view class="stars">收藏数:{{item.stars}}次</view>
+          <view class="days">天数:{{item.days}}天</view>
+          <view class="date">上传日期:{{item.date}}</view>
+        </view>
+      </view>
+    </view>
   </block>
-  </view>
 </view>

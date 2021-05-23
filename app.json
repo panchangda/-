@@ -14,6 +14,7 @@
     "van-loading": "@vant/weapp/loading/index",
     "van-action-sheet": "@vant/weapp/action-sheet/index",
     "van-notify": "@vant/weapp/notify/index",
+    "van-dialog": "@vant/weapp/dialog/index",
     "wux-icon": "wux-weapp/icon/index",
     "wux-timeline": "wux-weapp/timeline/index",
     "wux-timeline-item": "wux-weapp/timeline-item/index",
@@ -22,16 +23,16 @@
     "wxp-drag-item": "/components/drag-item/index"
   },
   "pages": [
-    "pages/schedule/schedule",
     "pages/myMap/myMap",
-    "pages/mine/mine",
     "pages/discover/discover",
+    "pages/schedule/schedule",
+    "pages/mine/mine",
     "pages/edit/edit"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "哎，我们就是玩儿",
+    "navigationBarTitleText": "从今天开始出发",
     "navigationBarTextStyle": "black",
     "navigationStyle": "default"
   },

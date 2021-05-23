@@ -1,4 +1,7 @@
 // pages/mine/mine.js
+
+import Dialog from '../../miniprogram_npm/@vant/weapp/dialog/dialog';
+const app = getApp()
 Page({
   /**
    * 页面的初始数据
@@ -48,24 +51,27 @@ Page({
         name: "删除行程",
       },
       {
+        name: "上传到发现",
+      }, 
+      {
         name: "分享行程",
       },
-      {
-        name: "上传市场",
-      }, 
     ],
-
+    
     //tmpTag( 0:past 1:future )
     tmpTag: 0,
     show: false,
     pageNo: 0,
     pageSize: 5,
-    loading: true,
+    loading: false,
   },
   /**
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function () {
+    this.setData({
+      loading:true
+    })
     let pageNo = this.data.pageNo + 1;
     wx.cloud.callFunction({
       name: "getPersonalSchedule",
@@ -82,6 +88,7 @@ Page({
           this.setData({
             pastList: catList,
             pageNo,
+            loading:false,
           })
         } else {
           let futureList = this.data.futureList;
@@ -89,26 +96,53 @@ Page({
           this.setData({
             futureList: catList,
             pageNo,
+            loading:false,
           })
         }
+      },
+      failse:err=>{
+        console.log(err)
       }
     })
     console.log('@@onReachBottom triggered', pageNo)
   },
   onSelect(e) {
     console.log(e.detail)
+    const chosenName = this.data.chosenName;
+    const chosenId = this.data.chosenId;
+    const chosenDate = this.data.chosenDate;
+    const startDate = chosenDate.split(' - ',1)[0];
     if (e.detail.name == "行程详情") {
-
+      //将开始日期放到globalData中 
+      //在mymap页面取值设置页面date
+      app.globalData.date = startDate;
+      wx.switchTab({
+        url: '../myMap/myMap'
+      })
     } else if (e.detail.name == "删除行程") {
+      Dialog.confirm({
+        title: '确认要删除该行程吗',
+        message: chosenName + ' '+ chosenDate,
+      })
+        .then(() => {
+          // on confirm
+        })
+        .catch(() => {
+          // on cancel
+        });
+    } else if(e.detail.name == "上传到发现"){
 
     } else if (e.detail.name == "分享行程") {
 
-    }
+    } 
   },
   onClick(e) {
     console.log(e)
     this.setData({
       show: true,
+      chosenId:e.currentTarget.dataset.id,
+      chosenDate:e.currentTarget.dataset.date,
+      chosenName:e.currentTarget.dataset.name,
     })
   },
   onClose() {
@@ -125,6 +159,7 @@ Page({
     this.selectComponent('#tabs').resize();
     console.log('@@resized')
   },
+ 
   /**
    * 生命周期函数--监听页面加载
    */

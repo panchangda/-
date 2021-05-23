@@ -22,7 +22,7 @@
         <wux-timeline pending="{{true}}">
           <block wx:for="{{pastList}}" wx:key="id">
             <wux-timeline-item content="{{item.date}}  {{item.name}}">
-              <view class="dots" bind:tap="onClick" data-id="{{item.id}}">```</view>
+              <view class="dots" bind:tap="onClick" data-id="{{item.id}}" data-date="{{item.date}}" data-name="{{item.name}}">```</view>
               <scroll-view class="gallery1" scroll-x="{{true}}" scroll-y="{{false}}">
                 <block wx:for="{{item.picList}}">
                   <image class="pics" src="{{item}}" mode="heightFix"></image>
@@ -36,7 +36,7 @@
         <wux-timeline pending="{{true}}">
           <block wx:for="{{futureList}}" wx:key="id">
             <wux-timeline-item content="{{item.date}}  {{item.name}}">
-              <view class="dots" bind:tap="onClick" data-id="{{item.id}}">```</view>
+              <view class="dots" bind:tap="onClick" data-id="{{item.id}}" data-date="{{item.date}}" data-name="{{item.name}}">```</view>
               <scroll-view class="gallery2" scroll-x="{{true}}" scroll-y="{{false}}">
                 <block wx:for="{{item.picList}}">
                   <image class="pics" src="{{item}}" mode="heightFix"></image>
@@ -48,8 +48,13 @@
       </van-tab>
     </van-tabs>
 
-  <van-action-sheet show="{{ show }}" actions="{{ actions }}" cancel-text="取消" bind:cancel="onCancel"
-    bind:close="onClose" bind:select="onSelect" />
-  <van-loading wx:if="{{loading}}" size="120rpx" vertical>加载中...</van-loading>
+    <view class="loading">
+      <van-loading wx:if="{{loading}}" size="120rpx" vertical>加载中...</van-loading>
+    </view>
 
+
+<!-- 其他组件 -->
+<van-action-sheet show="{{ show }}" actions="{{ actions }}" cancel-text="取消" bind:cancel="onCancel"
+    bind:close="onClose" bind:select="onSelect" />
+    <van-dialog id="van-dialog" />
 </view>

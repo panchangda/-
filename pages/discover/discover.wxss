@@ -1,29 +1,50 @@
-/* pages/market/market.wxss */
-.searchBlock{
-  display:flex;
-  flex-direction: row;
-  align-items: center;
-}
-.searchIcon{
-  display:inline-block;
-}
-
-.inputForm{
-  display:inline-block;
-  border-radius: 30rpx;
-  border:1rpx solid black;
-  border-left:1rpx solid white;
-  /* height: 2rem;
-  min-height: 2rem; */
-  width:600rpx;
-}
-
-.pickerBlock{
+.container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  flex-wrap: wrap;
 }
-.destBlock{
+
+.item-container {
+  display: flex;
+  padding: 20rpx;
+  box-sizing: border-box;
+  background: #FFFFFF; 
+}
+.pic{
+  font-size: 0;
+}
+.pic .image{
+  width: 160rpx;
+  height: 160rpx;
+  margin-right: 20rpx;
+  border-radius: 12rpx;
+}
+
+.texts{
+  flex:1;
+}
+
+.texts .name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  word-break: break-all;
+  font-size: 28rpx;
+  margin-bottom: 4rpx;
+}
+
+.texts .description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  word-break: break-all;
+  color: #666666;
+  font-size: 24rpx;
+}
+
+.attrs{
   display:flex;
-  flex-direction: row;
   flex-wrap: wrap;
 }
