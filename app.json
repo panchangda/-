@@ -22,6 +22,11 @@
   },
   "pages": [
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+    "pages/myMap/myMap",
+    "pages/schedule/schedule",
+>>>>>>> Stashed changes
 =======
     "pages/myMap/myMap",
     "pages/schedule/schedule",

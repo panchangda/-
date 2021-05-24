@@ -1,4 +1,5 @@
 // pages/mine/mine.js
+var util = require('../../utils/util.js'); //引入util类计算日期
 Page({
   /**
    * 页面的初始数据
@@ -94,9 +95,21 @@ Page({
   },
   onSelect(e) {
     console.log(e.detail)
+<<<<<<< Updated upstream
     if(e.detail.name=="行程详情"){
 
     }else if(e.detail.name=="删除行程"){
+=======
+    const date = util.formatDate(new Date());
+    if (e.detail.name == "行程详情") {
+    let res = wx.cloud.callFunction({
+      name: 'schedulesByOpenID',
+      data: {
+        date: date,
+      },
+    })
+    } else if (e.detail.name == "删除行程") {
+>>>>>>> Stashed changes
 
     }else if(e.detail.name=="分享行程"){
 
