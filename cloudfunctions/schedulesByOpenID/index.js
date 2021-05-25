@@ -12,26 +12,58 @@ const _ = db.command
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const userOpenId = wxContext.OPENID
-  console.log(event.date)
+
+  const pageNo = event.pageNo
+  const pageSize = event.pageSize
+  //const res
+
   //获取历史行程
-  let res = await db.collection('Individual').aggregate()
-  .match({
-    _openid: _.eq(userOpenId),
-    endDate:_.lte(event.date),
-  }).skip(4).limit(10)
-  .sort({
-      beginDate: -1
-  }).end()
+  if(event.tmpTag == 0){
+    res = await db.collection('Individual').aggregate()
+    .match({
+      _openid: _.eq(userOpenId),
+      endDate:_.lte(event.date),
+    }).sort({
+        beginDate: -1
+    }).skip(pageNo*pageSize).limit(pageSize)
+    .end()
+  }else if(event.tmpTag == 1){
+    //获取未来行程
+    res = await db.collection('Individual').aggregate()
+    .match({
+      _openid: _.eq(userOpenId),
+      beginDate:_.gte(event.date),
+    }).sort({
+        beginDate: 1
+    }).skip(pageNo*pageSize).limit(pageSize)
+    .end()
+  }
+  console.log(res)
 
-  //获取未来行程
-  let res = await db.collection('Individual').aggregate()
-  .match({
-    _openid: _.eq(userOpenId),
-    beginDate:_.lte(event.date),
-  }).skip(4).limit(10)
-  .sort({
-      beginDate: -1
-  }).end()
+    let catList = [];
+    for(let i = 0 ; i < res.list.length ; i++){
+      const singleItem = {
+        id:res.list[i]._id,
+        date:res.list[i].date,
+        name:res.list[i].name,
+        picList:[],
+      }
+      res.list[i].allDatesData.forEach(((value)=>{
+        value.listData.forEach((value)=>{
+          console.log(value)
+          if(value.picList != undefined){
+              console.log("?>?????????????:",value)
+            value.picList.forEach((value)=>{
+              singleItem.picList.push(value.url)
+            })
+          }
+        })
+      }))
 
-  return res
+      catList.push(singleItem)
+      
+    }
+
+  return catList
+
 }

@@ -121,22 +121,6 @@ Page({
     });
   },
   confirm_setting() {
-<<<<<<< Updated upstream
-    //初始化allDatesData
-    let allDatesData = []
-    for (let i = 0; i < this.data.totalDay; i++)
-      allDatesData.push({
-        listData: [],
-        polyline: [],
-        logAndLats: [],
-        count: 0,
-      });
-    //关闭setting后拖拽列表才会加载
-    //所以先关闭再初始化拖拽列表
-    this.setData({
-      showSetting: false,
-      allDatesData
-=======
       //call cloudFunc
       wx.cloud.callFunction({
         name: 'uploadNewSchedule',
@@ -166,7 +150,6 @@ Page({
     MapContext.includePoints({
       points: this.data.logAndLats,
       padding: [80, 80, 80, 80, ],
->>>>>>> Stashed changes
     })
     //获取拖拽列表
     this.drag = this.selectComponent('#drag');

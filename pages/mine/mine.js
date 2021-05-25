@@ -1,5 +1,8 @@
 // pages/mine/mine.js
+
+import Dialog from '../../miniprogram_npm/@vant/weapp/dialog/dialog';
 var util = require('../../utils/util.js'); //引入util类计算日期
+const app = getApp()
 Page({
   /**
    * 页面的初始数据
@@ -52,9 +55,9 @@ Page({
         name: "分享行程",
       }
     ],
-
-    //tmpTag( 0:past 1:future )
-    tmpTag:0,
+    
+    //tmpTag( 0:past 1:now 2:future )
+    tmpTag: 0,
     show: false,
     pageNo: 0,
     pageSize: 5,
@@ -65,16 +68,19 @@ Page({
    */
   onReachBottom: function () {
     let pageNo = this.data.pageNo + 1;
+    let date = util.formatDate(new Date());
+    console.log("???")
     wx.cloud.callFunction({
-      name:"getPersonalSchedule",
-      data:{
-        tmpTag:this.data.tmpTag,
-        pageNo:this.data.pageNo,
-        pageSize:this.data.pageSize,
+      name: "schedulesByOpenID",
+      data: {
+        date: date,
+        tmpTag: this.data.tmpTag,
+        pageNo: this.data.pageNo,
+        pageSize: this.data.pageSize,
       },
       success:res=>{
         console.log(res.result)
-        if(!this.data.tmpTag){
+        if (this.data.tmpTag == 0) {
           let pastList = this.data.pastList;
           let catList = pastList.concat(res.result);
           this.setData({
@@ -95,11 +101,6 @@ Page({
   },
   onSelect(e) {
     console.log(e.detail)
-<<<<<<< Updated upstream
-    if(e.detail.name=="行程详情"){
-
-    }else if(e.detail.name=="删除行程"){
-=======
     const date = util.formatDate(new Date());
     if (e.detail.name == "行程详情") {
     let res = wx.cloud.callFunction({
@@ -109,7 +110,6 @@ Page({
       },
     })
     } else if (e.detail.name == "删除行程") {
->>>>>>> Stashed changes
 
     }else if(e.detail.name=="分享行程"){
 
