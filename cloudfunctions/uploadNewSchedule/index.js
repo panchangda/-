@@ -42,9 +42,11 @@ exports.main = async (event, context) => {
       endDate: _.gte(dateRange[1]),
     }).end()
 
-  if (result1.list.length1 != 0 || result2.list.length2 != 0) {
-    return false;
-  }
+
+    if (result1.list.length != 0 || result2.list.length != 0 ){
+      return false;
+    }
+
   return await db.collection('Individual').add({
     data: {
       _openid: userOpenId,
@@ -54,5 +56,12 @@ exports.main = async (event, context) => {
       beginDate: dateRange[0],
       endDate: dateRange[1]
     }
+  }).then(res=>{
+    console.log(res)
+    return true;
+  }).catch(err=>{
+    console.log(err)
+    return false;
   })
+  //return true;
 }

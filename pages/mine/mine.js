@@ -1,6 +1,7 @@
 // pages/mine/mine.js
 
 import Dialog from '../../miniprogram_npm/@vant/weapp/dialog/dialog';
+var util = require('../../utils/util.js'); //引入util类计算日期
 const app = getApp()
 Page({
   /**
@@ -58,7 +59,7 @@ Page({
       },
     ],
     
-    //tmpTag( 0:past 1:future )
+    //tmpTag( 0:past 1:now 2:future )
     tmpTag: 0,
     show: false,
     pageNo: 0,
@@ -73,16 +74,19 @@ Page({
       loading:true
     })
     let pageNo = this.data.pageNo + 1;
+    let date = util.formatDate(new Date());
+    console.log("???")
     wx.cloud.callFunction({
-      name: "getPersonalSchedule",
+      name: "schedulesByOpenID",
       data: {
+        date: date,
         tmpTag: this.data.tmpTag,
         pageNo: this.data.pageNo,
         pageSize: this.data.pageSize,
       },
       success: res => {
         console.log(res.result)
-        if (!this.data.tmpTag) {
+        if (this.data.tmpTag == 0) {
           let pastList = this.data.pastList;
           let catList = pastList.concat(res.result);
           this.setData({
@@ -108,6 +112,21 @@ Page({
   },
   onSelect(e) {
     console.log(e.detail)
+// <<<<<<< dev-jyj
+//     const date = util.formatDate(new Date());
+//     if (e.detail.name == "行程详情") {
+//     let res = wx.cloud.callFunction({
+//       name: 'schedulesByOpenID',
+//       data: {
+//         date: date,
+//       },
+//     })
+//     } else if (e.detail.name == "删除行程") {
+
+//     }else if(e.detail.name=="分享行程"){
+
+//     }
+// =======
     const chosenName = this.data.chosenName;
     const chosenId = this.data.chosenId;
     const chosenDate = this.data.chosenDate;

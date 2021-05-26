@@ -37,7 +37,7 @@ exports.main = async (event, context) => {
     upDateData[getDaysBetween(date,schedule.data.beginDate)-1].count=event.count
    }
    console.log(upDateData)
-
+   
    const re = await db.collection('Individual').doc(scheduleID).update({
      data:{
       allDatesData:upDateData,
