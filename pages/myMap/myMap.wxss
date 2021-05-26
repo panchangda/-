@@ -1,138 +1,172 @@
 /* pages/myMap/myMap.wxss */
 /* 750rpx*1334rpx*/
-.search-page{
+.search-page {
   position: absolute;
-  top:108rpx;
-  left:0rpx;
-  background-color: rgb(12, 107, 233);
+  top: 108rpx;
+  left: 3%;
+  width: 94%;
+  transition: height .2s;
+  background-color: #F0FFFF;
   z-index: 100;
+  border-radius: 30rpx;
 }
 
-#map{
-  width:100%;
-  height:1000rpx;
+.search-page .search-results {
+  padding: 20rpx;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-start;
+  text-align: center;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
+
+.search-page .font-results {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+.search-page .location-icon {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+}
+
+#map {
+  width: 100%;
+  flex: 1;
+}
+
 /* .normal-text{
   font-size: 30rpx;
 } */
-.switch-date{
-  height:6%;
+.switch-date {
+  flex:0;
+  height: 6%;
   width: 754rpx;
-  display:flex;
+  display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  flex-grow:1;
-}
-/* 日期按钮不会自动缩小 */
-
-.button-add{
-  height:rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-grow: 1;
 }
 
-.scheduleInfo{
-  width:100%;
-  height:50rpx;
+.scheduleInfo {
+  width: 100%;
+  height: 50rpx;
   background-color: grey;
   text-align: left;
 }
-.icon-add{
+
+.icon-add { 
+  position: absolute;
   width: 100rpx;
   height: 100rpx;
+  top: 50%;
+  left: 50%;
+  margin-top:-50rpx;
+  margin-left:-50rpx;
+  z-index: 1;
+
 }
-.icon-on-left{
-  position:absolute;
-  z-index:1;
-  top:45%;
-  left:0rpx;
-}
-.icon-on-right{
-  position:absolute;
-  z-index:1;
-  top:45%;
-  right:0rpx;
-}
-.icon-double-down{
-  position:fixed;
-  top:0rpx;
-  left:0rpx;
-  width:90rpx;
+
+.icon-on-left {
+  position: absolute;
+  width:60rpx;
   height:60rpx;
+  top: 50%;
+  left: 0rpx;
+  margin-top:-30rpx;
+  z-index: 1;
+}
+
+.icon-on-right {
+  position: absolute;
+  width:60rpx;
+  height:60rpx;
+  top: 50%;
+  right: 0rpx;
+  margin-top:-30rpx;
+  z-index: 1;
+}
+
+.icon-double-down {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  margin-left:-50rpx;
+  width: 100rpx;
+  height: 60rpx;
   z-index: 100;
 }
-.icon-double-up{
-  position:fixed;
-  bottom:0rpx;
-  left:375rpx;
-  width:100rpx;
-  height:60rpx;
-  z-index:100;
+
+.icon-double-up {
+  position: fixed;
+  bottom: 0rpx;
+  left: 375rpx;
+  width: 100rpx;
+  height: 60rpx;
+  z-index: 100;
 }
 
 
-.customCallout{
-  color:rgb(255, 255, 255);
+.customCallout {
+  color: rgb(255, 255, 255);
   font-size: 15px;
   font-weight: 1000;
 }
 
 /* 下面是page-container的css */
 
-.searchBlock{
-  display:flex;
+.searchBlock {
+  display: flex;
   flex-direction: row;
   align-items: center;
 }
 
-.searchIcon{
-  display:inline-block;
+.searchIcon {
+  display: inline-block;
 }
 
-.inputForm{
-  display:inline-block;
+.inputForm {
+  display: inline-block;
   border-radius: 30rpx;
-  border:1rpx solid black;
-  border-left:1rpx solid white;
+  border: 1rpx solid black;
+  border-left: 1rpx solid white;
   /* height: 2rem;
   min-height: 2rem; */
-  width:600rpx;
+  width: 600rpx;
 }
 
-.search-results{
-  display:flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: flex-start;
-  text-align: center;
-  flex-grow:0;
-  flex-shrink:0;
-}
-
-.font-results{
-  display:flex;
-  flex-direction: column;
-  flex-wrap:wrap;
-  flex-grow:1;
-  flex-shrink:1;
-}
 
 /* subPage css */
 /* page{
   padding-top: 110rpx; } */
 
 .drag-item-wrap {
-  background: #f7f7f7; }
+  background: #f7f7f7;
+}
 
-.drag-scroll{
+.drag-scroll {
   position: absolute;
-  height:950rpx;
+  height: 950rpx;
 }
 
 .empty-bottom {
-  padding-bottom: 300rpx; }
-  .empty-bottom.isX {
-    padding-bottom: 380rpx; }
+  padding-bottom: 300rpx;
+}
 
+.empty-bottom.isX {
+  padding-bottom: 380rpx;
+}

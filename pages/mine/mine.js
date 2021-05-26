@@ -12,7 +12,7 @@ Page({
       id: '0',
       date: '2021-5-7 - 2021-5-11',
       name: '重庆之旅',
-      picList: ['http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png','http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png','http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png','http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png','http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png','http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png',],
+      picList: ['http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', ],
     }, {
       id: '1',
       date: '2021-5-7 - 2021-5-11',
@@ -52,8 +52,11 @@ Page({
         name: "删除行程",
       },
       {
+        name: "上传到发现",
+      }, 
+      {
         name: "分享行程",
-      }
+      },
     ],
     
     //tmpTag( 0:past 1:now 2:future )
@@ -61,12 +64,15 @@ Page({
     show: false,
     pageNo: 0,
     pageSize: 5,
-    loading: true,
+    loading: false,
   },
   /**
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function () {
+    this.setData({
+      loading:true
+    })
     let pageNo = this.data.pageNo + 1;
     let date = util.formatDate(new Date());
     console.log("???")
@@ -78,47 +84,84 @@ Page({
         pageNo: this.data.pageNo,
         pageSize: this.data.pageSize,
       },
-      success:res=>{
+      success: res => {
         console.log(res.result)
         if (this.data.tmpTag == 0) {
           let pastList = this.data.pastList;
           let catList = pastList.concat(res.result);
           this.setData({
-            pastList:catList,
+            pastList: catList,
             pageNo,
+            loading:false,
           })
-        }else{
+        } else {
           let futureList = this.data.futureList;
           let catList = futureList.concat(res.result);
           this.setData({
-            futureList:catList,
+            futureList: catList,
             pageNo,
+            loading:false,
           })
         }
+      },
+      failse:err=>{
+        console.log(err)
       }
     })
     console.log('@@onReachBottom triggered', pageNo)
   },
   onSelect(e) {
     console.log(e.detail)
-    const date = util.formatDate(new Date());
+// <<<<<<< dev-jyj
+//     const date = util.formatDate(new Date());
+//     if (e.detail.name == "行程详情") {
+//     let res = wx.cloud.callFunction({
+//       name: 'schedulesByOpenID',
+//       data: {
+//         date: date,
+//       },
+//     })
+//     } else if (e.detail.name == "删除行程") {
+
+//     }else if(e.detail.name=="分享行程"){
+
+//     }
+// =======
+    const chosenName = this.data.chosenName;
+    const chosenId = this.data.chosenId;
+    const chosenDate = this.data.chosenDate;
+    const startDate = chosenDate.split(' - ',1)[0];
     if (e.detail.name == "行程详情") {
-    let res = wx.cloud.callFunction({
-      name: 'schedulesByOpenID',
-      data: {
-        date: date,
-      },
-    })
+      //将开始日期放到globalData中 
+      //在mymap页面取值设置页面date
+      app.globalData.date = startDate;
+      wx.switchTab({
+        url: '../myMap/myMap'
+      })
     } else if (e.detail.name == "删除行程") {
+      Dialog.confirm({
+        title: '确认要删除该行程吗',
+        message: chosenName + ' '+ chosenDate,
+      })
+        .then(() => {
+          // on confirm
+        })
+        .catch(() => {
+          // on cancel
+        });
+    } else if(e.detail.name == "上传到发现"){
 
-    }else if(e.detail.name=="分享行程"){
+    } else if (e.detail.name == "分享行程") {
 
-    }
+    } 
   },
   onClick(e) {
     console.log(e)
     this.setData({
       show: true,
+      chosenId:e.currentTarget.dataset.id,
+      chosenDate:e.currentTarget.dataset.date,
+      chosenName:e.currentTarget.dataset.name,
     })
   },
   onClose() {
@@ -131,10 +174,11 @@ Page({
       show: false,
     })
   },
-  onTagChange(){
+  onTagChange() {
     this.selectComponent('#tabs').resize();
     console.log('@@resized')
   },
+ 
   /**
    * 生命周期函数--监听页面加载
    */

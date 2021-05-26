@@ -1,5 +1,9 @@
 const app = getApp();
 import regeneratorRuntime from '../../libs/runtime'; //在es6转es5的同时 使用async/await新特性
+import {
+  WHITE
+} from '../../miniprogram_npm/@vant/weapp/common/color';
+import Notify from '../../miniprogram_npm/@vant/weapp/notify/notify';
 var util = require('../../utils/util.js'); //引入util类计算日期 
 var QQMapWX = require('../../libs/qqmap-wx-jssdk.js'); // 引入SDK核心类 实例化API核心类
 var qqmapsdk = new QQMapWX({
@@ -8,8 +12,8 @@ var qqmapsdk = new QQMapWX({
 //map组件基本设置
 var mapSetting = {
   subkey: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
-  // longitude: 106.301919,
-  // latitude: 29.603818,
+  longitude: 106.301919,
+  latitude: 29.603818,
   scale: 12,
   layerStyle: 1,
   showLocation: true,
@@ -18,7 +22,7 @@ var mapSetting = {
 Page({
   data: {
     //schedule settings
-    showSetting: true,
+    showSetting: false,
     settingComplete: false,
     name: '',
 
@@ -60,18 +64,107 @@ Page({
   },
   //上传新行程
   //调用云函数存入数据库
-  upload_schedule() {
-    wx.cloud.callFunction({
-      name: 'uploadNewSchedule',
-      data: {
-        //DateFormate: yyyy-mm-dd - yyyy-mm-dd
-        name: this.data.name,
-        date: this.data.date,
-        allDatesData: this.data.allDatesData,
-      },
+
+  add_a_day() {
+    let allDatesData = this.data.allDatesData;
+    allDatesData.push({
+      listData: [],
+      polyline: [],
+      logAndLats: [],
+      count: 0,
+    })
+    let tmpDay = this.data.tmpDay + 1;
+    let totalDay = this.data.totalDay + 1;
+    this.onTagClick({
+      detail: {
+        index: tmpDay
+      }
+    })
+    this.setData({
+      totalDay,
+      allDatesData,
+      tmpDay,
+    })
+    this.selectComponent('#tabs').resize();
+  },
+  delete_today() {
+    //total day must be bigger than 1 
+    if (this.data.totalDay > 1) {
+      let allDatesData = this.data.allDatesData;
+      let tmpDay = this.data.tmpDay;
+      let totalDay = this.data.totalDay - 1;
+      allDatesData.splice(tmpDay, 1);
+      if (tmpDay == totalDay) {
+        tmpDay--;
+      }
+      let listData = allDatesData[tmpDay].listData;
+      let polyline = allDatesData[tmpDay].polyline;
+      let logAndLats = allDatesData[tmpDay].logAndLats;
+      let count = allDatesData[tmpDay].count;
+      this.setData({
+        listData,
+        polyline,
+        logAndLats,
+        count,
+        allDatesData,
+        totalDay,
+        tmpDay,
+      })
+      this.selectComponent('#tabs').resize();
+      this.drag.init();
+      this.FUCKYOUWXSHITAPI()
+    }
+  },
+  show_setting() {
+    //save today's data to allDatesData
+    let thisDayData = {
+      listData: this.data.listData,
+      polyline: this.data.polyline,
+      logAndLats: this.data.logAndLats,
+      count: this.data.count,
+    }
+    this.setData({
+      [`allDatesData[${this.data.tmpDay}]`]: thisDayData,
+      showSetting: true,
     })
   },
-  onLoad: function () {},
+  onLoad: function () {
+    this.drag = this.selectComponent('#drag');
+    const eventChannel = this.getOpenerEventChannel()
+    //判断是否有once属性
+    if (eventChannel.once) {
+      console.log('@@DISCOVER SCHEDULE')
+      //"discover schedule" initialize
+      eventChannel.once('acceptDiscoverPageData', (data) => {
+        console.log(data)
+        wx.cloud.callFunction({
+          name: 'getDiscoverSchedule',
+          data: data.id,
+          success: res => {
+            console.log('@@getDiscoverSchedule Success')
+          },
+          failse: err => {
+            console.log('@@getDiscoverSchedule Failed')
+          }
+        })
+      })
+    } else {
+      //"add schedule" initialize
+      console.log('@@NEW SCHEDULE')
+      let allDatesData = this.data.allDatesData
+      allDatesData.push({
+        listData: [],
+        polyline: [],
+        logAndLats: [],
+        count: 0,
+      })
+      this.setData({
+        allDatesData,
+        tmpDay: 0,
+        totalDay: 1,
+      })
+    }
+  },
   onShow: function () {},
   onReady: function () {},
   onNameChange() {
@@ -108,40 +201,54 @@ Page({
     return days;
   },
   onCalendarConfirm(e) {
-    // console.log(e)
-    const [start, end] = e.detail;
-    let dateS = util.formatDate(new Date(start));
-    let dateE = util.formatDate(new Date(end));
-    let totalDay = this.getDaysBetween(dateS, dateE);
+    console.log(e)
+    const date = e.detail;
+    let dateS = util.formatDate(new Date(date));
+    let secs = Date.parse(date) + (this.data.totalDay == 1 ? 0 : this.data.totalDay - 1) * (1 * 24 * 60 * 60 * 1000);
+    let dateE = new Date();
+    dateE.setTime(secs);
+    dateE = util.formatDate(dateE);
     this.setData({
+      calendarSet: true,
       showCalendar: false,
       date: dateS + ' - ' + dateE,
-      calendarSet: true,
-      totalDay,
     });
   },
   confirm_setting() {
-      //call cloudFunc
-      wx.cloud.callFunction({
-        name: 'uploadNewSchedule',
-        data: {
-          //DateFormate: yyyy-mm-dd - yyyy-mm-dd
-          name: this.data.name,
-          date: this.data.date,
-          allDatesData: this.data.allDatesData,
-        },
-        success:res=>{
-          if(res.result){
-            Notify({ type: 'success', message: '成了兄弟' });
-          }else{
-            Notify({ type: 'danger', message: '你这个日期不行懂吗' });
+    //call cloudFunc
+    wx.cloud.callFunction({
+      name: 'uploadNewSchedule',
+      data: {
+        //DateFormate: yyyy-mm-dd - yyyy-mm-dd
+        name: this.data.name,
+        date: this.data.date,
+        allDatesData: this.data.allDatesData,
+      },
+      success: res => {
+        console.log('@@success', res)
+        if (res.result) {
+          Notify({
+            type: 'success',
+            message: '成了兄弟'
+          });
+          //如果是加载的他人行程的保存成功的话 该行程收藏数加1
+          const eventChannel = this.getOpenerEventChannel();
+          if (eventChannel.emit) {
+            eventChannel.emit('acceptChangedData', {
+              sign: 'stars ++ ',
+            })
           }
-          console.log(res)
-        },
-        fail:err=>{
-          console.log(err)
-        },
-      })
+        } else {
+          Notify({
+            type: 'danger',
+            message: '你这个日期不行懂吗'
+          });
+        }
+      },
+      fail: err => {
+        console.log('@@err', err)
+      },
+    })
   },
   //FUCK THIS SHITTYSHIT!
   //switch to tmpDay and reload infos
@@ -151,13 +258,11 @@ Page({
       points: this.data.logAndLats,
       padding: [80, 80, 80, 80, ],
     })
-    //获取拖拽列表
-    this.drag = this.selectComponent('#drag');
   },
-  //switch to tmpDay and reload infos
   onTagClick(e) {
+    // console.log(e)
     if (this.data.tmpDay != e.detail.index) {
-      console.log("@@@from " + this.data.tmpDay + " going to " + e.detail.index)
+      // console.log("@@@from " + this.data.tmpDay + " going to " + e.detail.index)
       let thisDayData = {
         listData: this.data.listData,
         polyline: this.data.polyline,
@@ -173,23 +278,40 @@ Page({
         tmpDay: e.detail.index,
       })
       this.drag.init();
-      console.log(this.data.allDatesData, this.data.listData, this.data.polyline, this.data.logAndLats)
+      // console.log(this.data.allDatesData, this.data.listData, this.data.polyline, this.data.logAndLats)
+
+      //refresh include points
+      let MapContext = wx.createMapContext("map");
+      MapContext.includePoints({
+        points: this.data.logAndLats,
+        padding: [80, 80, 80, 80, ],
+      })
     }
   },
   load_yesterday: function () {
-    this.setData({
-      date: yesterDate
+    this.onTagClick({
+      detail: {
+        index: this.data.tmpDay - 1,
+      }
     })
-    //使用load_today加载
   },
   load_tomorrow: function () {
-    this.setData({
-      date: tomorrowDate
+    this.onTagClick({
+      detail: {
+        index: this.data.tmpDay + 1,
+      }
     })
   },
-
   //触发关键词输入提示事件
   get_suggestion: function (e) {
+    if (e.detail == '') {
+      this.setData({
+        suggestion: [],
+        chosenLocation: '',
+        showSelect: false
+      })
+      return;
+    }
     var _this = this;
     //调用关键词提示接口
     qqmapsdk.getSuggestion({
@@ -197,7 +319,7 @@ Page({
       keyword: e.detail, //用户输入的关键词，可设置固定值,如keyword:'KFC'
       //region:'北京', //设置城市名，限制关键词所示的地域范围，非必填参数
       success: function (res) { //搜索成功后的回调
-        console.log(res);
+        // console.log(res);
         var sug = [];
         for (var i = 0; i < res.data.length; i++) {
           sug.push({ // 获取返回结果，放到sug数组中
@@ -230,18 +352,18 @@ Page({
       showSelect: false
     })
   },
-
   add_location(e) {
-    console.log(this.data.listData)
-    var id = e.currentTarget.id;
+    // console.log(this.data.listData)
+    let id = e.currentTarget.id;
     for (var i = 0; i < this.data.suggestion.length; i++) {
       if (i == id) {
         //加入到listData数组
         let listData = this.data.listData;
         let logAndLats = this.data.logAndLats;
+
         logAndLats.push({
-          longitude: this.data.suggestion[i].longitude,
           latitude: this.data.suggestion[i].latitude,
+          longitude: this.data.suggestion[i].longitude,
         })
         listData.push({
           //drag data
@@ -256,46 +378,50 @@ Page({
           id: this.data.count++,
           longitude: this.data.suggestion[i].longitude,
           latitude: this.data.suggestion[i].latitude,
-          width: 60,
-          height: 60,
-          iconPath: '../../resources/marker.png', //图标路径
-          customCallout: { //自定义气泡
+          width: 50,
+          height: 50,
+          iconPath: '../../resources/icons8-region-64.png', //图标路径
+          callout: {
+            content: (this.data.listData.length + 1).toString(),
+            fontSize: 18,
+            color: '#ff9966',
+            textAlign: 'center',
+            borderRadius: 50,
+            bgColor: '#ffff99',
+            padding: 2,
             display: "ALWAYS", //显示方式，可选值BYCLICK
             anchorX: 0, //横向偏移
-            anchorY: 20,
+            anchorY: 37,
           },
         });
-        setTimeout(() => {
-          if (logAndLats.length > 1) {
-            this.setData({
-              listData,
-              // markers,
-              polyline: [{
-                points: logAndLats,
-                color: "#DC143C",
-                width: 8,
-              }],
-              logAndLats,
-              showSelect: false,
-              chosenLocation: '',
-            });
-          } else {
-            this.setData({
-              listData,
-              // markers,
-              logAndLats,
-              showSelect: false,
-              chosenLocation: '',
-            });
-          }
-          this.drag.init();
-        }, 300)
+        if (logAndLats.length > 1) {
+          this.setData({
+            polyline: [{
+              points: logAndLats,
+              color: '#ff4d4d',
+              width: 8,
+              arrowLine: true,
+            }],
+            listData: listData,
+            logAndLats: logAndLats,
+            showSelect: false,
+            chosenLocation: '',
+          });
+        } else {
+          this.setData({
+            listData: listData,
+            logAndLats: logAndLats,
+            showSelect: false,
+            chosenLocation: '',
+          });
+        }
+        this.drag.init();
         break;
       }
     }
     // 查找不到id对应suggestion的处理
     // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
-    // console.log("afterAdded", this.data.listData)
+    console.log("afterAdded", this.data.listData, this.data.polyline, this.data.logAndLats)
   },
 
   //wxp-drag func
@@ -306,6 +432,7 @@ Page({
     //reset sortKey & polyline
     for (let i = 0; i < listData.length; i++) {
       listData[i].sortKey = i;
+      listData[i].callout.content = (i + 1).toString();
       logAndLats.push({
         longitude: listData[i].longitude,
         latitude: listData[i].latitude,
@@ -315,8 +442,9 @@ Page({
       listData,
       polyline: [{
         points: logAndLats,
-        color: "#DC143C",
+        color: '#ff4d4d',
         width: 8,
+        arrowLine: true,
       }],
       logAndLats,
     });
@@ -329,16 +457,19 @@ Page({
     listData.splice(e.detail.key, 1);
     logAndLats.splice(e.detail.key, 1);
     //reset sortKey
-    for (let i = e.detail.key; i < listData.length; i++)
+    for (let i = e.detail.key; i < listData.length; i++) {
       listData[i].sortKey--;
+      listData[i].callout.content = (i+1).toString();
+    }
     setTimeout(() => {
       if (logAndLats.length > 1) {
         this.setData({
           listData,
           polyline: [{
             points: logAndLats,
-            color: "#DC143C",
+            color: '#ff4d4d',
             width: 8,
+            arrowLine: true,
           }],
           logAndLats,
         });
@@ -422,22 +553,8 @@ Page({
       showSubPage: false
     })
   },
-  //fucking shit api！！！
   route_planning: function (e) {
-    // var MapContext = wx.createMapContext('#map');
-    // for (var i = 0; i < this.data.markers.length; i++) {
-    //   if (this.data.markers.id == e.detail) {
-    //     longitude = this.data.markers.longitude;
-    //     latitude = this.data.markers.latitude;
-    //   };
-    // }
-    // console.log(MapContext);
-    // console.log(e.detail)
-    // MapContext.openMapApp({
-    //   longitude: 100,
-    //   latitude: 80,
-    //   destination: 'HELL',
-    // })
+    console.log(e.detail.markerId)
   },
 
 })

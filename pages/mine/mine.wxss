@@ -62,3 +62,8 @@
   padding-left: 50rpx;
   padding-right: 50rpx;
 }
+
+.loading{
+  display: flex;
+  justify-content: center;
+}

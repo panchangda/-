@@ -1,4 +1,5 @@
 const app = getApp()
+let plugin = requirePlugin('routePlan');
 import regeneratorRuntime from '../../libs/runtime'; //在es6转es5的同时 使用async/await新特性
 var util = require('../../utils/util.js'); //引入util类计算日期
 var QQMapWX = require('../../libs/qqmap-wx-jssdk.js'); // 引入SDK核心类 实例化
@@ -10,14 +11,12 @@ var mapSetting = {
   subkey: 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB',
   // longitude: 106.301919,
   // latitude: 29.603818,
-  scale: 12,
+  // scale: 12,
   layerStyle: 1,
   showLocation: true,
 };
 const milSecsInOneDay = 24 * 60 * 60 * 1000;
-// const query = wx.createSelectorQuery();
-// const MapContext = query.select('map');
-// const MapContext = wx.createMapContext('map');
+// const MapContext = wx.createMapContext('#map');
 
 Page({
   data: {
@@ -56,27 +55,30 @@ Page({
   },
 
   //天才般的同步处理
-  onLoad: function () {
-    var date = util.formatDate(new Date());
-    // let res = wx.cloud.callFunction({
-    //   name: 'findScheduleID',
-    //   data: {
-    //     date: date,
-    //   },
-    // })
-    if (date) {
+  onLoad: function () {},
+  onShow: function () {
+    if (!app.globalData.date) {
+      var date = util.formatDate(new Date());
+      if (date) {
+        this.setData({
+          date: date,
+          todayDate: new Date(date).getTime(),
+        })
+      } else {
+        console.log('@@@Error:CAN NOT GET DATE')
+      }
+    } else {
+      var date = app.globalData.date
       this.setData({
-        date: date,
+        date,
         todayDate: new Date(date).getTime(),
       })
-    } else {
-      console.log('@@@Error:CAN NOT GET DATE')
+      app.globalData.date = '';
     }
     this.drag = this.selectComponent('#drag');
     // this.load_today(date);
     this.load(date);
   },
-  onShow: function () {},
   onReady: function () {},
 
   async load(date) {
@@ -97,14 +99,14 @@ Page({
       },
     })
     if (res.result && res.result.list.length) {
-      const targetDay = getDaysBetween(res.result.list[0].beginDate,date)
+      const targetDay = getDaysBetween(res.result.list[0].beginDate, date)
       this.setData({
         hasSchedule: true,
-        name:res.result.list[0].name,
-        listData: res.result.list[0].allDatesData[targetDay-1].listData,
-        polyline: res.result.list[0].allDatesData[targetDay-1].polyline,
-        logAndLats: res.result.list[0].allDatesData[targetDay-1].logAndLats,
-        count: res.result.list[0].allDatesData[targetDay-1].count,
+        name: res.result.list[0].name,
+        listData: res.result.list[0].allDatesData[targetDay - 1].listData,
+        polyline: res.result.list[0].allDatesData[targetDay - 1].polyline,
+        logAndLats: res.result.list[0].allDatesData[targetDay - 1].logAndLats,
+        count: res.result.list[0].allDatesData[targetDay - 1].count,
       })
     } else {
       this.setData({
@@ -113,22 +115,32 @@ Page({
     }
     this.drag.init()
     wx.hideLoading()
-    },
+
+    //refresh include-points
+    this.FUCKYOUWXSHITAPI()
+  },
 
   //对页面数据进行操作后的更新
-  async update(){
+  async update() {
     console.log(this.data.date)
     wx.cloud.callFunction({
-      name:'updateTodaySchedule',
-      data:{
+      name: 'updateTodaySchedule',
+      data: {
         dateString: (this.data.date),
-        listData:this.data.listData,
-        polyline:this.data.polyline,
-        logAndLats:this.data.logAndLats,
+        listData: this.data.listData,
+        polyline: this.data.polyline,
+        logAndLats: this.data.logAndLats,
         count: this.data.count,
       }
     })
     console.log("update")
+  },
+  FUCKYOUWXSHITAPI() {
+    let MapContext = wx.createMapContext("map");
+    MapContext.includePoints({
+      points: this.data.logAndLats,
+      padding: [80, 80, 80, 80, ],
+    })
   },
 
   // async load_today(date) {
@@ -143,7 +155,7 @@ Page({
   //     },
   //   })
   //   console.log(res)
-    
+
   //   if (res.result && res.result.list.length) {
   //     let markerPoints = [];
   //     let lonAndlat = [];
@@ -273,6 +285,14 @@ Page({
   //触发关键词输入提示事件
   get_suggestion: function (e) {
     var _this = this;
+    if (e.detail == '') {
+      this.setData({
+        suggestion: [],
+        chosenLocation: '',
+        showSelect: false
+      })
+      return;
+    }
     //调用关键词提示接口
     qqmapsdk.getSuggestion({
       //获取输入框值并设置keyword参数
@@ -321,8 +341,8 @@ Page({
         let listData = this.data.listData;
         let logAndLats = this.data.logAndLats;
         logAndLats.push({
-          longitude: this.data.suggestion[i].longitude,
           latitude: this.data.suggestion[i].latitude,
+          longitude: this.data.suggestion[i].longitude,
         })
         listData.push({
           //drag data
@@ -340,43 +360,47 @@ Page({
           width: 60,
           height: 60,
           iconPath: '../../resources/marker.png', //图标路径
-          customCallout: { //自定义气泡
+          callout: {
+            content: (this.data.listData.length + 1).toString(),
+            fontSize: 18,
+            color: '#ff9966',
+            textAlign: 'center',
+            borderRadius: 50,
+            bgColor: '#ffff99',
+            padding: 2,
             display: "ALWAYS", //显示方式，可选值BYCLICK
             anchorX: 0, //横向偏移
-            anchorY: 20,
+            anchorY: 37,
           },
         });
-        setTimeout(() => {
-          if (logAndLats.length > 1) {
-            this.setData({
-              listData,
-              // markers,
-              polyline: [{
-                points: logAndLats,
-                color: "#DC143C",
-                width: 8,
-              }],
-              logAndLats,
-              showSelect: false,
-              chosenLocation: '',
-            });
-          } else {
-            this.setData({
-              listData,
-              // markers,
-              logAndLats,
-              showSelect: false,
-              chosenLocation: '',
-            });
-          }
-          this.drag.init();
-        }, 300)
+        if (logAndLats.length > 1) {
+          this.setData({
+            polyline: [{
+              points: logAndLats,
+              color: '#ff4d4d',
+              width: 8,
+              arrowLine: true,
+            }],
+            logAndLats,
+            showSelect: false,
+            chosenLocation: '',
+          });
+        } else {
+          this.setData({
+            listData,
+            // markers,
+            logAndLats,
+            showSelect: false,
+            chosenLocation: '',
+          });
+        }
+        this.drag.init();
         break;
       }
     }
     // 查找不到id对应suggestion的处理
     // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
-    // console.log("afterAdded", this.data.listData)
+    console.log("afterAdded", this.data.listData, this.data.logAndLats)
   },
 
   //wxp-drag func
@@ -387,6 +411,7 @@ Page({
     //reset sortKey & polyline
     for (let i = 0; i < listData.length; i++) {
       listData[i].sortKey = i;
+      listData[i].callout.content = (i+1).toString();
       logAndLats.push({
         longitude: listData[i].longitude,
         latitude: listData[i].latitude,
@@ -396,8 +421,9 @@ Page({
       listData,
       polyline: [{
         points: logAndLats,
-        color: "#DC143C",
+        color: '#ff4d4d',
         width: 8,
+        arrowLine: true,
       }],
       logAndLats,
     });
@@ -411,16 +437,20 @@ Page({
     listData.splice(e.detail.key, 1);
     logAndLats.splice(e.detail.key, 1);
     //reset sortKey
-    for (let i = e.detail.key; i < listData.length; i++)
+    for (let i = e.detail.key; i < listData.length; i++){
       listData[i].sortKey--;
+      listData[i].callout.content=(i+1).toString();
+    }
+      
     setTimeout(() => {
       if (logAndLats.length > 1) {
         this.setData({
           listData,
           polyline: [{
             points: logAndLats,
-            color: "#DC143C",
+            color: '#ff4d4d',
             width: 8,
+            arrowLine: true,
           }],
           logAndLats,
         });
@@ -518,20 +548,18 @@ Page({
 
   //fucking shit api！！！
   route_planning: function (e) {
-    // var MapContext = wx.createMapContext('#map');
-    // for (var i = 0; i < this.data.markers.length; i++) {
-    //   if (this.data.markers.id == e.detail) {
-    //     longitude = this.data.markers.longitude;
-    //     latitude = this.data.markers.latitude;
-    //   };
-    // }
-    // console.log(MapContext);
-    // console.log(e.detail)
-    // MapContext.openMapApp({
-    //   longitude: 100,
-    //   latitude: 80,
-    //   destination: 'HELL',
-    // })
+    console.log(e)
+    let key = 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB'; //使用在腾讯位置服务申请的key
+    let referer = '从今天开始出发'; //调用插件的app的名称
+    let endPoint = JSON.stringify({ //终点
+      'name': '北京西站',
+      'latitude': 39.894806,
+      'longitude': 116.321592
+    });
+    // let themeColor = '#7FFFD4';
+    wx.navigateTo({
+      url: 'plugin://routePlan/index?key=' + key + '&referer=' + referer + '&endPoint=' + endPoint 
+    });
   },
 })
 

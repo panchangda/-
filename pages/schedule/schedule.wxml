@@ -22,7 +22,7 @@
   readonly
   />
   <van-calendar show="{{showCalendar}}" bind:close="onCalendarClose" bind:confirm="onCalendarConfirm"
-      show-confirm="{{true}}" type="range" allow-same-day="{{true}}" max-range="{{ 14 }}" position="bottom"
+      show-confirm="{{false}}" max-range="{{ 14 }}" position="top"
       min-date="{{ minDate }}" max-date="{{ maxDate }}" />
   <van-field
     value="{{totalDay}}"
@@ -31,8 +31,8 @@
     readonly
   />
 </van-cell-group>
-    <van-button round block disabled="{{!(calendarSet&&nameSet)}}" type="primary" bind:click="confirm_setting">确认</van-button>
-    <!-- <van-button round block type="primary">保存</van-button> -->
+    <van-button round block disabled="{{!(calendarSet&&nameSet)}}" type="primary" bind:click="confirm_setting">保存</van-button>
+    <van-notify id="van-notify" />
 </block>
 
 <block wx:else>
@@ -50,7 +50,7 @@
           <view>{{item.title}}</view>
           <view style="font-size:12px;color:#666;">{{item.addr}}</view>
         </view>
-        <view bindtap="show_onMap">Icon</view>
+        <image class="location-icon" src="../../resources/icons8-near-me-81.png" bindtap="show_onMap" mode="scaleToFill"></image>
       </view>
     </scroll-view>
 
@@ -67,8 +67,8 @@
 
     <!-- 底部标签栏 -->
     <view class="bottom-tagbar">
-      <van-tabs active="{{activeTag}}"  bind:click="onTagClick" swipeable animated="true" color="blue">
-        <block wx:for="{{allDatesData}}">
+      <van-tabs id="tabs" active="{{tmpDay}}"  bind:click="onTagClick" swipeable animated="true" color="blue">
+        <block wx:for="{{totalDay}}" wx:key="">
           <van-tab title="第{{index+1}}天"></van-tab>
         </block>
       </van-tabs>
@@ -78,29 +78,28 @@
 
   <page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
     close-on-slide-down="{{false}}" custom-style="z-index:1;height:100%"
-    overlay-style="background-color: rgba(255, 255, 255, 0.7)">
+    overlay-style="background-color: rgba(255, 255, 255, 0.7)" bind:afterenter="FUCKYOUWXSHITAPI">
     
     <image src="../../resources/icons8-double-down.gif" class="icon-double-down" bindtap="exit_subpage"></image>
+      <image wx:if="{{tmpDay==0?false:true}}" bind:tap="load_yesterday" src="../../resources/icons8-back-64.png" class="icon-on-left"></image>
+    <image wx:if="{{tmpDay==totalDay-1?false:true}}" bind:tap="load_tomorrow" src="../../resources/icons8-forward-64.png" class="icon-on-right"></image>
 
-    <view wx:if="{{tmpDay==0?false:true}}" class="icon-on-left">
-      <van-icon bind:click="load_yesterday" name="arrow-left" size="2em" />
-    </view>
-    <view wx:if="{{tmpDay==totalDay-1?false:true}}" class="icon-on-right">
-      <van-icon bind:click="load_tomorrow" name="arrow" size="2em" />
-    </view>
+    <view class="button-group">
+    <button bindtap="show_setting">保存</button>
+    <button bindtap="delete_today">删除</button>
+    <button bindtap="add_a_day">添加</button>
+      </view>
 
-    <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{listData}}"
-      polyline="{{polyline}}" include-points="{{logAndLats}}">
-      <cover-view slot="callout">
+
+    <view class="map-container">
+      <map id="map" setting="{{mapSetting}}" markers="{{listData}}" polyline="{{polyline}}" >
+        <cover-view slot="callout">
         <!-- 绑定marker-id -->
-        <cover-view wx:for="{{listData}}" marker-id="{{item.sortKey}}" class="customCallout">{{item.sortKey+1}}</cover-view>
+        <cover-view wx:for="{{listData}}" wx:key="id" marker-id="{{item.id}}" class="customCallout">{{item.sortKey+1}}
+        </cover-view>
       </cover-view>
-      <cover-view></cover-view>
     </map>
-    
-    <button bindtap="upload_schedule">保存行程</button>
-    <button bindtap="route_planning">test</button>
-    
+    </view>
 
   </page-container>
 </block>
