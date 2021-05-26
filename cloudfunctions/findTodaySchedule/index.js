@@ -18,7 +18,7 @@ exports.main = async (event, context) => {
       beginDate:_.lte(date),
       endDate:_.gte(date),
      })
-    .end()
+    .get()
   } catch(e) {
     console.error(e)
   }

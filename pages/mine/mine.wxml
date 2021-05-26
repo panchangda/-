@@ -27,7 +27,7 @@
   </view>
 
   <!-- 时间轴 -->
-  <van-tabs id="tabs" type="card" style="width:100vw;" bind:click="onTagChange" color="#ff5050" swipeable sticky
+  <van-tabs id="tabs" type="card" active="{{tmpTag}}" style="width:100vw;" bind:click="onTagChange" color="#ff5050" swipeable sticky
     animated duration="0.5">
     <van-tab title="历史行程">
       <wux-timeline pending="{{true}}">
@@ -44,8 +44,8 @@
               </button>
             </view>
             <view>{{item.name}}</view>
-            <scroll-view class="gallery1" scroll-x="{{true}}" scroll-y="{{false}}">
-              <block wx:for="{{item.picList}}">
+            <scroll-view class="gallery1" scroll-x="{{true}}" scroll-y="{{false}}" enable-flex="true">
+              <block wx:for="{{item.picList}}" wx:key="id">
                 <image class="pics" src="{{item}}" mode="heightFix"></image>
               </block>
             </scroll-view>
@@ -53,6 +53,7 @@
         </block>
       </wux-timeline>
       <block wx:if="{{pastList.length==0?true:false}}"><van-empty image="https://img.yzcdn.cn/vant/custom-empty-image.png" description="这里空空如也"/></block>
+      <block wx:if="{{noMorePast}}">没有更多了别滑了!</block>
     </van-tab>
     <van-tab title="未来行程">
       <wux-timeline pending="{{true}}">
@@ -69,8 +70,8 @@
                 <van-icon name="share-o" />
               </button>
             </view>
-            <scroll-view class="gallery2" scroll-x="{{true}}" scroll-y="{{false}}">
-              <block wx:for="{{item.picList}}">
+            <scroll-view class="gallery2" scroll-x="{{true}}" scroll-y="{{false}}" enable-flex="true">
+              <block wx:for="{{item.picList}}" wx:key="id">
                 <image class="pics" src="{{item}}" mode="heightFix"></image>
               </block>
             </scroll-view>
@@ -78,6 +79,7 @@
         </block>
       </wux-timeline>
       <block wx:if="{{futureList.length==0?true:false}}"><van-empty image="https://img.yzcdn.cn/vant/custom-empty-image.png" description="这里空空如也"/></block>
+      <block wx:if="{{noMoreFuture}}">没有更多了别滑了!</block>
     </van-tab>
   </van-tabs>
 
@@ -89,4 +91,14 @@
   <van-action-sheet show="{{ show }}" actions="{{ actions }}" cancel-text="取消" bind:cancel="onCancel"
     bind:close="onClose" bind:select="onSelect" />
   <van-dialog id="van-dialog" />
+  <van-dialog
+  use-slot
+  title="上传 *{{chosenName}}* 到发现"
+  show="{{ showUploadDialog }}"
+  show-cancel-button
+  bind:confirm="upLoadToDiscover"
+>
+<view style="margin:50rpx;"><input bindinput="descriptionInput"model:value="{{discoverDescription}}" placeholder="在这里输入你的行程描述" focus="true" /> </view>
+
+</van-dialog>
 </view>

@@ -38,7 +38,7 @@
           <view>{{item.title}}</view>
           <view style="font-size:24rpx;color:#666;">{{item.addr}}</view>
         </view>
-        <image class="location-icon" src="../../icons8-near-me-81-color.png" bind:tap="show_onMap" id="{{index}}"
+        <image class="location-icon" src="../../resources/icons8-near-me-81-color.png" bind:tap="show_onMap" id="{{index}}"
           mode="scaleToFill"></image>
       </view>
     </scroll-view>
@@ -65,7 +65,7 @@
 
   </view>
 
-  <page-container class="container" show="{{showSubPage}}" overlay="true" position="top" duration="300"
+  <page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom" duration="300"
     close-on-slide-down="{{false}}" custom-style="z-index:1;height:100%" bind:afterenter="FUCKYOUWXSHITAPI">
     <!-- 编辑按钮 -->
     <image src="../../resources/icons8-edit-image-64.png" class="icon-edit" bindtap="exit_subpage"></image>

@@ -13,9 +13,9 @@ exports.main = async (event, context) => {
   const scheduleID = event.scheduleID
   
   //_.inc操作可并发写
-  return await db.collection("market").doc(scheduleID).update({
+  return await db.collection("Discover").doc(scheduleID).update({
     data:{
-      stars:_.inc(10)
+      stars:_.inc(1)
     }
   }).then(()=>{
     return true

@@ -8,54 +8,18 @@ Page({
    * 页面的初始数据
    */
   data: {
-    pastList: [{
-      id: '0',
-      date: '2021-5-7 - 2021-5-11',
-      name: '重庆之旅',
-      picList: ['http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', 'http://tmp/MoxMpST2ge2E173da2ab0a5db71582b51ad2a3beeec4.png', ],
-    }, {
-      id: '1',
-      date: '2021-5-7 - 2021-5-11',
-      name: '重庆之旅',
-      picList: [],
-    }, {
-      id: '2',
-      date: '2021-5-7 - 2021-5-11',
-      name: '重庆之旅',
-      picList: [],
-    }, ],
-    futureList: [{
-      id: '10',
-      date: '2021-6-8 - 2021-6-11',
-      name: '上海之旅',
-      picList: [],
-    }, {
-      id: '11',
-      date: '2021-6-8 - 2021-6-11',
-      name: '上海之旅',
-      picList: [],
-    }, {
-      id: '12',
-      date: '2021-6-8 - 2021-6-11',
-      name: '上海之旅',
-      picList: [],
-    }, {
-      id: '13',
-      date: '2021-6-8 - 2021-6-11',
-      name: '上海之旅',
-      picList: [],
-    }, ],
+    pastList: [],
+    futureList:[],
     actions: [{
-        name: "行程详情",
+      name:"编辑行程单",
+      },{
+        name: "在日程中查看",
       },
       {
         name: "删除行程",
       },
       {
         name: "上传到发现",
-      },
-      {
-        name: "分享行程",
       },
     ],
     
@@ -70,12 +34,14 @@ Page({
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function () {
+    if((this.data.noMorePast&&this.data.tmpTag==0)
+      ||(this.data.noMoreFuture&&this.data.tmpTag==1))
+      return;
     this.setData({
       loading: true
     })
     let pageNo = this.data.pageNo + 1;
     let date = util.formatDate(new Date());
-    console.log("???")
     wx.cloud.callFunction({
       name: "schedulesByOpenID",
       data: {
@@ -85,27 +51,48 @@ Page({
         pageSize: this.data.pageSize,
       },
       success: res => {
-        console.log(res.result)
-        if (this.data.tmpTag == 0) {
-          let pastList = this.data.pastList;
-          let catList = pastList.concat(res.result);
-          this.setData({
-            pastList: catList,
-            pageNo,
-            loading: false,
-          })
-        } else {
-          let futureList = this.data.futureList;
-          let catList = futureList.concat(res.result);
-          this.setData({
-            futureList: catList,
-            pageNo,
-            loading: false,
-          })
+        console.log('@@SUCCESS',res.result)
+        //if no more schedule
+        if(res.result.length==0){
+          //past
+          if(this.data.tmpTag == 0){
+            this.setData({
+              loading: false,
+              noMorePast:true,
+            })
+          }else{
+            this.setData({
+              loading: false,
+              noMoreFuture:true,
+            })
+          }
         }
+        else{
+          //past schedule
+          if (this.data.tmpTag == 0) {
+            let pastList = this.data.pastList;
+            let catList = pastList.concat(res.result);
+            this.setData({
+              pastList: catList,
+              pageNo,
+              loading: false,
+            })
+          } 
+          //future schedule
+          else {
+            let futureList = this.data.futureList;
+            let catList = futureList.concat(res.result);
+            this.setData({
+              futureList: catList,
+              pageNo,
+              loading: false,
+            })
+          }
+        }
+        
       },
-      failse: err => {
-        console.log(err)
+      fail: err => {
+        console.log('@@ERR',err)
       }
     })
     console.log('@@onReachBottom triggered', pageNo)
@@ -131,12 +118,22 @@ Page({
     const chosenId = this.data.chosenId;
     const chosenDate = this.data.chosenDate;
     const startDate = chosenDate.split(' - ', 1)[0];
-    if (e.detail.name == "行程详情") {
+    if(e.detail.name == '编辑行程单'){
+      wx.navigateTo({
+        url: '/pages/schedule/schedule',
+        success: function (res) {
+          res.eventChannel.emit('acceptFromOpener', {
+            id:chosenId,
+            from:'mine',
+          })
+        },
+      })
+    } else if (e.detail.name == "在日程中查看") {
       //将开始日期放到globalData中 
       //在mymap页面取值设置页面date
       app.globalData.date = startDate;
       wx.switchTab({
-        url: '../myMap/myMap'
+        url: 'pages/myMap/myMap'
       })
     } else if (e.detail.name == "删除行程") {
       Dialog.confirm({
@@ -145,13 +142,45 @@ Page({
         })
         .then(() => {
           // on confirm
+          wx.cloud.callFunction({
+            name:'deleteSchedule',
+            data:{
+              id:this.data.chosenId,
+            }
+          })
         })
         .catch(() => {
           // on cancel
+          console.log('@@删除取消')
         });
     } else if (e.detail.name == "上传到发现") {
-
+      //显示填写行程的对话框 对话框的确认按钮调用upLoadToDiscover上传
+      this.setData({
+        showUploadDialog:true,
+      })
     } 
+  },
+  descriptionInput(){
+
+  },
+  upLoadToDiscover(){
+    console.log(this.data.chosenId,this.data.discoverDescription)
+    wx.cloud.callFunction({
+      name:'uploadToDiscover',
+      data:{
+        scheduleID:this.data.chosenId,
+        description:this.data.discoverDescription,
+      },
+      success:res=>{  
+        console.log(res)
+      },
+      fail:err=>{
+        console.log(err)
+      }
+    })
+    this.setData({
+      discoverDescription:'',
+    })
   },
   onClick(e) {
     console.log(e)
@@ -173,14 +202,21 @@ Page({
     })
   },
   onTagChange() {
+    let tmpTag = this.data.tmpTag
+    if(tmpTag==0)
+      tmpTag=1;
+    else tmpTag = 0;
+    this.setData({
+      tmpTag,
+    })
+    console.log('@@tmpTag switch to',this.data.tmpTag)
     this.selectComponent('#tabs').resize();
-    console.log('@@resized')
   },
-
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    this.onReachBottom()
   },
 
   /**

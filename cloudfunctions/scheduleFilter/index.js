@@ -11,24 +11,64 @@ const $ = db.command.aggregate
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const params = event
+  const pageNo = event.pageNo
+  const pageSize = event.pageSize
   //days sort order
   console.log(event)
-  const days = params.days.split(' ')
-  let param = "_.eq("+ days[0] +")" 
-  for(let i = 1 ; i < days.length ; i++){
-    // param = param +"," + "_.eq("+days[i] +")" 
-    param = param +".or(" + "_.eq("+days[i] +"))" 
+  let res
+  if(params.word != null){
+    var reg = new RegExp(params.word);
+    console.log("reg:",reg)
+    res = db.collection("Discover").aggregate().match({
+      name: reg
+    })
+  }else{
+    res = db.collection("Discover").aggregate()
   }
-  console.log(param)
-  const res = await db.collection("Discover").where({
-       days:(eval(param))
-  }).get()
+  //处理days
+  if(params.days != null){
+    const days = params.days.split(' ')
+    let param = "_.eq("+ days[0] +")" 
+    for(let i = 1 ; i < days.length ; i++){
+      param = param +".or(" + "_.eq("+days[i] +"))" 
+    }
+    console.log(param)
+    res = res.match({
+        days:(eval(param))
+    })
+  }
 
-  console.log(res)
+  if(params.sort == "stars"){
+    console.log(res)
+    res = await res.sort({
+        stars: -1
+    }).skip(pageNo*pageSize).limit(pageSize).end()
+  }else{
+    if(params.order == "desc"){
+      res = await res.sort({
+        date: -1
+      }).skip(pageNo*pageSize).limit(pageSize).end()
+    }else{
+      res = await res.sort({
+        date: 1
+      }).skip(pageNo*pageSize).limit(pageSize).end()
+    }
+  }
+  let showRes = [];
+  
+  res.list.forEach((value)=>{
+    //console.log(value)
+    showRes.push({
+      id:value._id,
+      name:value.name,
+      description:value.discription,
+      days:value.days,
+      stars:value.stars
+    })
+  })
+  console.log(showRes)
+
   return {
-    event,
-    openid: wxContext.OPENID,
-    appid: wxContext.APPID,
-    unionid: wxContext.UNIONID,
+    showRes
   }
 }

@@ -1,8 +1,5 @@
 const app = getApp();
 import regeneratorRuntime from '../../libs/runtime'; //在es6转es5的同时 使用async/await新特性
-import {
-  WHITE
-} from '../../miniprogram_npm/@vant/weapp/common/color';
 import Notify from '../../miniprogram_npm/@vant/weapp/notify/notify';
 var util = require('../../utils/util.js'); //引入util类计算日期 
 var QQMapWX = require('../../libs/qqmap-wx-jssdk.js'); // 引入SDK核心类 实例化API核心类
@@ -24,11 +21,11 @@ Page({
     //schedule settings
     showSetting: false,
     name: '',
-    fromDiscover:false,
-    fromMine:false,
-    fromNew:false,
-    calendarSet:false,
-    nameSet:false,
+    fromDiscover: false,
+    fromMine: false,
+    fromNew: false,
+    calendarSet: false,
+    nameSet: false,
 
     //calendar
     showCalendar: false,
@@ -63,7 +60,7 @@ Page({
     //nav data
     activeTag: 0,
     tmpDay: 0,
-    totalDay: '',
+    totalDay: 1,
 
   },
   //上传新行程
@@ -143,31 +140,78 @@ Page({
     this.drag = this.selectComponent('#drag');
   },
   onLoad: function (options) {
+
     this.drag = this.selectComponent('#drag');
     const eventChannel = this.getOpenerEventChannel()
 
-    //判断是否有once属性
+    //判断是否有once属性 即从wx.navigateTo接口传过来的
     if (eventChannel.once) {
-      //"discover schedule" initialize
-      console.log('@@DISCOVER SCHEDULE')
-      eventChannel.once('acceptDiscoverPageData', (data) => {
-        console.log(data)
-        wx.cloud.callFunction({
-          name: 'getDiscoverSchedule',
-          data: data.id,
-          success: res => {
-            console.log('@@getDiscoverSchedule Success')
-          },
-          failse: err => {
-            console.log('@@getDiscoverSchedule Failed')
-          }
-        })
+      // discover schedule / mine schedule initialize
+      eventChannel.once('acceptFromOpener', (data) => {
+        if (data.from == 'mine') {
+          console.log('@@FROM MINE', data)
+          wx.cloud.callFunction({
+            name: 'scheduleByID',
+            data: {
+              scheduleID: data.id,
+            },
+            success: res => {
+              console.log('@@SUCCESS', res)
+              this.setData({
+                allDatesData: res.result.allDatesData,
+                listData: res.result.allDatesData[0].listData,
+                polyline: res.result.allDatesData[0].polyline,
+                logAndLats: res.result.allDatesData[0].logAndLats,
+                count: res.result.allDatesData[0].count,
+                name: res.result.name,
+                date: res.result.date,
+                totalDay: res.result.allDatesData.length,
+                fromMine: true,
+                calendarSet: true,
+                nameSet: true,
+              })
+              this.drag.init();
+              this.selectComponent('#tabs').resize();
+            },
+            fail: err => {
+              console.log('@@ERR', err)
+            }
+          })
+        } else if (data.from == 'discover') {
+          console.log('@@FROM DISCOVER', data)
+          wx.cloud.callFunction({
+            name: 'discoverScheduleByID',
+            data: {
+              scheduleID: data.id,
+            },
+            success: res => {
+              console.log('@@SUCCESS', res)
+              this.setData({
+                discoverID:res.result._id,
+                allDatesData: res.result.allDatesData,
+                listData: res.result.allDatesData[0].listData,
+                polyline: res.result.allDatesData[0].polyline,
+                logAndLats: res.result.allDatesData[0].logAndLats,
+                count: res.result.allDatesData[0].count,
+                name: res.result.name,
+                totalDay: res.result.days,
+                fromDiscover: true,
+                nameSet: true,
+              })
+              this.drag.init();
+              this.selectComponent('#tabs').resize();
+            },
+            fail: err => {
+              console.log('@@ERR', err)
+            }
+          })
+        }
       })
-    } else if(options.id){
+    } else if (options.id) {
       //行程分享单
-      
-    }
-    else {
+      console.log(options.id)
+
+    } else {
       //"add schedule" initialize
       console.log('@@NEW SCHEDULE')
       let allDatesData = this.data.allDatesData
@@ -181,7 +225,7 @@ Page({
         allDatesData,
         tmpDay: 0,
         totalDay: 1,
-        fromNew:true,
+        fromNew: true,
       })
     }
   },
@@ -249,14 +293,23 @@ Page({
         if (res.result) {
           Notify({
             type: 'success',
-            message: '成了兄弟'
+            message: '保存成功！'
           });
           //如果是加载的他人行程的保存成功的话 该行程收藏数加1
-          const eventChannel = this.getOpenerEventChannel();
-          if (eventChannel.emit) {
-            eventChannel.emit('acceptChangedData', {
-              sign: 'stars ++ ',
+          if (this.data.fromDiscover) {
+            wx.cloud.callFunction({
+              name:'scheduleStar',
+              data:{
+                scheduleID:this.data.discoverID
+              },
+              success:res=>{
+                console.log('@@STAR++',res)
+              },
+              fail:err=>{
+                console.log('@@STAR FAIL',err)
+              }
             })
+
           }
         } else {
           Notify({
@@ -519,7 +572,7 @@ Page({
     console.log(e)
     let _this = this;
     wx.navigateTo({
-      url: '../edit/edit',
+      url: '/pages/edit/edit',
       events: {
         acceptChangedData: function (data) {
           console.log(data)
@@ -584,8 +637,4 @@ Page({
       showSubPage: false
     })
   },
-  route_planning: function (e) {
-    console.log(e.detail.markerId)
-  },
-
 })

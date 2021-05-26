@@ -32,7 +32,7 @@ exports.main = async (event, context) => {
     res = await db.collection('Individual').aggregate()
     .match({
       _openid: _.eq(userOpenId),
-      beginDate:_.gte(event.date),
+      endDate:_.gte(event.date),
     }).sort({
         beginDate: 1
     }).skip(pageNo*pageSize).limit(pageSize)

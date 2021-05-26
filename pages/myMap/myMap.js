@@ -56,6 +56,7 @@ Page({
 
   //天才般的同步处理
   onLoad: function (options) {
+    //对分享的行程单的处理
     if(options.url){
       let url=decodeURIComponent(options.url);
       wx.redirectTo({
@@ -75,6 +76,7 @@ Page({
         console.log('@@@Error:CAN NOT GET DATE')
       }
     } else {
+      //从mine跳转到本页面的处理
       var date = app.globalData.date
       this.setData({
         date,
@@ -87,7 +89,6 @@ Page({
     this.load(date);
   },
   onReady: function () {},
-
   async load(date) {
     wx.showLoading({
       title: '加载中',
@@ -105,6 +106,7 @@ Page({
         //+" 00:00:00.000"
       },
     })
+    console.log('@@RES:',res)
     if (res.result && res.result.list.length) {
       const targetDay = getDaysBetween(res.result.list[0].beginDate, date)
       this.setData({

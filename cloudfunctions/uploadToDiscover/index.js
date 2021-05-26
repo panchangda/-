@@ -1,6 +1,5 @@
 // 云函数入口文件
 const cloud = require('wx-server-sdk')
-var util = require('../../utils/util.js'); //引入util类计算日期
 
 cloud.init({
   env:'cloud1-6g5yb47ucf4576d8'
@@ -19,13 +18,14 @@ exports.main = async (event, context) => {
   const re = await db.collection('Individual').doc(scheduleID).get()
   console.log(re)
   console.log(getDaysBetween(re.data.beginDate,re.data.endDate))
+
   return await db.collection('Discover').add({
     data: {
       name: re.data.name,
-      discription:"",
+      discription:event.discription,
       allDatesData: re.data.allDatesData,
       days: getDaysBetween(re.data.beginDate,re.data.endDate),
-      date: eval(util.formatDate(new Date())),
+      date: new Date(),
       stars: 0,
     }
   }).then(()=>{
