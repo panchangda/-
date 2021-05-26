@@ -30,7 +30,7 @@
   -webkit-line-clamp: 2;
   overflow: hidden;
   word-break: break-all;
-  font-size: 28rpx;
+  font-size: 32rpx;
   margin-bottom: 4rpx;
 }
 

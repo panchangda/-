@@ -55,7 +55,14 @@ Page({
   },
 
   //天才般的同步处理
-  onLoad: function () {},
+  onLoad: function (options) {
+    if(options.url){
+      let url=decodeURIComponent(options.url);
+      wx.redirectTo({
+        url
+      })
+    }
+  },
   onShow: function () {
     if (!app.globalData.date) {
       var date = util.formatDate(new Date());
@@ -402,7 +409,12 @@ Page({
     // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
     console.log("afterAdded", this.data.listData, this.data.logAndLats)
   },
-
+  show_onMap(e){
+    this.add_location(e)
+    this.setData({
+      showSubPage:true,
+    })
+  },
   //wxp-drag func
   sortEnd(e) {
     console.log("sortEnd", e.detail.listData)

@@ -53,7 +53,7 @@ Page({
       },
       {
         name: "上传到发现",
-      }, 
+      },
       {
         name: "分享行程",
       },
@@ -71,7 +71,7 @@ Page({
    */
   onReachBottom: function () {
     this.setData({
-      loading:true
+      loading: true
     })
     let pageNo = this.data.pageNo + 1;
     let date = util.formatDate(new Date());
@@ -92,7 +92,7 @@ Page({
           this.setData({
             pastList: catList,
             pageNo,
-            loading:false,
+            loading: false,
           })
         } else {
           let futureList = this.data.futureList;
@@ -100,11 +100,11 @@ Page({
           this.setData({
             futureList: catList,
             pageNo,
-            loading:false,
+            loading: false,
           })
         }
       },
-      failse:err=>{
+      failse: err => {
         console.log(err)
       }
     })
@@ -130,7 +130,7 @@ Page({
     const chosenName = this.data.chosenName;
     const chosenId = this.data.chosenId;
     const chosenDate = this.data.chosenDate;
-    const startDate = chosenDate.split(' - ',1)[0];
+    const startDate = chosenDate.split(' - ', 1)[0];
     if (e.detail.name == "行程详情") {
       //将开始日期放到globalData中 
       //在mymap页面取值设置页面date
@@ -140,18 +140,16 @@ Page({
       })
     } else if (e.detail.name == "删除行程") {
       Dialog.confirm({
-        title: '确认要删除该行程吗',
-        message: chosenName + ' '+ chosenDate,
-      })
+          title: '确认要删除该行程吗',
+          message: chosenName + ' ' + chosenDate,
+        })
         .then(() => {
           // on confirm
         })
         .catch(() => {
           // on cancel
         });
-    } else if(e.detail.name == "上传到发现"){
-
-    } else if (e.detail.name == "分享行程") {
+    } else if (e.detail.name == "上传到发现") {
 
     } 
   },
@@ -159,9 +157,9 @@ Page({
     console.log(e)
     this.setData({
       show: true,
-      chosenId:e.currentTarget.dataset.id,
-      chosenDate:e.currentTarget.dataset.date,
-      chosenName:e.currentTarget.dataset.name,
+      chosenId: e.currentTarget.dataset.id,
+      chosenDate: e.currentTarget.dataset.date,
+      chosenName: e.currentTarget.dataset.name,
     })
   },
   onClose() {
@@ -178,12 +176,11 @@ Page({
     this.selectComponent('#tabs').resize();
     console.log('@@resized')
   },
- 
+
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
   },
 
   /**
@@ -224,7 +221,24 @@ Page({
   /**
    * 用户点击右上角分享
    */
-  onShareAppMessage: function () {
-
-  }
+  onShareAppMessage: function (options) {
+    console.log(options)
+    if (options.from=='button') {
+      let url = encodeURIComponent('/pages/schedule/schedule?id='+options.target.dataset.id)
+      var promise = new Promise(resolve => {
+        setTimeout(() => {
+          resolve({
+            title: '**你收到了一份崭新的行程单**'+ options.target.dataset.name,
+            path: `/pages/myMap/myMap?url=${url}`,
+            imageUrl:options.target.dataset.pic
+          })
+        }, 200)
+      })
+    }
+    return {
+      title: '**从今天开始出发**新一代旅行出行规划软件',
+      path: '/pages/myMap/myMap',
+      promise
+    }
+  },
 })

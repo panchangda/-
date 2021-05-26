@@ -3,15 +3,18 @@
 <view class="container">
   <van-search value="{{chosenLocation}}" placeholder="请输入搜索关键词" bind:change="get_suggestion"
     bind:clear="clear_search" />
-  <scroll-view class="search-page" scroll-y="true" style="height:{{showSelect?800:0}}rpx;  border:{{showSelect?5:0}}rpx solid black;">
+    <van-empty wx:if="{{listData.length>0?false:true}}" image="search" description="搜索地点并添加到这里" />
+  <scroll-view class="search-page" scroll-y="true"
+    style="height:{{showSelect?800:0}}rpx;  border:{{showSelect?5:0}}rpx solid black;">
     <!--绑定回填事件-->
     <view class="search-results" wx:for="{{suggestion}}" wx:key="index">
       <!--根据需求渲染相应数据 渲染地址title-->
       <view class="font-results" bind:tap="add_location" id="{{index}}">
-        <view>{{item.title}}</view>
-        <view style="font-size:12px;color:#666;">{{item.addr}}</view>
-      </view>
-      <image class="location-icon" src="../../resources/icons8-near-me-81.png" bindtap="show_onMap" mode="scaleToFill"></image>
+          <view>{{item.title}}</view>
+          <view style="font-size:24rpx;color:#666;">{{item.addr}}</view>
+        </view>
+        <image class="location-icon" src="../../icons8-near-me-81-color.png" bind:tap="show_onMap" id="{{index}}"
+          mode="scaleToFill"></image>
     </view>
   </scroll-view>
 
@@ -23,41 +26,42 @@
     </wxp-drag>
   </view>
 
-  <image src="../../resources/icons8-double-up.gif" class="icon-double-up" bindtap="show_subpage"></image>
+  <image src="../../resources/icons8-location-64.png" class="icon-show-map" bindtap="show_subpage"></image>
 </view>
 
-<page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
-  close-on-slide-down="{{true}}" custom-style="z-index:1;height:100%"
-  overlay-style="background-color: rgba(255, 255, 255, 0.7)" bind:afterenter="FUCKYOUWXSHITAPI" >
+<page-container class="container" show="{{showSubPage}}" overlay="false" position="bottom" close-on-slide-down="{{false}}"
+  custom-style="z-index:1;height:100%" duration="500"
+  bind:afterenter="FUCKYOUWXSHITAPI">
   <!-- 日期选择 -->
-  <view class="switch-date">
-    <image src="../../resources/calendar.gif" style="width:80rpx;height:80rpx;"></image>
-    <van-cell value="{{ date }}" bind:click="onCalendarDisplay" />
-    <image src="../../resources/calendar.gif" style="width:80rpx;height:80rpx;"></image>
-    <van-calendar show="{{showCalendar}}" show-confirm="{{ false }}" bind:close="onCalendarClose"
+
+  <view class="switch-date" bind:tap="onCalendarDisplay">
+    <image src="../../resources/calendar.png" class="date-icon"></image>
+    <text class="date-text">{{ date }}</text>
+  </view>
+  <van-calendar show="{{showCalendar}}" color="#0073e6" show-confirm="{{ false }}" bind:close="onCalendarClose"
       bind:confirm="onCalendarConfirm" show-mark="{{true}}" position="bottom" default-date="{{todayDate}}"
       min-date="{{ minDate }}" max-date="{{ maxDate }}" />
-  </view>
+
   <!-- 两侧箭头 -->
-    <image bind:tap="load_yesterday" src="../../resources/icons8-back-64.png" class="icon-on-left"></image>
-    <image bind:tap="load_tomorrow" src="../../resources/icons8-forward-64.png" class="icon-on-right"></image>
+  <image bind:tap="load_yesterday" src="../../resources/icons8-back-64.png" class="icon-on-left"></image>
+  <image bind:tap="load_tomorrow" src="../../resources/icons8-forward-64.png" class="icon-on-right"></image>
 
   <!-- if tmp date has schedule -->
   <block wx:if="{{hasSchedule}}">
-    <!-- 下箭头 -->
-    <image src="../../resources/icons8-double-down.gif" class="icon-double-down" bindtap="exit_subpage"></image>
-    
+    <!-- 编辑按钮 -->
+    <image src="../../resources/icons8-edit-image-64.png" class="icon-edit" bindtap="exit_subpage"></image>
+
     <!--地图容器-->
     <!-- 若将markers polyline等属性放在setting字典中: 实机测试时更新后不能自动渲染至map -->
     <view class="map-container">
       <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{listData}}"
-      polyline="{{polyline}}">
-    </map>
+        polyline="{{polyline}}">
+      </map>
     </view>
   </block>
 
   <block wx:else>
-      <image class="icon-add" src="../../resources/icons8-add-64.png" bind:tap="add_schedule"></image>
+    <image class="icon-add" src="../../resources/icons8-joyent-64.png" bind:tap="add_schedule"></image>
   </block>
 
 </page-container>

@@ -1,38 +1,26 @@
-<!--pages/addSchedule/addSchedule.wxml-->
-
-<!--pages/myMap/myMap.wxml-->
-
 <page-meta scroll-top="{{pageMetaScrollTop}}"></page-meta>
 <block wx:if="{{showSetting}}">
-
+  <van-nav-bar left-text="返回" left-arrow safe-area-inset-top="{{false}}" bind:click-left="onClickLeft" />
   <van-cell-group>
-  <van-field
-    model:value="{{name}}"
-    placeholder="给你的行程起一个名字"
-    label="行程名称"
-    bind:change="onNameChange"
-    required
-  />
-  <van-field 
-  value="{{date}}" 
-  placeholder="点击选择日期"
-  label="行程日期" 
-  bind:click-input="onCalendarDisplay" 
-  required
-  readonly
-  />
-  <van-calendar show="{{showCalendar}}" bind:close="onCalendarClose" bind:confirm="onCalendarConfirm"
-      show-confirm="{{false}}" max-range="{{ 14 }}" position="top"
-      min-date="{{ minDate }}" max-date="{{ maxDate }}" />
-  <van-field
-    value="{{totalDay}}"
-    label="行程天数"
-    placeholder="选择日期后自动显示"
-    readonly
-  />
-</van-cell-group>
-    <van-button round block disabled="{{!(calendarSet&&nameSet)}}" type="primary" bind:click="confirm_setting">保存</van-button>
-    <van-notify id="van-notify" />
+    <van-field model:value="{{name}}" placeholder="给你的行程起一个名字" label="行程名称" bind:change="onNameChange" required large />
+    <van-field value="{{date}}" placeholder="点击选择日期" label="行程日期" bind:click-input="onCalendarDisplay" required readonly
+      large />
+    <van-calendar show="{{showCalendar}}" bind:close="onCalendarClose" bind:confirm="onCalendarConfirm" color="#0073e6"
+      show-confirm="{{false}}" max-range="{{ 14 }}" position="bottom" min-date="{{ minDate }}" max-date="{{ maxDate }}" />
+    <van-field value="{{totalDay}}" label="行程天数" placeholder="选择日期后自动显示" readonly large />
+  </van-cell-group>
+  <view class="button-container">
+    <van-button wx:if="{{fromNew}}" class="upload-button" round disabled="{{!(calendarSet&&nameSet)}}" type="info"
+      bind:click="confirm_setting">保存
+    </van-button>
+    <van-button wx:if="{{fromDiscover}}" class="upload-button" round disabled="{{!(calendarSet&&nameSet)}}" type="info"
+      bind:click="confirm_setting">保存
+    </van-button>
+    <van-button wx:if="{{fromMine}}" class="upload-button" round disabled="{{!(calendarSet&&nameSet)}}" type="info"
+      bind:click="update_setting">更新
+    </van-button>
+  </view>
+  <van-notify id="van-notify" />
 </block>
 
 <block wx:else>
@@ -40,34 +28,35 @@
     <!-- 搜索框 -->
     <van-search value="{{chosenLocation}}" placeholder="请输入搜索关键词" bind:change="get_suggestion"
       bind:clear="clear_search" />
-
-      <!-- 搜索结果动态展示下拉栏 -->
+    <van-empty wx:if="{{listData.length>0?false:true}}" image="search" description="搜索地点并添加到这里" />
+    <!-- 搜索结果动态展示下拉栏 -->
     <scroll-view class="search-page" scroll-y="true" style="height:{{showSelect?700:0}}rpx;">
       <!--绑定回填事件-->
       <view class="search-results" wx:for="{{suggestion}}" wx:key="index">
         <!--根据需求渲染相应数据-->
         <view class="font-results" bind:tap="add_location" id="{{index}}">
           <view>{{item.title}}</view>
-          <view style="font-size:12px;color:#666;">{{item.addr}}</view>
+          <view style="font-size:24rpx;color:#666;">{{item.addr}}</view>
         </view>
-        <image class="location-icon" src="../../resources/icons8-near-me-81.png" bindtap="show_onMap" mode="scaleToFill"></image>
+        <image class="location-icon" src="../../icons8-near-me-81-color.png" bind:tap="show_onMap" id="{{index}}"
+          mode="scaleToFill"></image>
       </view>
     </scroll-view>
 
     <!-- 拖拽排序组件 -->
     <view style="margin: 4rpx;">
-      <wxp-drag id="drag" generic:item="wxp-drag-item" bind:delete="itemDelete" bind:click="itemClick" bind:change="change"
-        bind:sortend="sortEnd" bind:scroll="scroll" item-wrap-class="drag-item-wrap" extra-nodes="{{extraNodes}}"
-        list-data="{{listData}}" columns="{{size}}" scroll-top="{{scrollTop}}" item-height="{{(750 - 8) / size}}"
-        top-size="80" bottom-size="0">
+      <wxp-drag id="drag" generic:item="wxp-drag-item" bind:delete="itemDelete" bind:click="itemClick"
+        bind:change="change" bind:sortend="sortEnd" bind:scroll="scroll" item-wrap-class="drag-item-wrap"
+        extra-nodes="{{extraNodes}}" list-data="{{listData}}" columns="{{size}}" scroll-top="{{scrollTop}}"
+        item-height="{{(750 - 8) / size}}" top-size="80" bottom-size="0">
       </wxp-drag>
     </view>
 
-    <image src="../../resources/icons8-double-up.gif" class="icon-double-up" bindtap="show_subpage"></image>
+    <image src="../../resources/icons8-location-64.png" class="icon-show-map" bindtap="show_subpage"></image>
 
     <!-- 底部标签栏 -->
     <view class="bottom-tagbar">
-      <van-tabs id="tabs" active="{{tmpDay}}"  bind:click="onTagClick" swipeable animated="true" color="blue">
+      <van-tabs id="tabs" active="{{tmpDay}}" bind:click="onTagClick" color="#99ccff">
         <block wx:for="{{totalDay}}" wx:key="">
           <van-tab title="第{{index+1}}天"></van-tab>
         </block>
@@ -76,29 +65,29 @@
 
   </view>
 
-  <page-container class="container" show="{{showSubPage}}" overlay="true" position="bottom"
-    close-on-slide-down="{{false}}" custom-style="z-index:1;height:100%"
-    overlay-style="background-color: rgba(255, 255, 255, 0.7)" bind:afterenter="FUCKYOUWXSHITAPI">
-    
-    <image src="../../resources/icons8-double-down.gif" class="icon-double-down" bindtap="exit_subpage"></image>
-      <image wx:if="{{tmpDay==0?false:true}}" bind:tap="load_yesterday" src="../../resources/icons8-back-64.png" class="icon-on-left"></image>
-    <image wx:if="{{tmpDay==totalDay-1?false:true}}" bind:tap="load_tomorrow" src="../../resources/icons8-forward-64.png" class="icon-on-right"></image>
-
-    <view class="button-group">
-    <button bindtap="show_setting">保存</button>
-    <button bindtap="delete_today">删除</button>
-    <button bindtap="add_a_day">添加</button>
-      </view>
+  <page-container class="container" show="{{showSubPage}}" overlay="true" position="top" duration="300"
+    close-on-slide-down="{{false}}" custom-style="z-index:1;height:100%" bind:afterenter="FUCKYOUWXSHITAPI">
+    <!-- 编辑按钮 -->
+    <image src="../../resources/icons8-edit-image-64.png" class="icon-edit" bindtap="exit_subpage"></image>
+    <image wx:if="{{tmpDay==0?false:true}}" bind:tap="load_yesterday" src="../../resources/icons8-back-64.png"
+      class="icon-left"></image>
+    <image wx:if="{{tmpDay==totalDay-1?false:true}}" bind:tap="load_tomorrow"
+      src="../../resources/icons8-forward-64.png" class="icon-right"></image>
+    <image wx:if="{{tmpDay==totalDay-1?true:false}}" class="icon-add" bindtap="add_a_day"
+      src="../../resources/icons8-plus-64.png"></image>
+    <image wx:if="{{totalDay>1?true:false}}" class="icon-delete" bindtap="delete_today"
+      src="../../resources/icons8-remove-64.png"></image>
+    <image class="icon-save" bindtap="show_setting" src="../../resources/icons8-checked-64.png"></image>
 
 
     <view class="map-container">
-      <map id="map" setting="{{mapSetting}}" markers="{{listData}}" polyline="{{polyline}}" >
+      <map id="map" setting="{{mapSetting}}" markers="{{listData}}" polyline="{{polyline}}">
         <cover-view slot="callout">
-        <!-- 绑定marker-id -->
-        <cover-view wx:for="{{listData}}" wx:key="id" marker-id="{{item.id}}" class="customCallout">{{item.sortKey+1}}
+          <!-- 绑定marker-id -->
+          <cover-view wx:for="{{listData}}" wx:key="id" marker-id="{{item.id}}" class="customCallout">{{item.sortKey+1}}
+          </cover-view>
         </cover-view>
-      </cover-view>
-    </map>
+      </map>
     </view>
 
   </page-container>

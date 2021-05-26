@@ -23,8 +23,12 @@ Page({
   data: {
     //schedule settings
     showSetting: false,
-    settingComplete: false,
     name: '',
+    fromDiscover:false,
+    fromMine:false,
+    fromNew:false,
+    calendarSet:false,
+    nameSet:false,
 
     //calendar
     showCalendar: false,
@@ -115,6 +119,7 @@ Page({
       this.FUCKYOUWXSHITAPI()
     }
   },
+  //显示保存页面
   show_setting() {
     //save today's data to allDatesData
     let thisDayData = {
@@ -128,13 +133,23 @@ Page({
       showSetting: true,
     })
   },
-  onLoad: function () {
+  //返回形成页面
+  onClickLeft() {
+    this.setData({
+      showSetting: false,
+      calendarSet: false,
+      date: '',
+    })
+    this.drag = this.selectComponent('#drag');
+  },
+  onLoad: function (options) {
     this.drag = this.selectComponent('#drag');
     const eventChannel = this.getOpenerEventChannel()
+
     //判断是否有once属性
     if (eventChannel.once) {
-      console.log('@@DISCOVER SCHEDULE')
       //"discover schedule" initialize
+      console.log('@@DISCOVER SCHEDULE')
       eventChannel.once('acceptDiscoverPageData', (data) => {
         console.log(data)
         wx.cloud.callFunction({
@@ -148,7 +163,11 @@ Page({
           }
         })
       })
-    } else {
+    } else if(options.id){
+      //行程分享单
+      
+    }
+    else {
       //"add schedule" initialize
       console.log('@@NEW SCHEDULE')
       let allDatesData = this.data.allDatesData
@@ -162,6 +181,7 @@ Page({
         allDatesData,
         tmpDay: 0,
         totalDay: 1,
+        fromNew:true,
       })
     }
   },
@@ -249,6 +269,11 @@ Page({
         console.log('@@err', err)
       },
     })
+
+  },
+  update_setting() {
+    //call cloudFunc
+
   },
   //FUCK THIS SHITTYSHIT!
   //switch to tmpDay and reload infos
@@ -308,7 +333,8 @@ Page({
       this.setData({
         suggestion: [],
         chosenLocation: '',
-        showSelect: false
+        showSelect: false,
+
       })
       return;
     }
@@ -423,7 +449,12 @@ Page({
     // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
     console.log("afterAdded", this.data.listData, this.data.polyline, this.data.logAndLats)
   },
-
+  show_onMap(e) {
+    this.add_location(e)
+    this.setData({
+      showSubPage: true,
+    })
+  },
   //wxp-drag func
   sortEnd(e) {
     console.log("sortEnd", e.detail.listData)
@@ -459,7 +490,7 @@ Page({
     //reset sortKey
     for (let i = e.detail.key; i < listData.length; i++) {
       listData[i].sortKey--;
-      listData[i].callout.content = (i+1).toString();
+      listData[i].callout.content = (i + 1).toString();
     }
     setTimeout(() => {
       if (logAndLats.length > 1) {
