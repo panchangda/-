@@ -15,6 +15,8 @@
     "van-action-sheet": "@vant/weapp/action-sheet/index",
     "van-notify": "@vant/weapp/notify/index",
     "van-dialog": "@vant/weapp/dialog/index",
+    "van-nav-bar": "@vant/weapp/nav-bar/index",
+    "van-empty": "@vant/weapp/empty/index",
     "wux-icon": "wux-weapp/icon/index",
     "wux-timeline": "wux-weapp/timeline/index",
     "wux-timeline-item": "wux-weapp/timeline-item/index",
@@ -23,11 +25,10 @@
     "wxp-drag-item": "/components/drag-item/index"
   },
   "pages": [
-    "pages/schedule/schedule",
     "pages/myMap/myMap",
-
-    "pages/discover/discover",
     "pages/mine/mine",
+    "pages/schedule/schedule",
+    "pages/discover/discover",
     "pages/edit/edit"
   ],
   "window": {
@@ -50,14 +51,14 @@
       {
         "pagePath": "pages/discover/discover",
         "text": "发现",
-        "iconPath": "/resources/discover.png",
-        "selectedIconPath": "/resources/discover-selected.png"
+        "iconPath": "/resources/icons8-marketing-81.png",
+        "selectedIconPath": "/resources/icons8-marketing-81 (1).png"
       },
       {
         "pagePath": "pages/mine/mine",
         "text": "个人",
-        "iconPath": "/resources/user.png",
-        "selectedIconPath": "/resources/user-selected.png"
+        "iconPath": "/resources/icons8-user-folder-81.png",
+        "selectedIconPath": "/resources/icons8-user-folder-81 (1).png"
       }
     ]
   },

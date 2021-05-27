@@ -19,7 +19,7 @@ exports.main = async (event, context) => {
       _openid: _.eq(wxContext.OPENID),
       beginDate:_.lte(date),
       endDate:_.gte(date),
-     }).end()
+     }).get()
      console.log(result)
   if(result.list.length()==0) return ''
   else return result.list[0]._id

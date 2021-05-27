@@ -1,6 +1,5 @@
 // 云函数入口文件
 const cloud = require('wx-server-sdk')
-var util = require('../../utils/util.js'); //引入util类计算日期
 
 cloud.init({
   env:'cloud1-6g5yb47ucf4576d8'

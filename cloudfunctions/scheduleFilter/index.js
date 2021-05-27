@@ -11,13 +11,19 @@ const $ = db.command.aggregate
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const params = event
+  const pageNo = event.pageNo
+  const pageSize = event.pageSize
   //days sort order
   console.log(event)
-  const days = params.days.split(' ')
-  let param = "_.eq("+ days[0] +")" 
-  for(let i = 1 ; i < days.length ; i++){
-    // param = param +"," + "_.eq("+days[i] +")" 
-    param = param +".or(" + "_.eq("+days[i] +"))" 
+  let res
+  if(params.word != null){
+    var reg = new RegExp(params.word);
+    console.log("reg:",reg)
+    res = db.collection("Discover").aggregate().match({
+      name: reg
+    })
+  }else{
+    res = db.collection("Discover").aggregate()
   }
   //处理days
   if(params.days != null){
@@ -63,11 +69,7 @@ exports.main = async (event, context) => {
   })
   console.log(showRes)
 
-  console.log(res)
   return {
-    event,
-    openid: wxContext.OPENID,
-    appid: wxContext.APPID,
-    unionid: wxContext.UNIONID,
+    showRes
   }
 }

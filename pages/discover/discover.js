@@ -6,8 +6,10 @@ Page({
     //分页加载
     pageNo:0,
     pageSize:10,
+    params:{},
     //查询结果
     repos:[],
+    resetRepos:true,
     //筛选列表
     items: [{
         type: 'filter',
@@ -103,13 +105,27 @@ Page({
   },
   onSearch(){
     console.log('@@keyword',this.data.value)
+    this.setData({
+      resetRepos:true,
+      params:{},
+    })
+    this.getRepos()
+  },
+  onCancel(){
+    console.log('@@cancel keyword',this.data.value)
+    this.setData({
+      value:'',
+      resetRepos:true,
+      params:{},
+    })
+    this.getRepos()
   },
   onChange(e) {
     // console.log(e)
     const {
       checkedItems,
       items,
-      checkedValues
+      checkedValues,
     } = e.detail
     const params = {}
     // console.log(checkedItems, items, checkedValues)
@@ -156,14 +172,22 @@ Page({
     //   repos,
     // })
 
-    //wx.showLoading();
     const params = this.data.params;
     const pageSize = this.data.pageSize;
+    const word = this.data.value;
     let pageNo = this.data.pageNo;
     //reset respos: pageNo should be 0
-    if(this.data.resetRepos)  pageNo = 0;
+    if(this.data.resetRepos) {
+      pageNo = 0;
+      wx.showLoading();
+    }else{
+      this.setData({
+        loading:true,
+      })
+    }
     const data = Object.assign({
-      days:123,
+      word,
+      days:null,
       //  sort:'updated',
       sort:'stars',
       order: 'desc',
@@ -180,19 +204,22 @@ Page({
         if(this.data.resetRepos){
           pageNo++;
           this.setData({
-            repos:res.result.xxx,
+            repos:res.result.showRes,
             resetRepos:false,
             pageNo,
+            loading:false,
           })
         }
         //reachBottomLoad: concat repos
         else{
+          console.log('@@REACHBOTTOM')
           let repos = this.data.repos;
-          repos.concat(res.result.xxx)
+          let cartList = repos.concat(res.result.showRes)
           pageNo++;
           this.setData({
-            repos,
+            repos:cartList,
             pageNo,
+            loading:false,
           })
           }
       },
@@ -204,7 +231,7 @@ Page({
   onClick(e){
     // console.log('@@clicked item id',e.currentTarget.dataset.id)
     wx.navigateTo({
-      url: '../schedule/schedule',
+      url: '/pages/schedule/schedule',
       events: {
         acceptChangedData: function (data) {
           console.log(data)
@@ -215,8 +242,9 @@ Page({
         }
       },
       success: function (res) {
-        res.eventChannel.emit('acceptDiscoverPageData', {
+        res.eventChannel.emit('acceptFromOpener', {
           id:e.currentTarget.dataset.id,
+          from:'discover',
         })
       },
     })
@@ -233,28 +261,21 @@ Page({
   onLoad: function (options) {
     this.getRepos()
   },
-
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady: function () {
-
   },
-
   /**
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-
   },
-
   /**
    * 生命周期函数--监听页面隐藏
    */
   onHide: function () {
-
   },
-
   /**
    * 生命周期函数--监听页面卸载
    */

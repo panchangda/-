@@ -1,8 +1,5 @@
 const app = getApp();
 import regeneratorRuntime from '../../libs/runtime'; //在es6转es5的同时 使用async/await新特性
-import {
-  WHITE
-} from '../../miniprogram_npm/@vant/weapp/common/color';
 import Notify from '../../miniprogram_npm/@vant/weapp/notify/notify';
 var util = require('../../utils/util.js'); //引入util类计算日期 
 var QQMapWX = require('../../libs/qqmap-wx-jssdk.js'); // 引入SDK核心类 实例化API核心类
@@ -23,8 +20,12 @@ Page({
   data: {
     //schedule settings
     showSetting: false,
-    settingComplete: false,
     name: '',
+    fromDiscover: false,
+    fromMine: false,
+    fromNew: false,
+    calendarSet: false,
+    nameSet: false,
 
     //calendar
     showCalendar: false,
@@ -59,7 +60,7 @@ Page({
     //nav data
     activeTag: 0,
     tmpDay: 0,
-    totalDay: '',
+    totalDay: 1,
 
   },
   //上传新行程
@@ -115,6 +116,7 @@ Page({
       this.FUCKYOUWXSHITAPI()
     }
   },
+  //显示保存页面
   show_setting() {
     //save today's data to allDatesData
     let thisDayData = {
@@ -128,26 +130,87 @@ Page({
       showSetting: true,
     })
   },
-  onLoad: function () {
+  //返回形成页面
+  onClickLeft() {
+    this.setData({
+      showSetting: false,
+      calendarSet: false,
+      date: '',
+    })
+    this.drag = this.selectComponent('#drag');
+  },
+  onLoad: function (options) {
+
     this.drag = this.selectComponent('#drag');
     const eventChannel = this.getOpenerEventChannel()
-    //判断是否有once属性
+
+    //判断是否有once属性 即从wx.navigateTo接口传过来的
     if (eventChannel.once) {
-      console.log('@@DISCOVER SCHEDULE')
-      //"discover schedule" initialize
-      eventChannel.once('acceptDiscoverPageData', (data) => {
-        console.log(data)
-        wx.cloud.callFunction({
-          name: 'getDiscoverSchedule',
-          data: data.id,
-          success: res => {
-            console.log('@@getDiscoverSchedule Success')
-          },
-          failse: err => {
-            console.log('@@getDiscoverSchedule Failed')
-          }
-        })
+      // discover schedule / mine schedule initialize
+      eventChannel.once('acceptFromOpener', (data) => {
+        if (data.from == 'mine') {
+          console.log('@@FROM MINE', data)
+          wx.cloud.callFunction({
+            name: 'scheduleByID',
+            data: {
+              scheduleID: data.id,
+            },
+            success: res => {
+              console.log('@@SUCCESS', res)
+              this.setData({
+                allDatesData: res.result.allDatesData,
+                listData: res.result.allDatesData[0].listData,
+                polyline: res.result.allDatesData[0].polyline,
+                logAndLats: res.result.allDatesData[0].logAndLats,
+                count: res.result.allDatesData[0].count,
+                name: res.result.name,
+                date: res.result.date,
+                totalDay: res.result.allDatesData.length,
+                fromMine: true,
+                calendarSet: true,
+                nameSet: true,
+              })
+              this.drag.init();
+              this.selectComponent('#tabs').resize();
+            },
+            fail: err => {
+              console.log('@@ERR', err)
+            }
+          })
+        } else if (data.from == 'discover') {
+          console.log('@@FROM DISCOVER', data)
+          wx.cloud.callFunction({
+            name: 'discoverScheduleByID',
+            data: {
+              scheduleID: data.id,
+            },
+            success: res => {
+              console.log('@@SUCCESS', res)
+              this.setData({
+                discoverID:res.result._id,
+                allDatesData: res.result.allDatesData,
+                listData: res.result.allDatesData[0].listData,
+                polyline: res.result.allDatesData[0].polyline,
+                logAndLats: res.result.allDatesData[0].logAndLats,
+                count: res.result.allDatesData[0].count,
+                name: res.result.name,
+                totalDay: res.result.days,
+                fromDiscover: true,
+                nameSet: true,
+              })
+              this.drag.init();
+              this.selectComponent('#tabs').resize();
+            },
+            fail: err => {
+              console.log('@@ERR', err)
+            }
+          })
+        }
       })
+    } else if (options.id) {
+      //行程分享单
+      console.log(options.id)
+
     } else {
       //"add schedule" initialize
       console.log('@@NEW SCHEDULE')
@@ -162,6 +225,7 @@ Page({
         allDatesData,
         tmpDay: 0,
         totalDay: 1,
+        fromNew: true,
       })
     }
   },
@@ -229,13 +293,21 @@ Page({
         if (res.result) {
           Notify({
             type: 'success',
-            message: '成了兄弟'
+            message: '保存成功！'
           });
           //如果是加载的他人行程的保存成功的话 该行程收藏数加1
-          const eventChannel = this.getOpenerEventChannel();
-          if (eventChannel.emit) {
-            eventChannel.emit('acceptChangedData', {
-              sign: 'stars ++ ',
+          if (this.data.fromDiscover) {
+            wx.cloud.callFunction({
+              name:'scheduleStar',
+              data:{
+                scheduleID:this.data.discoverID
+              },
+              success:res=>{
+                console.log('@@STAR++',res)
+              },
+              fail:err=>{
+                console.log('@@STAR FAIL',err)
+              }
             })
           }
         } else {
@@ -249,6 +321,11 @@ Page({
         console.log('@@err', err)
       },
     })
+
+  },
+  update_setting() {
+    //call cloudFunc
+
   },
   //FUCK THIS SHITTYSHIT!
   //switch to tmpDay and reload infos
@@ -308,7 +385,8 @@ Page({
       this.setData({
         suggestion: [],
         chosenLocation: '',
-        showSelect: false
+        showSelect: false,
+
       })
       return;
     }
@@ -423,7 +501,12 @@ Page({
     // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
     console.log("afterAdded", this.data.listData, this.data.polyline, this.data.logAndLats)
   },
-
+  show_onMap(e) {
+    this.add_location(e)
+    this.setData({
+      showSubPage: true,
+    })
+  },
   //wxp-drag func
   sortEnd(e) {
     console.log("sortEnd", e.detail.listData)
@@ -459,7 +542,7 @@ Page({
     //reset sortKey
     for (let i = e.detail.key; i < listData.length; i++) {
       listData[i].sortKey--;
-      listData[i].callout.content = (i+1).toString();
+      listData[i].callout.content = (i + 1).toString();
     }
     setTimeout(() => {
       if (logAndLats.length > 1) {
@@ -488,7 +571,7 @@ Page({
     console.log(e)
     let _this = this;
     wx.navigateTo({
-      url: '../edit/edit',
+      url: '/pages/edit/edit',
       events: {
         acceptChangedData: function (data) {
           console.log(data)
@@ -553,8 +636,4 @@ Page({
       showSubPage: false
     })
   },
-  route_planning: function (e) {
-    console.log(e.detail.markerId)
-  },
-
 })

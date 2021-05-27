@@ -4,9 +4,10 @@
   model:value="{{ value }}"
   placeholder="请输入行程名称关键词"
   use-action-slot
+  bind:clear="onCancel"
   bind:search="onSearch"
 >
-  <view slot="action" bind:tap="onSearch">搜索</view>
+  <view slot="action" bind:tap="onCancel">取消</view>
 </van-search>
   <wux-filterbar items="{{ items }}" bind:change="onChange"/>
   <block wx:for="{{repos}}" wx:key="id">
@@ -25,4 +26,7 @@
       </view>
     </view>
   </block>
+  <view class="loading">
+    <van-loading wx:if="{{loading}}" size="120rpx" vertical>加载中...</van-loading>
+  </view>
 </view>
