@@ -42,7 +42,6 @@ Page({
     const picList = this.data.picList
     for (let i = 0; i < e.detail.file.length; i++) {
         const Ext = GetFileExt(e.detail.file[i].url);
-        console.log("?")
         wx.cloud.uploadFile({
           cloudPath:'image/' + Math.round(Math.random()*1000000) + Ext,
           filePath:e.detail.file[i].url,

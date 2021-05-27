@@ -75,7 +75,7 @@ Page({
     })
     let pageNo = this.data.pageNo + 1;
     let date = util.formatDate(new Date());
-    console.log("???")
+    console.log(date,this.data.tmpTag, this.data.pageNo,this.data.pageSize)
     wx.cloud.callFunction({
       name: "schedulesByOpenID",
       data: {

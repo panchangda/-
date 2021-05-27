@@ -22,34 +22,29 @@ exports.main = async (event, context) => {
     _openid: _.eq(wxContext.OPENID),
     beginDate:_.lte(date),
     endDate:_.gte(date),
-   })
-   .end()
+   }).end()
    const scheduleID = result.list[0]._id;
    let schedule = await db.collection('Individual').doc(scheduleID).get()
    //schedule.data.allDatesData[]
 
-   const upDateData = schedule.data.allDatesData
-   console.log(upDateData)
-   {
-    upDateData[getDaysBetween(date,schedule.data.beginDate)-1].listData=event.listData
-    upDateData[getDaysBetween(date,schedule.data.beginDate)-1].polyline=event.polyline
-    upDateData[getDaysBetween(date,schedule.data.beginDate)-1].logAndLats=event.logAndLats
-    upDateData[getDaysBetween(date,schedule.data.beginDate)-1].count=event.count
-   }
-   console.log(upDateData)
-   
+   //const upDateData = schedule.data.allDatesData
+   let upDateData = {}
+   upDateData.listData=event.listData
+   upDateData.polyline=event.polyline
+   upDateData.logAndLats=event.logAndLats
+   upDateData.count=event.count
+
+   const obj = {}
+   const keyDay = "allDatesData." + eval(getDaysBetween(date,schedule.data.beginDate)-1)
+   obj[keyDay] = upDateData
+
    const re = await db.collection('Individual').doc(scheduleID).update({
      data:{
-      allDatesData:upDateData,
+      $set:obj
      }
    })
+
    return re
-  // return {
-  //   event,
-  //   openid: wxContext.OPENID,
-  //   appid: wxContext.APPID,
-  //   unionid: wxContext.UNIONID,
-  // }
 }
 
 //PCD函数

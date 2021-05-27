@@ -29,7 +29,7 @@ Page({
     //calendar
     showCalendar: false,
     minDate: new Date(2021, 4, 7).getTime(),
-    maxDate: new Date(2021, 4, 31).getTime(),
+    maxDate: new Date(2021, 11, 31).getTime(),
 
     //date info
     date: "",

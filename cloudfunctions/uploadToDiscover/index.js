@@ -16,17 +16,32 @@ exports.main = async (event, context) => {
   //只需传入日程id
   const scheduleID = event.scheduleID
   //console.log(scheduleID)
-  const re = await db.collection('Individual').doc(scheduleID).get()
-  console.log(re)
-  console.log(getDaysBetween(re.data.beginDate,re.data.endDate))
+  const res = await db.collection('Individual').doc(scheduleID).get()
+  console.log(res)
+  console.log(event)
+  console.log(getDaysBetween(res.data.beginDate,res.data.endDate))
+  let picUrl
+  res.data.allDatesData.forEach(((value)=>{
+    value.listData.forEach((value)=>{
+      console.log(value)
+      if(value.picList != undefined){
+        value.picList.forEach((value)=>{
+          picUrl = value.url
+          return false
+        })
+      }
+    })
+  }))
+  console.log(picUrl)
   return await db.collection('Discover').add({
     data: {
-      name: re.data.name,
-      discription:"",
-      allDatesData: re.data.allDatesData,
-      days: getDaysBetween(re.data.beginDate,re.data.endDate),
-      date: eval(util.formatDate(new Date())),
+      name: res.data.name,
+      description:event.description,
+      allDatesData: res.data.allDatesData,
+      days: getDaysBetween(res.data.beginDate,res.data.endDate),
+      date: new Date(),
       stars: 0,
+      pic:picUrl
     }
   }).then(()=>{
     return true

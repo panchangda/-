@@ -43,8 +43,8 @@ Page({
 
     //calendar
     showCalendar: false,
-    minDate: new Date(2021, 4, 7).getTime(),
-    maxDate: new Date(2021, 4, 31).getTime(),
+    minDate: new Date(2021, 4, 1).getTime(),
+    maxDate: new Date(2021, 11, 31).getTime(),
 
     //wxp-drag data
     isIphoneX: app.globalData.isIphoneX,
@@ -122,6 +122,7 @@ Page({
 
   //对页面数据进行操作后的更新
   async update() {
+    console.log("hello")
     console.log(this.data.date)
     wx.cloud.callFunction({
       name: 'updateTodaySchedule',
@@ -411,7 +412,7 @@ Page({
     //reset sortKey & polyline
     for (let i = 0; i < listData.length; i++) {
       listData[i].sortKey = i;
-      listData[i].callout.content = (i+1).toString();
+      //listData[i].callout.content = (i+1).toString();
       logAndLats.push({
         longitude: listData[i].longitude,
         latitude: listData[i].latitude,
