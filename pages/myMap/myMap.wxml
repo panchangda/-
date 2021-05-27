@@ -54,7 +54,7 @@
     <!--地图容器-->
     <!-- 若将markers polyline等属性放在setting字典中: 实机测试时更新后不能自动渲染至map -->
     <view class="map-container">
-      <map id="map" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{listData}}"
+      <map id="map" bindmarkertap="route_planning" bindcallouttap="route_planning" setting="{{mapSetting}}" markers="{{listData}}"
         polyline="{{polyline}}">
       </map>
     </view>

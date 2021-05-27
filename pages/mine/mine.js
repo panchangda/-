@@ -26,7 +26,8 @@ Page({
     //tmpTag( 0:past 1:now 2:future )
     tmpTag: 0,
     show: false,
-    pageNo: 0,
+    pastPageNo: 0,
+    futurePageNo:0,
     pageSize: 5,
     loading: false,
   },
@@ -34,68 +35,102 @@ Page({
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function () {
-    if((this.data.noMorePast&&this.data.tmpTag==0)
-      ||(this.data.noMoreFuture&&this.data.tmpTag==1))
-      return;
-    this.setData({
-      loading: true
-    })
-    let pageNo = this.data.pageNo + 1;
-    let date = util.formatDate(new Date());
-    wx.cloud.callFunction({
-      name: "schedulesByOpenID",
-      data: {
-        date: date,
-        tmpTag: this.data.tmpTag,
-        pageNo: this.data.pageNo,
-        pageSize: this.data.pageSize,
-      },
-      success: res => {
-        console.log('@@SUCCESS',res.result)
-        //if no more schedule
-        if(res.result.length==0){
-          //past
-          if(this.data.tmpTag == 0){
+    const date = util.formatDate(new Date());
+    const tmpTag = this.data.tmpTag;
+    const noMorePast = this.data.noMorePast;
+    const noMoreFuture = this.data.noMoreFuture;
+    const pageSize = this.data.pageSize;
+    //pastList
+    if(tmpTag==0){
+      if(noMorePast)
+        return;
+      let pageNo = this.data.pastPageNo;
+      if(pageNo==0)
+          wx.showLoading({
+            title:'加载中',
+          });
+      else{
+        this.setData({
+          loading:true
+        })
+      }
+      console.log(date,tmpTag,pageNo,pageSize)
+      wx.cloud.callFunction({
+        name: "schedulesByOpenID",
+        data: {
+          date: date,
+          tmpTag: tmpTag,
+          pageNo: pageNo,
+          pageSize: pageSize,
+        },
+        success:res=>{
+          console.log('@@PAST SUCCESS',res)
+          if(res.result.length==0){
             this.setData({
               loading: false,
               noMorePast:true,
             })
           }else{
+            let pastList = this.data.pastList;
+            let cartList = pastList.concat(res.result);
+            this.setData({
+              pastList: cartList,
+              pastPageNo:pageNo+1,
+              loading: false,
+            })
+          }
+          wx.hideLoading();
+          console.log('@@onReachBottom triggered pastList load to', pageNo)
+        },
+        fail:err=>{
+          console.log('@@ERR',err)
+        }
+      })
+    }else if(tmpTag==1){
+      if(noMoreFuture)
+        return;
+      let pageNo = this.data.futurePageNo;
+      if(pageNo==0)
+          wx.showLoading();
+      else{
+        this.setData({
+          loading:true
+        })
+      }
+      console.log(date,tmpTag,pageNo,pageSize)
+      wx.cloud.callFunction({
+        name: "schedulesByOpenID",
+        data: {
+          date: date,
+          tmpTag: tmpTag,
+          pageNo: pageNo,
+          pageSize: pageSize,
+        },
+        success:res=>{
+          console.log('@@FUTURE SUCCESS',res)
+          if(res.result.length==0){
             this.setData({
               loading: false,
               noMoreFuture:true,
             })
-          }
-        }
-        else{
-          //past schedule
-          if (this.data.tmpTag == 0) {
-            let pastList = this.data.pastList;
-            let catList = pastList.concat(res.result);
+          }else{
+            let pastList = this.data.futureList;
+            let cartList = pastList.concat(res.result);
             this.setData({
-              pastList: catList,
-              pageNo,
-              loading: false,
-            })
-          } 
-          //future schedule
-          else {
-            let futureList = this.data.futureList;
-            let catList = futureList.concat(res.result);
-            this.setData({
-              futureList: catList,
-              pageNo,
+              futureList: cartList,
+              futurePageNo:pageNo+1,
               loading: false,
             })
           }
+          wx.hideLoading();
+          console.log('@@onReachBottom triggered futureList load to', pageNo)
+        },
+        fail:err=>{
+          console.log('@@ERR',err)
         }
-        
-      },
-      fail: err => {
-        console.log('@@ERR',err)
-      }
-    })
-    console.log('@@onReachBottom triggered', pageNo)
+      })
+    }
+
   },
   onSelect(e) {
     console.log(e.detail)
@@ -132,8 +167,9 @@ Page({
       //将开始日期放到globalData中 
       //在mymap页面取值设置页面date
       app.globalData.date = startDate;
+      app.globalData.from = 'mine';
       wx.switchTab({
-        url: 'pages/myMap/myMap'
+        url: '/pages/myMap/myMap'
       })
     } else if (e.detail.name == "删除行程") {
       Dialog.confirm({
@@ -142,10 +178,18 @@ Page({
         })
         .then(() => {
           // on confirm
+          console.log(chosenId)
           wx.cloud.callFunction({
             name:'deleteSchedule',
             data:{
-              id:this.data.chosenId,
+              scheduleID:chosenId,
+            },
+            success:res=>{
+              console.log(res);
+              this.onLoad({reload:true});
+            },
+            fail:err=>{
+              console.log(err)
             }
           })
         })
@@ -216,7 +260,31 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    this.onReachBottom()
+    if(options.reload){
+      if(this.data.tmpTag==0){
+        this.setData({
+          tmpTag:0,
+          pastList:[],
+          pastPageNo:0,
+        })
+        this.onReachBottom()
+      }
+      else{
+        this.setData({
+          tmpTag:1,
+          futureList:[],
+          futurePageNo:0,
+        })
+        this.onReachBottom()
+      }
+    }else{
+      this.onReachBottom()
+      this.setData({
+        tmpTag:1
+      })
+      this.onReachBottom()
+    }
+    
   },
 
   /**

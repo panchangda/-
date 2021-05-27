@@ -57,16 +57,34 @@ Page({
   //天才般的同步处理
   onLoad: function (options) {
     //对分享的行程单的处理
-    if(options.url){
-      let url=decodeURIComponent(options.url);
+    if (options.url) {
+      let url = decodeURIComponent(options.url);
       wx.redirectTo({
         url
       })
     }
+
   },
   onShow: function () {
-    if (!app.globalData.date) {
-      var date = util.formatDate(new Date());
+    if (app.globalData.date && app.globalData.from == "mine") {
+      console.log('@@FROM MINE')
+      //从mine跳转到本页面的处理
+      let date = app.globalData.date
+      this.setData({
+        date,
+        todayDate: new Date(date).getTime(),
+      })
+      app.globalData.date = '';
+      app.globalData.from = '';
+      this.load(date);
+
+    } else if(app.globalData.from == "edit"){
+      console.log('@@FROM EDIT')
+      app.globalData.from = '';
+    }
+    else{
+      console.log('@@FROM TABS')
+      let date = util.formatDate(new Date());
       if (date) {
         this.setData({
           date: date,
@@ -75,20 +93,18 @@ Page({
       } else {
         console.log('@@@Error:CAN NOT GET DATE')
       }
-    } else {
-      //从mine跳转到本页面的处理
-      var date = app.globalData.date
-      this.setData({
-        date,
-        todayDate: new Date(date).getTime(),
-      })
-      app.globalData.date = '';
+      this.load(date);
     }
     this.drag = this.selectComponent('#drag');
     // this.load_today(date);
-    this.load(date);
   },
   onReady: function () {},
+  onUnload: function () {
+    this.update()
+  },
+  onHide: function () {
+    this.update()
+  },
   async load(date) {
     wx.showLoading({
       title: '加载中',
@@ -106,7 +122,7 @@ Page({
         //+" 00:00:00.000"
       },
     })
-    console.log('@@RES:',res)
+    console.log('@@TODAYSCHEDULE:', res)
     if (res.result && res.result.list.length) {
       const targetDay = getDaysBetween(res.result.list[0].beginDate, date)
       this.setData({
@@ -132,7 +148,7 @@ Page({
   //对页面数据进行操作后的更新
   async update() {
     console.log(this.data.date)
-    wx.cloud.callFunction({
+    let res = await wx.cloud.callFunction({
       name: 'updateTodaySchedule',
       data: {
         dateString: (this.data.date),
@@ -142,7 +158,7 @@ Page({
         count: this.data.count,
       }
     })
-    console.log("update")
+    console.log("@@update", res)
   },
   FUCKYOUWXSHITAPI() {
     let MapContext = wx.createMapContext("map");
@@ -411,10 +427,10 @@ Page({
     // console.log("@@@Error:CAN NOT FIND THE SUGGESTION)
     console.log("afterAdded", this.data.listData, this.data.logAndLats)
   },
-  show_onMap(e){
-    this.add_location(e)
+  show_onMap(e) {
+    this.FUCKYOUWXSHITAPI()
     this.setData({
-      showSubPage:true,
+      showSubPage: true,
     })
   },
   //wxp-drag func
@@ -425,7 +441,7 @@ Page({
     //reset sortKey & polyline
     for (let i = 0; i < listData.length; i++) {
       listData[i].sortKey = i;
-      listData[i].callout.content = (i+1).toString();
+      listData[i].callout.content = (i + 1).toString();
       logAndLats.push({
         longitude: listData[i].longitude,
         latitude: listData[i].latitude,
@@ -442,7 +458,6 @@ Page({
       logAndLats,
     });
     console.log("afterResetKey", listData);
-    this.update();
   },
   itemDelete(e) {
     console.log("delete", e)
@@ -451,11 +466,10 @@ Page({
     listData.splice(e.detail.key, 1);
     logAndLats.splice(e.detail.key, 1);
     //reset sortKey
-    for (let i = e.detail.key; i < listData.length; i++){
+    for (let i = e.detail.key; i < listData.length; i++) {
       listData[i].sortKey--;
-      listData[i].callout.content=(i+1).toString();
+      listData[i].callout.content = (i + 1).toString();
     }
-      
     setTimeout(() => {
       if (logAndLats.length > 1) {
         this.setData({
@@ -484,7 +498,7 @@ Page({
     console.log(e)
     let _this = this;
     wx.navigateTo({
-      url: '../edit/edit',
+      url: '/pages/edit/edit',
       events: {
         acceptChangedData: function (data) {
           console.log(data)
@@ -562,17 +576,24 @@ Page({
 
   //fucking shit api！！！
   route_planning: function (e) {
-    console.log(e)
+    console.log(e.detail)
+    let listData = this.data.listData;
+    for (let i = 0; i < listData.length; i++)
+      if (listData[i].id == e.detail.markerId) {
+        var index = i;
+        break;
+      }
+    console.log(listData[index])
     let key = 'ND6BZ-NKOCX-ZS34B-ZKTED-HTCLJ-ZDBOB'; //使用在腾讯位置服务申请的key
     let referer = '从今天开始出发'; //调用插件的app的名称
     let endPoint = JSON.stringify({ //终点
-      'name': '北京西站',
-      'latitude': 39.894806,
-      'longitude': 116.321592
+      'name': listData[index].description,
+      'latitude': listData[index].latitude,
+      'longitude': listData[index].longitude,
     });
     // let themeColor = '#7FFFD4';
     wx.navigateTo({
-      url: 'plugin://routePlan/index?key=' + key + '&referer=' + referer + '&endPoint=' + endPoint 
+      url: 'plugin://routePlan/index?key=' + key + '&referer=' + referer + '&endPoint=' + endPoint
     });
   },
 })

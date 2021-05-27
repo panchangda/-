@@ -309,7 +309,6 @@ Page({
                 console.log('@@STAR FAIL',err)
               }
             })
-
           }
         } else {
           Notify({

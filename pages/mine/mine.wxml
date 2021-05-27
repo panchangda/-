@@ -53,12 +53,13 @@
         </block>
       </wux-timeline>
       <block wx:if="{{pastList.length==0?true:false}}"><van-empty image="https://img.yzcdn.cn/vant/custom-empty-image.png" description="这里空空如也"/></block>
-      <block wx:if="{{noMorePast}}">没有更多了别滑了!</block>
+      <block wx:else>
+      <block wx:if="{{noMorePast}}"><view style="font-size:24rpx;color:#666;text-align:center">没有更多了别滑了</view></block></block>
     </van-tab>
     <van-tab title="未来行程">
       <wux-timeline pending="{{true}}">
         <block wx:for="{{futureList}}" wx:key="id">
-          <wux-timeline-item custom content="{{item.date}}  {{item.name}}">
+          <wux-timeline-item custom content="{{item.date}}">
             <wux-icon slot="dot" type="ios-time" size="23" />
             <view class="icon">
               <button class="icon-more" plain="{{true}}" bind:tap="onClick" data-id="{{item.id}}"
@@ -70,6 +71,7 @@
                 <van-icon name="share-o" />
               </button>
             </view>
+            <view>{{item.name}}</view>
             <scroll-view class="gallery2" scroll-x="{{true}}" scroll-y="{{false}}" enable-flex="true">
               <block wx:for="{{item.picList}}" wx:key="id">
                 <image class="pics" src="{{item}}" mode="heightFix"></image>
@@ -79,7 +81,8 @@
         </block>
       </wux-timeline>
       <block wx:if="{{futureList.length==0?true:false}}"><van-empty image="https://img.yzcdn.cn/vant/custom-empty-image.png" description="这里空空如也"/></block>
-      <block wx:if="{{noMoreFuture}}">没有更多了别滑了!</block>
+      <block wx:else>
+      <block wx:if="{{noMoreFuture}}"><view style="font-size:24rpx;color:#666;text-align:center;">没有更多了别滑了</view></block></block>
     </van-tab>
   </van-tabs>
 

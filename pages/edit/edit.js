@@ -1,4 +1,6 @@
 // pages/edit/edit.js
+import regeneratorRuntime from '../../libs/runtime'; //在es6转es5的同时 使用async/await新特性
+const app = getApp()
 Page({
 
   /**
@@ -38,29 +40,37 @@ Page({
     }
   },
   afterRead(e) {
-    // console.log(e)
+    var that = this;
+    wx.showLoading({
+      title: '上传中',
+    })
+    this.uploadPics(e.detail.file).then(picList=>{
+      console.log(picList)
+      that.setData({
+        picList,
+      })
+      wx.hideLoading({})
+    })
+  },
+  async uploadPics(file){
     const picList = this.data.picList
-    for (let i = 0; i < e.detail.file.length; i++) {
-        const Ext = GetFileExt(e.detail.file[i].url);
+    for (let i = 0; i < file.length; i++) {
+        const Ext = GetFileExt(file[i].url);
         console.log("?")
-        wx.cloud.uploadFile({
+        let res = await wx.cloud.uploadFile({
           cloudPath:'image/' + Math.round(Math.random()*1000000) + Ext,
-          filePath:e.detail.file[i].url,
-          success(res){
-            console.log(res)
-            picList.push({
-              url: res.fileID,
-              deletable: true,
-            })
-          }
+          filePath:file[i].url,
+        })
+        picList.push({
+          url: res.fileID,
+          deletable: true,
         })
     }
-    this.setData({
-      picList,
-    })
+    return picList;
   },
   //emit data to openerPage
   onUnload: function () {
+    app.globalData.from ='edit';
     const eventChannel = this.getOpenerEventChannel();
     eventChannel.emit('acceptChangedData', {
       description: this.data.description,
