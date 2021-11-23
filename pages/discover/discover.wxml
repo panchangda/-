@@ -1,0 +1,35 @@
+<!--pages/market/market.wxml-->
+<view class="container">
+  <van-search model:value="{{ value }}" placeholder="请输入行程名称关键词" use-action-slot bind:clear="onCancel"
+    bind:search="onSearch">
+    <view slot="action" bind:tap="onCancel">取消</view>
+  </van-search>
+  <wux-filterbar items="{{ items }}" bind:change="onChange" />
+  
+  <block wx:for="{{repos}}" wx:key="id">
+    <view class="box">
+    <view class="item-container" data-id="{{item.id}}" bind:tap="onClick">
+      <view class="pic">
+        <image class="image" src="{{item.pic}}" mode="scaleToFill" alt=""></image>
+      </view>
+      <view class="texts">
+        <view class="name">{{item.name}}</view>
+        <view class="description">{{item.description}}</view>
+      </view>
+    </view>
+    <view class="attrs">
+          <image class="icon" src="../../resources/icons8-add-folder-64.png" mode="aspectFit"></image>
+          <view class="fonts">{{item.stars}}次</view>
+          <image class="icon" src="../../resources/icons8-clock-64.png" mode="aspectFit"></image>
+          <view class="fonts">{{item.days}}天</view>
+          <image class="icon" src="../../resources/icons8-upload-64.png" mode="aspectFit"></image>
+          <view class="fonts">{{item.date}}</view>
+        </view>
+      </view>
+  </block>
+  <van-empty wx:if="{{repos.length==0?true:false}}" image="error" description="没有符合条件的行程哦" />
+  <view class="loading">
+    <van-loading wx:if="{{loading}}" size="120rpx" vertical>加载中...</van-loading>
+  </view>
+  <block wx:if="{{noMoreRepos}}"><view style="font-size:24rpx;color:#666;text-align:center;">没有更多了</view></block>
+</view>

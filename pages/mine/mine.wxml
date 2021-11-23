@@ -1,0 +1,108 @@
+<!--pages/mine/mine.wxml-->
+<view class="container">
+  <view class="top-background">
+    <!-- 用户信息 -->
+    <view class="user-info">
+      <view class="user-avatar">
+        <open-data type="userAvatarUrl"></open-data>
+      </view>
+      <view class="user-nickname">
+        <open-data type="userNickName"></open-data>
+      </view>
+    </view>
+  </view>
+  <!-- 按钮组 -->
+  <view class="user-options">
+    <view class="options-container">
+    <view style="text-align:center;"><image src="../../resources/icons8-user-manual-64.png" style="width:64rpx;height:64rpx;" mode="scaleToFill">
+      </image></view>
+      <view>使用教程</view>
+    </view>
+    <view class="options-container">
+    <view style="text-align:center;">
+      <image src="../../resources/icons8-about-64.png" style="width:64rpx;height:64rpx;" mode="scaleToFill">
+      </image></view>
+      <view>关于作者</view>
+    </view>
+  </view>
+
+  <!-- 时间轴 -->
+  <van-tabs id="tabs" type="card" active="{{tmpTag}}" style="width:100vw;" bind:click="onTagChange" color="#ff5050" swipeable sticky
+    animated duration="0.5">
+    <van-tab title="历史行程">
+      <wux-timeline>
+        <block wx:for="{{pastList}}" wx:key="id">
+          <wux-timeline-item content="{{item.date}}">
+            <view class="icon">
+              <button class="icon-more" plain="{{true}}" bind:tap="onClick" data-id="{{item.id}}"
+                data-date="{{item.date}}" data-name="{{item.name}}">
+                <van-icon name="more-o" />
+              </button>
+              <button class="icon-share" plain="{{true}}" open-type="share" data-pic="{{item.picList[0]}}"
+                data-id="{{item.id}}" data-name="{{item.name}}">
+                <van-icon name="share-o" />
+              </button>
+            </view>
+            <view class="name">{{item.name}}</view>
+            <scroll-view class="gallery1" scroll-x="{{true}}" scroll-y="{{false}}" bind:tap="clickScrollView" data-id="{{item.id}}" data-date="{{item.date}}">
+              <block wx:for="{{item.picList}}" wx:key="id">
+                <image class="pics" src="{{item}}" mode="heightFix"></image>
+              </block>
+            </scroll-view>
+          </wux-timeline-item>
+        </block>
+      </wux-timeline>
+      <block wx:if="{{pastList.length==0?true:false}}"><van-empty image="https://img.yzcdn.cn/vant/custom-empty-image.png" description="这里空空如也"/></block>
+      <block wx:else>
+      <block wx:if="{{noMorePast}}"><view style="font-size:24rpx;color:#666;text-align:center">没有更多了别滑了</view></block></block>
+    </van-tab>
+    <van-tab title="未来行程">
+      <wux-timeline>
+        <block wx:for="{{futureList}}" wx:key="id">
+          <wux-timeline-item custom content="{{item.date}}">
+            <wux-icon slot="dot" type="ios-time" size="23" />
+            <view class="icon">
+              <button class="icon-more" plain="{{true}}" bind:tap="onClick" data-id="{{item.id}}"
+                data-date="{{item.date}}" data-name="{{item.name}}">
+                <van-icon name="more-o" />
+              </button>
+              <button class="icon-share" plain="{{true}}" open-type="share" data-pic="{{item.picList[0]}}"
+                data-id="{{item.id}}" data-name="{{item.name}}">
+                <van-icon name="share-o" />
+              </button>
+            </view>
+            <view class="name">{{item.name}}</view>
+            <scroll-view class="gallery2" scroll-x="{{true}}" scroll-y="{{false}}" bind:tap="clickScrollView" data-date="{{item.date}}" data-id="{{item.id}}" >
+              <block wx:for="{{item.picList}}" wx:key="id">
+                <image class="pics" src="{{item}}" mode="heightFix"></image>
+              </block>
+            </scroll-view>
+          </wux-timeline-item>
+        </block>
+      </wux-timeline>
+      <block wx:if="{{futureList.length==0?true:false}}"><van-empty image="https://img.yzcdn.cn/vant/custom-empty-image.png" description="这里空空如也"/></block>
+      <block wx:else>
+      <block wx:if="{{noMoreFuture}}"><view style="font-size:24rpx;color:#666;text-align:center;">没有更多了</view></block></block>
+    </van-tab>
+  </van-tabs>
+
+  <view class="loading">
+    <van-loading wx:if="{{loading}}" size="120rpx" vertical>加载中...</van-loading>
+  </view>
+
+  <!-- 其他组件 -->
+  <van-action-sheet show="{{ show }}" actions="{{ actions }}" cancel-text="取消" bind:cancel="onCancel"
+    bind:close="onClose" bind:select="onSelect" />
+  <van-dialog id="van-dialog" />
+  <van-dialog
+  use-slot
+  title="上传 *{{chosenName}}* 到发现"
+  show="{{ showUploadDialog }}"
+  show-cancel-button
+  bind:confirm="upLoadToDiscover"
+>
+<view style="margin:50rpx;"><input bindinput="descriptionInput"model:value="{{discoverDescription}}" placeholder="在这里输入你的行程描述"/> </view>
+
+</van-dialog>
+<van-notify id="van-notify" />
+</view>

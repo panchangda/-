@@ -1,0 +1,22 @@
+<!--pages/edit/edit.wxml-->
+<view class="container">
+<van-cell-group>
+  <van-field
+    value="{{title}}"
+    label="地点"
+    readonly
+    autosize
+    border="{{ false }}"
+  />
+  <van-field
+    model:value="{{ description }}"
+    autosize
+    type="textarea"
+    label="描述"
+    border="{{ false }}"
+    show-confirm-bar
+  />
+  <van-uploader file-list="{{ picList }}" bind:delete="delete" bind:after-read="afterRead" preview-size="228rpx" multiple max-count="9" accept="media" />
+</van-cell-group>
+
+</view>

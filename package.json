@@ -1,0 +1,23 @@
+{
+  "name": "package",
+  "version": "1.0.0",
+  "description": "docs on [微信小程序项目文档](https://www.yuque.com/books/share/abcc23f4-2e92-479c-9b99-0d233e603fbf)",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/panchangda/WeChatApp-we-just-play.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/panchangda/WeChatApp-we-just-play/issues"
+  },
+  "homepage": "https://github.com/panchangda/WeChatApp-we-just-play#readme",
+  "dependencies": {
+    "@vant/weapp": "^1.9.2",
+    "wux-weapp": "^3.8.8"
+  }
+}

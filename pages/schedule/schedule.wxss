@@ -1,0 +1,196 @@
+/* pages/myMap/myMap.wxss */
+/* 750rpx*1334rpx*/
+.button-container {
+  display: flex;
+  justify-content: center;
+}
+
+.upload-button {
+  padding-top: 50rpx;
+}
+
+.search-page {
+  position: absolute;
+  top: 108rpx;
+  left: 3%;
+  width: 94%;
+  transition: height .3s;
+  background-color: #F0FFFF;
+  z-index: 100;
+  border-radius: 30rpx;
+}
+
+.search-page .search-results {
+  padding: 20rpx;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-start;
+  text-align: center;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.box{
+  height:224rpx;
+  width: 100%;
+}
+.search-page .font-results {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  flex-grow: 1;
+  flex-shrink: 1;
+  font-size:32rpx;
+}
+
+.search-page .location-icon {
+  flex-shrink: 0;
+  flex-grow: 0;
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+}
+
+#map {
+  width: 100%;
+  flex-grow: 1;
+}
+
+.icon-left {
+  position: absolute;
+  width: 64rpx;
+  height: 64rpx;
+  /* 减去底部条的高度和iphoneX适配空间 */
+  top: calc(50% - 44rpx - constant(safe-area-inset-bottom) / 2);
+  top: calc(50% - 44rpx - env(safe-area-inset-bottom) / 2);
+  left: 0rpx;
+  margin-top: -32rpx;
+  z-index: 1;
+}
+
+.icon-right {
+  position: absolute;
+  width: 64rpx;
+  height: 64rpx;
+  top: calc(50% - 44rpx - constant(safe-area-inset-bottom) / 2);
+  top: calc(50% - 44rpx - env(safe-area-inset-bottom) / 2);
+  margin-top: -32rpx;
+  right: 0rpx;
+  z-index: 1;
+}
+
+.icon-add {
+  width: 80rpx;
+  height: 80rpx;
+  position: absolute;
+  top: calc(50% - 44rpx - constant(safe-area-inset-bottom) / 2);
+  top: calc(50% - 44rpx - env(safe-area-inset-bottom) / 2);
+  right: 0rpx;
+  margin-top: -40rpx;
+  z-index: 1;
+}
+
+.icon-delete {
+  width: 80rpx;
+  height: 80rpx;
+  position: absolute;
+  left: 50%;
+  top: 20rpx;
+  margin-left: -40rpx;
+  z-index: 1;
+}
+.icon-save {
+  width: 80rpx;
+  height: 80rpx;
+  position: absolute;
+  left: 40rpx;
+  top: 20rpx;
+  z-index: 1;
+}
+
+.icon-edit {
+  position: absolute;
+  top: 20rpx;
+  right: 40rpx;
+  width: 80rpx;
+  height: 80rpx;
+  z-index:1;
+}
+
+.icon-show-map {
+  position: fixed;
+  bottom: calc(10% + constant(safe-area-inset-bottom));
+  bottom: calc(10% + env(safe-area-inset-bottom));
+  right: 10%;
+  width: 80rpx;
+  height: 80rpx;
+  z-index: 100;
+}
+
+.customCallout {
+  color: rgb(255, 255, 255);
+  font-size: 15px;
+  font-weight: 1000;
+}
+
+/* 下面是page-container的css */
+
+.searchBlock {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.searchIcon {
+  display: inline-block;
+}
+
+.inputForm {
+  display: inline-block;
+  border-radius: 30rpx;
+  border: 1rpx solid black;
+  border-left: 1rpx solid white;
+  /* height: 2rem;
+  min-height: 2rem; */
+  width: 600rpx;
+}
+
+.bottom-tagbar {
+  position: fixed;
+  width: 100%;
+  bottom: 0rpx;
+  z-index: 999;
+  padding-bottom: constant(safe-area-inset-bottom);
+  /*兼容 IOS<11.2*/
+  padding-bottom: env(safe-area-inset-bottom);
+  /*兼容 IOS>11.2*/
+}
+
+/* subPage css */
+/* page{
+  padding-top: 110rpx; } */
+
+.drag-item-wrap {
+  background: #f7f7f7;
+}
+
+.drag-scroll {
+  position: absolute;
+  height: 950rpx;
+}
+
+.empty-bottom {
+  padding-bottom: 300rpx;
+}
+
+.empty-bottom.isX {
+  padding-bottom: 380rpx;
+}

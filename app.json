@@ -1,0 +1,81 @@
+{
+  "usingComponents": {
+    "van-cell": "@vant/weapp/cell/index",
+    "van-cell-group": "@vant/weapp/cell-group/index",
+    "van-swipe-cell": "@vant/weapp/swipe-cell/index",
+    "van-calendar": "@vant/weapp/calendar/index",
+    "van-search": "@vant/weapp/search/index",
+    "van-icon": "@vant/weapp/icon/index",
+    "van-uploader": "@vant/weapp/uploader/index",
+    "van-button": "@vant/weapp/button/index",
+    "van-tab": "@vant/weapp/tab/index",
+    "van-tabs": "@vant/weapp/tabs/index",
+    "van-field": "@vant/weapp/field/index",
+    "van-loading": "@vant/weapp/loading/index",
+    "van-action-sheet": "@vant/weapp/action-sheet/index",
+    "van-notify": "@vant/weapp/notify/index",
+    "van-dialog": "@vant/weapp/dialog/index",
+    "van-nav-bar": "@vant/weapp/nav-bar/index",
+    "van-empty": "@vant/weapp/empty/index",
+    "wux-icon": "wux-weapp/icon/index",
+    "wux-timeline": "wux-weapp/timeline/index",
+    "wux-timeline-item": "wux-weapp/timeline-item/index",
+    "wux-filterbar": "wux-weapp/filterbar/index",
+    "wxp-drag": "/components/drag/index",
+    "wxp-drag-item": "/components/drag-item/index"
+  },
+  "pages": [    
+    "pages/myMap/myMap",
+    "pages/discover/discover",
+    "pages/mine/mine",
+    "pages/schedule/schedule",
+    "pages/edit/edit"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "从今天开始出发",
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "default",
+    "enablePullDownRefresh":true
+  },
+  "tabBar": {
+    "color": "#808080",
+    "selectedColor": "#6e9eea",
+    "borderStyle": "black",
+    "list": [{
+        "pagePath": "pages/myMap/myMap",
+        "text": "日程",
+        "iconPath": "/resources/map.png",
+        "selectedIconPath": "/resources/map-selected.png"
+      },
+      {
+        "pagePath": "pages/discover/discover",
+        "text": "发现",
+        "iconPath": "/resources/icons8-marketing-81.png",
+        "selectedIconPath": "/resources/icons8-marketing-81 (1).png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "个人",
+        "iconPath": "/resources/icons8-user-folder-81.png",
+        "selectedIconPath": "/resources/icons8-user-folder-81 (1).png"
+      }
+    ]
+  },
+  "plugins": {
+    "routePlan": {
+      "version": "1.0.12",
+      "provider": "wx50b5593e81dd937a"
+    }
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于小程序定位"
+    }
+  },
+
+  "sitemapLocation": "sitemap.json",
+  "cloud": true,
+  "debug": true
+}
